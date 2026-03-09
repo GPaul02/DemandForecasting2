@@ -617,6 +617,7 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     <button class="tab-btn" onclick="switchTab('risk')">Forecast Risk Flags</button>
     <button class="tab-btn" onclick="switchTab('recommend')">Model Recommendations</button>
     <button class="tab-btn" onclick="switchTab('safety')">Safety Stock Optimizer</button>
+    <button class="tab-btn" onclick="toggleChat()" style="margin-left:auto; background:var(--accent-green); color:var(--navy); font-weight:700; border-radius:20px; padding:8px 18px;">💬 Chat Assistant</button>
 </div>
 
 <!-- TAB 1: OVERVIEW -->
