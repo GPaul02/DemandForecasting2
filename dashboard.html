@@ -1154,16 +1154,45 @@ function generateResponse(query) {
     const q = query.toLowerCase().replace(/[?!.,]/g, '');
     const words = q.split(/\s+/);
 
-    // Try to find a mentioned SKU
+    // ---- 1. Check high-priority general intents FIRST ----
+    // These should never be hijacked by entity matching
+
+    // ---- Greeting ----
+    if (matchesAny(q, ['hello', 'hi ', 'hey', 'good morning', 'good afternoon']))
+        return "Hello! I'm your PharmaCast Assistant. I can help you with:<br><br>" +
+               "&#8226; <strong>SKU analysis</strong> — ask about any specific SKU<br>" +
+               "&#8226; <strong>Risk flags</strong> — which SKUs need attention<br>" +
+               "&#8226; <strong>Forecast accuracy</strong> — baseline vs ML comparison<br>" +
+               "&#8226; <strong>Safety stock</strong> — optimization and savings<br>" +
+               "&#8226; <strong>Signal pools</strong> — AQI, Monsoon, Temperature, etc.<br><br>" +
+               "Just type your question!";
+
+    // ---- Help / what can you do ----
+    if (matchesAny(q, ['help', 'what can', 'what all', 'how to use', 'guide', 'capability', 'what do you do', 'what things']))
+        return helpResponse();
+
+    // ---- Summary / overview / how are we doing ----
+    if (matchesAny(q, ['summary', 'overview', 'overall', 'how are we', 'status report', 'dashboard summary', 'kpi', 'total summary']))
+        return overviewResponse();
+
+    // ---- 2. Now try entity-specific matching ----
     const skuMatch = findMentionedSku(q);
-    // Try to find a mentioned pool
     const poolMatch = findMentionedPool(q);
 
-    // ---- SKU-specific queries ----
-    if (skuMatch) return skuDetailResponse(skuMatch, q);
+    // ---- 3. Check if the query is asking a META question about the entity ----
+    // e.g. "which cities AQI" or "how is AQI calculated" — don't just dump pool stats
+    const isMetaQuestion = matchesAny(q, ['which', 'what', 'how is', 'how are', 'where', 'why', 'when', 'who', 'explain', 'define', 'meaning', 'formula', 'calculate']);
+    const isDataQuestion = matchesAny(q, ['performance', 'accuracy', 'how accurate', 'forecast', 'risk', 'safety stock', 'detail', 'show', 'tell me about', 'analyze', 'compare']);
 
-    // ---- Pool-specific queries ----
-    if (poolMatch) return poolDetailResponse(poolMatch, q);
+    // ---- Formula / explain (check before entity responses) ----
+    if (matchesAny(q, ['formula', 'explain', 'how does', 'how is', 'what is', 'meaning', 'define', 'calculate']))
+        return explainResponse(q);
+
+    // ---- SKU-specific queries (only if not a meta question, or if clearly asking about SKU data) ----
+    if (skuMatch && (!isMetaQuestion || isDataQuestion)) return skuDetailResponse(skuMatch, q);
+
+    // ---- Pool-specific queries (only if not a meta question, or if clearly asking about pool data) ----
+    if (poolMatch && (!isMetaQuestion || isDataQuestion)) return poolDetailResponse(poolMatch, q);
 
     // ---- Risk / at-risk queries ----
     if (matchesAny(q, ['risk', 'at risk', 'flag', 'critical', 'warning', 'danger', 'alert', 'problem']))
@@ -1174,46 +1203,28 @@ function generateResponse(query) {
         return safetyStockResponse(q);
 
     // ---- Best / top / improvement ----
-    if (matchesAny(q, ['best', 'top', 'improv', 'winner', 'highest accuracy', 'good']))
+    if (matchesAny(q, ['best', 'top', 'improv', 'winner', 'highest accuracy']))
         return topPerformersResponse(q);
 
     // ---- Worst / lowest ----
     if (matchesAny(q, ['worst', 'lowest', 'poor', 'bad', 'underperform']))
         return worstPerformersResponse(q);
 
-    // ---- Summary / overview / how are we doing ----
-    if (matchesAny(q, ['summary', 'overview', 'overall', 'how are', 'status', 'dashboard', 'kpi', 'total']))
-        return overviewResponse();
-
     // ---- Model / recommend / which model ----
-    if (matchesAny(q, ['model', 'recommend', 'which model', 'algorithm', 'ml', 'baseline', 'gradient', 'xgboost', 'sma']))
+    if (matchesAny(q, ['model', 'recommend', 'which model', 'algorithm', 'gradient', 'xgboost', 'sma']))
         return modelResponse(q);
 
     // ---- Signal / anomaly ----
-    if (matchesAny(q, ['signal', 'anomal', 'aqi', 'weather', 'temperature', 'monsoon', 'wedding', 'google trend', 'external']))
+    if (matchesAny(q, ['signal', 'anomal', 'weather', 'external']))
         return signalResponse(q);
-
-    // ---- Formula / explain ----
-    if (matchesAny(q, ['formula', 'explain', 'how does', 'what is', 'meaning', 'define', 'calculate']))
-        return explainResponse(q);
 
     // ---- Forecast / predict / next month ----
     if (matchesAny(q, ['forecast', 'predict', 'next month', 'future', 'project']))
         return forecastResponse(q);
 
-    // ---- Help / what can you do ----
-    if (matchesAny(q, ['help', 'what can', 'how to', 'guide', 'capability']))
-        return helpResponse();
-
-    // ---- Greeting ----
-    if (matchesAny(q, ['hello', 'hi', 'hey', 'good morning', 'good afternoon']))
-        return "Hello! I'm your PharmaCast Assistant. I can help you with:<br><br>" +
-               "&#8226; <strong>SKU analysis</strong> — ask about any specific SKU<br>" +
-               "&#8226; <strong>Risk flags</strong> — which SKUs need attention<br>" +
-               "&#8226; <strong>Forecast accuracy</strong> — baseline vs ML comparison<br>" +
-               "&#8226; <strong>Safety stock</strong> — optimization and savings<br>" +
-               "&#8226; <strong>Signal pools</strong> — AQI, Monsoon, Temperature, etc.<br><br>" +
-               "Just type your question!";
+    // ---- If we found an entity but it was a meta question, still give entity info as best effort ----
+    if (skuMatch) return skuDetailResponse(skuMatch, q);
+    if (poolMatch) return poolDetailResponse(poolMatch, q);
 
     // ---- Fallback ----
     return fallbackResponse(q);
@@ -1224,16 +1235,16 @@ function matchesAny(text, keywords) {
 }
 
 function findMentionedSku(q) {
-    // Check for SKU ID pattern
+    // Check for SKU ID pattern (e.g. "tmp-001")
     for (const m of metricsData) {
         if (q.includes(m.sku_id.toLowerCase())) return m;
     }
-    // Check for product name
+    // Check for product name using word-boundary matching to avoid
+    // false positives like "vera" matching inside "overall"
     for (const m of metricsData) {
         const nameLower = m.sku_name.toLowerCase();
         const nameWords = nameLower.split(/\s+/);
-        // Match if at least the first significant word of the name appears
-        if (nameWords.some(w => w.length > 3 && q.includes(w))) return m;
+        if (nameWords.some(w => w.length > 3 && new RegExp('\\b' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b').test(q))) return m;
     }
     return null;
 }
@@ -1247,7 +1258,8 @@ function findMentionedPool(q) {
         'google': 'GoogleTrends', 'trend': 'GoogleTrends', 'search': 'GoogleTrends', 'symptom': 'GoogleTrends',
     };
     for (const [keyword, pool] of Object.entries(poolMap)) {
-        if (q.includes(keyword)) return pool;
+        // Use word boundary matching to avoid false positives
+        if (new RegExp('\\b' + keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b').test(q)) return pool;
     }
     return null;
 }
