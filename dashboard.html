@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PharmaCast — Demand Forecasting Decision Support</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+:root {
+    --navy: #0a1628;
+    --navy-light: #132042;
+    --navy-mid: #1a2d5a;
+    --accent-green: #00d68f;
+    --accent-green-dim: rgba(0,214,143,0.15);
+    --accent-red: #ff6b6b;
+    --accent-red-dim: rgba(255,107,107,0.12);
+    --accent-amber: #ffc107;
+    --accent-amber-dim: rgba(255,193,7,0.12);
+    --accent-blue: #4dabf7;
+    --text-primary: #e8edf5;
+    --text-secondary: #8899b4;
+    --card-bg: #0f1d36;
+    --card-border: #1e3258;
+    --input-bg: #132042;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--navy);
+    color: var(--text-primary);
+    min-height: 100vh;
+}
+.header {
+    background: linear-gradient(135deg, var(--navy-light), var(--navy-mid));
+    border-bottom: 1px solid var(--card-border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+.header h1 span { color: var(--accent-green); }
+.header .subtitle {
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-top: 2px;
+}
+.header-right {
+    text-align: right;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+.tab-bar {
+    display: flex;
+    gap: 0;
+    background: var(--navy-light);
+    border-bottom: 2px solid var(--card-border);
+    padding: 0 40px;
+}
+.tab-btn {
+    padding: 14px 28px;
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+}
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active {
+    color: var(--accent-green);
+    border-bottom-color: var(--accent-green);
+}
+.tab-content { display: none; padding: 30px 40px; }
+.tab-content.active { display: block; }
+.kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+.kpi-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+}
+.kpi-card .label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+.kpi-card .value {
+    font-size: 36px;
+    font-weight: 700;
+}
+.kpi-card .value.green { color: var(--accent-green); }
+.kpi-card .value.blue { color: var(--accent-blue); }
+.kpi-card .value.amber { color: var(--accent-amber); }
+.kpi-card .sub {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+.chart-container {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+.chart-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--card-border);
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+th {
+    text-align: left;
+    padding: 12px 16px;
+    background: var(--navy-light);
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.8px;
+    border-bottom: 2px solid var(--card-border);
+}
+td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--card-border);
+    color: var(--text-primary);
+}
+tr:hover td { background: rgba(255,255,255,0.02); }
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.badge-red { background: var(--accent-red-dim); color: var(--accent-red); }
+.badge-amber { background: var(--accent-amber-dim); color: var(--accent-amber); }
+.badge-green { background: var(--accent-green-dim); color: var(--accent-green); }
+.alert-box {
+    background: var(--accent-red-dim);
+    border: 1px solid rgba(255,107,107,0.3);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+}
+.alert-box .icon { font-size: 20px; }
+.selector {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+.selector label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+select {
+    background: var(--input-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    min-width: 280px;
+    cursor: pointer;
+}
+select:focus { outline: none; border-color: var(--accent-green); }
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+.metric-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0;
+}
+.metric-bar .bar-bg {
+    flex: 1;
+    height: 8px;
+    background: var(--navy);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.metric-bar .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s;
+}
+.metric-bar .bar-label {
+    min-width: 60px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+.metric-bar .bar-value {
+    min-width: 50px;
+    text-align: right;
+    font-weight: 600;
+    font-size: 14px;
+}
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 900px) {
+    .two-col, .detail-grid { grid-template-columns: 1fr; }
+    .header { padding: 16px 20px; }
+    .tab-content { padding: 20px; }
+    .tab-bar { padding: 0 20px; overflow-x: auto; }
+}
+.comparison-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+    align-items: center;
+    margin: 16px 0;
+}
+.comparison-row .arrow {
+    font-size: 24px;
+    color: var(--accent-green);
+}
+.stat-block {
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+}
+.stat-block.baseline { background: rgba(77,171,247,0.1); border: 1px solid rgba(77,171,247,0.2); }
+.stat-block.ml { background: var(--accent-green-dim); border: 1px solid rgba(0,214,143,0.2); }
+.stat-block .stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-block .stat-value { font-size: 28px; font-weight: 700; margin: 4px 0; }
+.stat-block.baseline .stat-value { color: var(--accent-blue); }
+.stat-block.ml .stat-value { color: var(--accent-green); }
+.savings-badge {
+    display: inline-block;
+    background: var(--accent-green-dim);
+    color: var(--accent-green);
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 12px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <div>
+        <h1>Pharma<span>Cast</span> — Demand Forecasting DSS</h1>
+        <div class="subtitle">Intelligent Decision Support for BZ / CY / CZ SKU Segments</div>
+    </div>
+    <div class="header-right">
+        <div>40 SKUs Monitored</div>
+        <div style="margin-top:2px">Data: May 2022 – Apr 2025</div>
+    </div>
+</div>
+
+<div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('risk')">Forecast Risk Flags</button>
+    <button class="tab-btn" onclick="switchTab('recommend')">Model Recommendations</button>
+    <button class="tab-btn" onclick="switchTab('safety')">Safety Stock Optimizer</button>
+</div>
+
+<!-- TAB 1: OVERVIEW -->
+<div id="tab-overview" class="tab-content active">
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="label">Total SKUs Monitored</div>
+            <div class="value blue">40</div>
+            <div class="sub">BZ / CY / CZ Segments</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Avg Baseline Accuracy</div>
+            <div class="value" style="color:var(--accent-blue)">56.3%</div>
+            <div class="sub">3-Month Moving Average</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Avg ML Accuracy</div>
+            <div class="value green">65.0%</div>
+            <div class="sub">Gradient Boosting Model</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Avg Improvement</div>
+            <div class="value green">+8.7%</div>
+            <div class="sub">29/40 SKUs improved</div>
+        </div>
+    </div>
+    <div class="two-col">
+        <div class="chart-container">
+            <div class="chart-title">Baseline vs ML Forecast Accuracy by Signal Pool</div>
+            <div id="chart-pool-comparison"></div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-title">Forecast Accuracy Distribution (All SKUs)</div>
+            <div id="chart-fa-distribution"></div>
+        </div>
+    </div>
+    <div class="chart-container">
+        <div class="chart-title">SKU-Level Forecast Accuracy — Baseline vs ML</div>
+        <div id="chart-sku-scatter"></div>
+    </div>
+</div>
+
+<!-- TAB 2: RISK FLAGS -->
+<div id="tab-risk" class="tab-content">
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="label">At-Risk SKUs (FA &lt; 70%)</div>
+            <div class="value" style="color:var(--accent-red)">16</div>
+            <div class="sub">Require immediate attention</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Signal Anomalies</div>
+            <div class="value amber">0</div>
+            <div class="sub">Active environmental alerts</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Highest Risk Score</div>
+            <div class="value" style="color:var(--accent-red)">550</div>
+            <div class="sub">Calamine Lotion</div>
+        </div>
+    </div>
+    <div id="anomaly-alerts"></div>
+    <div class="chart-container">
+        <div class="chart-title">At-Risk SKUs — Forecast Accuracy Below 70%</div>
+        <div id="risk-table-container"></div>
+    </div>
+    <div class="chart-container">
+        <div class="chart-title">Risk Score vs Forecast Accuracy</div>
+        <div id="chart-risk-scatter"></div>
+    </div>
+</div>
+
+<!-- TAB 3: MODEL RECOMMENDATIONS -->
+<div id="tab-recommend" class="tab-content">
+    <div class="selector">
+        <label>Select SKU:</label>
+        <select id="sku-selector" onchange="updateRecommendation()"></select>
+    </div>
+    <div id="recommendation-content"></div>
+</div>
+
+<!-- TAB 4: SAFETY STOCK -->
+<div id="tab-safety" class="tab-content">
+    <div class="selector">
+        <label>Select SKU:</label>
+        <select id="safety-sku-selector" onchange="updateSafetyStock()"></select>
+    </div>
+    <div id="safety-content"></div>
+</div>
+
+<script>
+// Data
+const metricsData = [{"sku_id":"AQI-001","sku_name":"Salbutamol Inhaler","signal_pool":"AQI","abc_xyz":"BZ","baseline_mape":16.63,"ml_mape":14.94,"baseline_fa":83.37,"ml_fa":85.06,"improvement":1.69,"baseline_error_std":145.03,"ml_error_std":109.0,"mape_volatility":7.77,"avg_demand":886.0,"recent_avg_demand":973.67,"baseline_safety_stock":1310.6973414971,"ml_safety_stock":985.079019673,"safety_stock_reduction":24.84},{"sku_id":"AQI-002","sku_name":"Cetirizine 10mg","signal_pool":"AQI","abc_xyz":"CY","baseline_mape":12.83,"ml_mape":9.46,"baseline_fa":87.17,"ml_fa":90.54,"improvement":3.37,"baseline_error_std":17.5,"ml_error_std":11.65,"mape_volatility":7.41,"avg_demand":111.5,"recent_avg_demand":115.67,"baseline_safety_stock":158.1548884796,"ml_safety_stock":105.2859686164,"safety_stock_reduction":33.43},{"sku_id":"AQI-003","sku_name":"Montelukast 10mg","signal_pool":"AQI","abc_xyz":"CZ","baseline_mape":22.17,"ml_mape":12.78,"baseline_fa":77.83,"ml_fa":87.22,"improvement":9.39,"baseline_error_std":107.94,"ml_error_std":80.74,"mape_volatility":11.27,"avg_demand":456.5,"recent_avg_demand":434.67,"baseline_safety_stock":975.4993521423,"ml_safety_stock":729.681468334,"safety_stock_reduction":25.2},{"sku_id":"AQI-004","sku_name":"Budesonide Inhaler","signal_pool":"AQI","abc_xyz":"BZ","baseline_mape":12.22,"ml_mape":11.8,"baseline_fa":87.78,"ml_fa":88.2,"improvement":0.42,"baseline_error_std":45.75,"ml_error_std":39.83,"mape_volatility":4.33,"avg_demand":349.17,"recent_avg_demand":344.67,"baseline_safety_stock":413.4620655967,"ml_safety_stock":359.9605261796,"safety_stock_reduction":12.94},{"sku_id":"AQI-005","sku_name":"Levocetrizine 5mg","signal_pool":"AQI","abc_xyz":"CY","baseline_mape":91.31,"ml_mape":84.11,"baseline_fa":8.69,"ml_fa":15.89,"improvement":7.2,"baseline_error_std":87.02,"ml_error_std":50.71,"mape_volatility":116.71,"avg_demand":130.0,"recent_avg_demand":86.0,"baseline_safety_stock":786.4364797426,"ml_safety_stock":458.2876797029,"safety_stock_reduction":41.73},{"sku_id":"AQI-006","sku_name":"Fluticasone Spray","signal_pool":"AQI","abc_xyz":"CZ","baseline_mape":18.02,"ml_mape":8.87,"baseline_fa":81.98,"ml_fa":91.13,"improvement":9.15,"baseline_error_std":95.99,"ml_error_std":45.96,"mape_volatility":7.59,"avg_demand":464.17,"recent_avg_demand":459.0,"baseline_safety_stock":867.5021568662,"ml_safety_stock":415.3599242585,"safety_stock_reduction":52.12},{"sku_id":"AQI-007","sku_name":"Theophylline 300mg","signal_pool":"AQI","abc_xyz":"BZ","baseline_mape":36.75,"ml_mape":22.44,"baseline_fa":63.25,"ml_fa":77.56,"improvement":14.31,"baseline_error_std":209.05,"ml_error_std":152.65,"mape_volatility":17.9,"avg_demand":631.17,"recent_avg_demand":694.67,"baseline_safety_stock":1889.2731106665,"ml_safety_stock":1379.5624986522,"safety_stock_reduction":26.98},{"sku_id":"AQI-008","sku_name":"Chlorpheniramine 4mg","signal_pool":"AQI","abc_xyz":"CY","baseline_mape":29.95,"ml_mape":32.65,"baseline_fa":70.05,"ml_fa":67.35,"improvement":-2.7,"baseline_error_std":80.64,"ml_error_std":84.25,"mape_volatility":40.32,"avg_demand":290.33,"recent_avg_demand":265.0,"baseline_safety_stock":728.7777261141,"ml_safety_stock":761.4028202519,"safety_stock_reduction":-4.48},{"sku_id":"MON-001","sku_name":"ORS Sachets","signal_pool":"Monsoon","abc_xyz":"BZ","baseline_mape":16.28,"ml_mape":18.83,"baseline_fa":83.72,"ml_fa":81.17,"improvement":-2.56,"baseline_error_std":98.84,"ml_error_std":121.83,"mape_volatility":13.52,"avg_demand":553.83,"recent_avg_demand":552.67,"baseline_safety_stock":893.2588101329,"ml_safety_stock":1101.0291464841,"safety_stock_reduction":-23.26},{"sku_id":"MON-002","sku_name":"Loperamide 2mg","signal_pool":"Monsoon","abc_xyz":"CY","baseline_mape":41.6,"ml_mape":43.54,"baseline_fa":58.4,"ml_fa":56.46,"improvement":-1.94,"baseline_error_std":83.65,"ml_error_std":86.86,"mape_volatility":29.91,"avg_demand":196.5,"recent_avg_demand":181.67,"baseline_safety_stock":755.9803669326,"ml_safety_stock":784.9904921908,"safety_stock_reduction":-3.84},{"sku_id":"MON-003","sku_name":"Chloroquine 500mg","signal_pool":"Monsoon","abc_xyz":"CZ","baseline_mape":30.36,"ml_mape":11.16,"baseline_fa":69.64,"ml_fa":88.84,"improvement":19.2,"baseline_error_std":61.81,"ml_error_std":26.16,"mape_volatility":9.27,"avg_demand":208.0,"recent_avg_demand":194.0,"baseline_safety_stock":558.60306611,"ml_safety_stock":236.4189647215,"safety_stock_reduction":57.68},{"sku_id":"MON-004","sku_name":"Artemether-Lumefantrine","signal_pool":"Monsoon","abc_xyz":"BZ","baseline_mape":89.77,"ml_mape":32.02,"baseline_fa":10.23,"ml_fa":67.98,"improvement":57.75,"baseline_error_std":245.09,"ml_error_std":89.57,"mape_volatility":30.77,"avg_demand":434.67,"recent_avg_demand":456.33,"baseline_safety_stock":2214.9818067125,"ml_safety_stock":809.4819063497,"safety_stock_reduction":63.45},{"sku_id":"MON-005","sku_name":"Zinc Dispersible 20mg","signal_pool":"Monsoon","abc_xyz":"CY","baseline_mape":36.86,"ml_mape":41.51,"baseline_fa":63.14,"ml_fa":58.49,"improvement":-4.65,"baseline_error_std":72.94,"ml_error_std":94.56,"mape_volatility":22.27,"avg_demand":214.17,"recent_avg_demand":234.33,"baseline_safety_stock":659.189575183,"ml_safety_stock":854.5786431219,"safety_stock_reduction":-29.64},{"sku_id":"MON-006","sku_name":"Metronidazole 400mg","signal_pool":"Monsoon","abc_xyz":"CZ","baseline_mape":18.06,"ml_mape":10.39,"baseline_fa":81.94,"ml_fa":89.61,"improvement":7.67,"baseline_error_std":22.12,"ml_error_std":17.9,"mape_volatility":8.08,"avg_demand":123.83,"recent_avg_demand":103.33,"baseline_safety_stock":199.9077790382,"ml_safety_stock":161.7698573592,"safety_stock_reduction":19.08},{"sku_id":"MON-007","sku_name":"Doxycycline 100mg","signal_pool":"Monsoon","abc_xyz":"BZ","baseline_mape":19.27,"ml_mape":15.7,"baseline_fa":80.73,"ml_fa":84.3,"improvement":3.57,"baseline_error_std":93.49,"ml_error_std":96.65,"mape_volatility":14.1,"avg_demand":473.83,"recent_avg_demand":494.67,"baseline_safety_stock":844.9086013691,"ml_safety_stock":873.4668555174,"safety_stock_reduction":-3.38},{"sku_id":"MON-008","sku_name":"Racecadotril 100mg","signal_pool":"Monsoon","abc_xyz":"CY","baseline_mape":34.22,"ml_mape":28.71,"baseline_fa":65.78,"ml_fa":71.29,"improvement":5.51,"baseline_error_std":98.12,"ml_error_std":90.23,"mape_volatility":13.46,"avg_demand":273.17,"recent_avg_demand":306.67,"baseline_safety_stock":886.7518661497,"ml_safety_stock":815.4466050009,"safety_stock_reduction":8.04},{"sku_id":"TMP-001","sku_name":"Electrolyte Powder","signal_pool":"Temperature","abc_xyz":"BZ","baseline_mape":142.49,"ml_mape":102.53,"baseline_fa":0.0,"ml_fa":0.0,"improvement":0.0,"baseline_error_std":351.19,"ml_error_std":269.92,"mape_volatility":107.57,"avg_demand":455.17,"recent_avg_demand":545.67,"baseline_safety_stock":3173.8523020089,"ml_safety_stock":2439.3809999096,"safety_stock_reduction":23.14},{"sku_id":"TMP-002","sku_name":"Calamine Lotion","signal_pool":"Temperature","abc_xyz":"CY","baseline_mape":262.43,"ml_mape":241.56,"baseline_fa":0.0,"ml_fa":0.0,"improvement":0.0,"baseline_error_std":113.9,"ml_error_std":141.16,"mape_volatility":449.87,"avg_demand":248.17,"recent_avg_demand":173.67,"baseline_safety_stock":1029.3623884473,"ml_safety_stock":1275.7225175876,"safety_stock_reduction":-23.93},{"sku_id":"TMP-003","sku_name":"Sunscreen SPF50","signal_pool":"Temperature","abc_xyz":"CZ","baseline_mape":32.26,"ml_mape":16.11,"baseline_fa":67.74,"ml_fa":83.89,"improvement":16.16,"baseline_error_std":37.35,"ml_error_std":29.78,"mape_volatility":6.3,"avg_demand":153.0,"recent_avg_demand":116.33,"baseline_safety_stock":337.5477191265,"ml_safety_stock":269.1344330813,"safety_stock_reduction":20.27},{"sku_id":"TMP-004","sku_name":"Glucose-D Powder","signal_pool":"Temperature","abc_xyz":"BZ","baseline_mape":69.11,"ml_mape":69.4,"baseline_fa":30.89,"ml_fa":30.6,"improvement":-0.29,"baseline_error_std":114.32,"ml_error_std":126.09,"mape_volatility":124.99,"avg_demand":360.83,"recent_avg_demand":311.0,"baseline_safety_stock":1033.1581057708,"ml_safety_stock":1139.5285650511,"safety_stock_reduction":-10.3},{"sku_id":"TMP-005","sku_name":"Hydrocortisone Cream","signal_pool":"Temperature","abc_xyz":"CY","baseline_mape":289.78,"ml_mape":206.9,"baseline_fa":0.0,"ml_fa":0.0,"improvement":0.0,"baseline_error_std":116.52,"ml_error_std":119.02,"mape_volatility":365.89,"avg_demand":186.67,"recent_avg_demand":122.0,"baseline_safety_stock":1053.0404346083,"ml_safety_stock":1075.6339901054,"safety_stock_reduction":-2.15},{"sku_id":"TMP-006","sku_name":"Prickly Heat Powder","signal_pool":"Temperature","abc_xyz":"CZ","baseline_mape":48.66,"ml_mape":23.28,"baseline_fa":51.34,"ml_fa":76.72,"improvement":25.38,"baseline_error_std":54.66,"ml_error_std":35.96,"mape_volatility":8.51,"avg_demand":134.0,"recent_avg_demand":121.0,"baseline_safety_stock":493.9854973883,"ml_safety_stock":324.9857022701,"safety_stock_reduction":34.21},{"sku_id":"TMP-007","sku_name":"Isotonic Drink Mix","signal_pool":"Temperature","abc_xyz":"BZ","baseline_mape":161.24,"ml_mape":128.57,"baseline_fa":0.0,"ml_fa":0.0,"improvement":0.0,"baseline_error_std":352.61,"ml_error_std":325.97,"mape_volatility":248.45,"avg_demand":750.5,"recent_avg_demand":523.67,"baseline_safety_stock":3186.6854415313,"ml_safety_stock":2945.9285141543,"safety_stock_reduction":7.56},{"sku_id":"TMP-008","sku_name":"Aloe Vera Gel","signal_pool":"Temperature","abc_xyz":"CY","baseline_mape":38.58,"ml_mape":19.21,"baseline_fa":61.42,"ml_fa":80.79,"improvement":19.38,"baseline_error_std":55.92,"ml_error_std":41.74,"mape_volatility":11.93,"avg_demand":174.0,"recent_avg_demand":167.0,"baseline_safety_stock":505.3726493589,"ml_safety_stock":377.2220025794,"safety_stock_reduction":25.36},{"sku_id":"WED-001","sku_name":"Multivitamin Tablets","signal_pool":"Wedding","abc_xyz":"BZ","baseline_mape":72.98,"ml_mape":80.44,"baseline_fa":27.02,"ml_fa":19.56,"improvement":-7.46,"baseline_error_std":246.91,"ml_error_std":246.97,"mape_volatility":71.38,"avg_demand":430.83,"recent_avg_demand":439.0,"baseline_safety_stock":2231.4299151144,"ml_safety_stock":2231.9721604463,"safety_stock_reduction":-0.02},{"sku_id":"WED-002","sku_name":"Biotin 10000mcg","signal_pool":"Wedding","abc_xyz":"CY","baseline_mape":24.37,"ml_mape":16.07,"baseline_fa":75.63,"ml_fa":83.93,"improvement":8.3,"baseline_error_std":41.26,"ml_error_std":31.71,"mape_volatility":10.51,"avg_demand":200.5,"recent_avg_demand":165.67,"baseline_safety_stock":372.8840399239,"ml_safety_stock":286.5766579251,"safety_stock_reduction":23.15},{"sku_id":"WED-003","sku_name":"Omega-3 Capsules","signal_pool":"Wedding","abc_xyz":"CZ","baseline_mape":37.8,"ml_mape":25.36,"baseline_fa":62.2,"ml_fa":74.64,"improvement":12.44,"baseline_error_std":52.84,"ml_error_std":36.33,"mape_volatility":14.5,"avg_demand":166.83,"recent_avg_demand":117.67,"baseline_safety_stock":477.5373889865,"ml_safety_stock":328.3295484837,"safety_stock_reduction":31.25},{"sku_id":"WED-004","sku_name":"Vitamin C 1000mg","signal_pool":"Wedding","abc_xyz":"BZ","baseline_mape":96.02,"ml_mape":70.49,"baseline_fa":3.98,"ml_fa":29.51,"improvement":25.53,"baseline_error_std":267.11,"ml_error_std":177.97,"mape_volatility":84.82,"avg_demand":398.67,"recent_avg_demand":385.67,"baseline_safety_stock":2413.9858435309,"ml_safety_stock":1608.3900287267,"safety_stock_reduction":33.37},{"sku_id":"WED-005","sku_name":"Collagen Powder","signal_pool":"Wedding","abc_xyz":"CY","baseline_mape":70.15,"ml_mape":44.55,"baseline_fa":29.85,"ml_fa":55.45,"improvement":25.6,"baseline_error_std":87.74,"ml_error_std":50.4,"mape_volatility":79.39,"avg_demand":183.0,"recent_avg_demand":147.33,"baseline_safety_stock":792.9434237258,"ml_safety_stock":455.4860788213,"safety_stock_reduction":42.56},{"sku_id":"WED-006","sku_name":"Iron + Folic Acid","signal_pool":"Wedding","abc_xyz":"CZ","baseline_mape":22.96,"ml_mape":6.49,"baseline_fa":77.04,"ml_fa":93.51,"improvement":16.47,"baseline_error_std":47.35,"ml_error_std":11.3,"mape_volatility":3.55,"avg_demand":162.0,"recent_avg_demand":148.0,"baseline_safety_stock":427.9219411148,"ml_safety_stock":102.1228708468,"safety_stock_reduction":76.14},{"sku_id":"WED-007","sku_name":"Calcium + D3","signal_pool":"Wedding","abc_xyz":"BZ","baseline_mape":40.06,"ml_mape":39.99,"baseline_fa":59.94,"ml_fa":60.01,"improvement":0.08,"baseline_error_std":202.52,"ml_error_std":240.68,"mape_volatility":35.53,"avg_demand":550.67,"recent_avg_demand":503.67,"baseline_safety_stock":1830.2587437081,"ml_safety_stock":2175.1267748157,"safety_stock_reduction":-18.84},{"sku_id":"WED-008","sku_name":"Protein Supplement","signal_pool":"Wedding","abc_xyz":"CY","baseline_mape":30.98,"ml_mape":12.63,"baseline_fa":69.02,"ml_fa":87.37,"improvement":18.35,"baseline_error_std":47.35,"ml_error_std":21.57,"mape_volatility":9.72,"avg_demand":163.5,"recent_avg_demand":163.33,"baseline_safety_stock":427.9219411148,"ml_safety_stock":194.9371968289,"safety_stock_reduction":54.45},{"sku_id":"GTR-001","sku_name":"Paracetamol 500mg","signal_pool":"GoogleTrends","abc_xyz":"BZ","baseline_mape":18.13,"ml_mape":15.7,"baseline_fa":81.87,"ml_fa":84.3,"improvement":2.43,"baseline_error_std":130.1,"ml_error_std":109.36,"mape_volatility":5.2,"avg_demand":692.17,"recent_avg_demand":670.67,"baseline_safety_stock":1175.7686280685,"ml_safety_stock":988.3324916646,"safety_stock_reduction":15.94},{"sku_id":"GTR-002","sku_name":"Azithromycin 500mg","signal_pool":"GoogleTrends","abc_xyz":"CY","baseline_mape":13.86,"ml_mape":19.09,"baseline_fa":86.14,"ml_fa":80.91,"improvement":-5.23,"baseline_error_std":45.61,"ml_error_std":53.81,"mape_volatility":14.37,"avg_demand":289.17,"recent_avg_demand":301.67,"baseline_safety_stock":412.1968264889,"ml_safety_stock":486.3036885193,"safety_stock_reduction":-17.98},{"sku_id":"GTR-003","sku_name":"Ivermectin 12mg","signal_pool":"GoogleTrends","abc_xyz":"CZ","baseline_mape":27.42,"ml_mape":12.66,"baseline_fa":72.58,"ml_fa":87.34,"improvement":14.76,"baseline_error_std":31.82,"ml_error_std":25.71,"mape_volatility":8.99,"avg_demand":181.83,"recent_avg_demand":153.33,"baseline_safety_stock":287.5707743669,"ml_safety_stock":232.3521247321,"safety_stock_reduction":19.2},{"sku_id":"GTR-004","sku_name":"Dolo 650mg","signal_pool":"GoogleTrends","abc_xyz":"BZ","baseline_mape":20.77,"ml_mape":13.52,"baseline_fa":79.23,"ml_fa":86.48,"improvement":7.25,"baseline_error_std":159.6,"ml_error_std":135.1,"mape_volatility":11.17,"avg_demand":705.0,"recent_avg_demand":691.33,"baseline_safety_stock":1442.3725829341,"ml_safety_stock":1220.9557390626,"safety_stock_reduction":15.35},{"sku_id":"GTR-005","sku_name":"Vitamin D3 60K","signal_pool":"GoogleTrends","abc_xyz":"CY","baseline_mape":14.51,"ml_mape":11.26,"baseline_fa":85.49,"ml_fa":88.74,"improvement":3.26,"baseline_error_std":30.31,"ml_error_std":20.59,"mape_volatility":9.46,"avg_demand":195.17,"recent_avg_demand":188.67,"baseline_safety_stock":273.9242668467,"ml_safety_stock":186.080523074,"safety_stock_reduction":32.07},{"sku_id":"GTR-006","sku_name":"Zinc 50mg","signal_pool":"GoogleTrends","abc_xyz":"CZ","baseline_mape":32.13,"ml_mape":14.97,"baseline_fa":67.87,"ml_fa":85.03,"improvement":17.16,"baseline_error_std":66.15,"ml_error_std":67.9,"mape_volatility":13.99,"avg_demand":298.33,"recent_avg_demand":225.33,"baseline_safety_stock":597.825478453,"ml_safety_stock":613.6409673009,"safety_stock_reduction":-2.65},{"sku_id":"GTR-007","sku_name":"Cough Syrup 100ml","signal_pool":"GoogleTrends","abc_xyz":"BZ","baseline_mape":51.87,"ml_mape":36.59,"baseline_fa":48.13,"ml_fa":63.41,"improvement":15.28,"baseline_error_std":301.87,"ml_error_std":187.29,"mape_volatility":17.35,"avg_demand":816.67,"recent_avg_demand":761.33,"baseline_safety_stock":2728.1266391624,"ml_safety_stock":1692.6188036199,"safety_stock_reduction":37.96},{"sku_id":"GTR-008","sku_name":"Throat Lozenges","signal_pool":"GoogleTrends","abc_xyz":"CY","baseline_mape":57.57,"ml_mape":51.84,"baseline_fa":42.43,"ml_fa":48.16,"improvement":5.73,"baseline_error_std":38.57,"ml_error_std":36.12,"mape_volatility":60.41,"avg_demand":88.0,"recent_avg_demand":71.67,"baseline_safety_stock":348.5733742091,"ml_safety_stock":326.4316898219,"safety_stock_reduction":6.35}];
+const poolData = [{"signal_pool":"AQI","baseline_fa":70.02,"ml_fa":75.37,"improvement":5.35},{"signal_pool":"GoogleTrends","baseline_fa":70.47,"ml_fa":78.05,"improvement":7.58},{"signal_pool":"Monsoon","baseline_fa":64.2,"ml_fa":74.77,"improvement":10.57},{"signal_pool":"Temperature","baseline_fa":26.42,"ml_fa":34.0,"improvement":7.58},{"signal_pool":"Wedding","baseline_fa":50.58,"ml_fa":63.0,"improvement":12.41}];
+const riskData = [{"sku_id":"TMP-002","sku_name":"Calamine Lotion","signal_pool":"Temperature","abc_xyz":"CY","baseline_mape":262.43,"ml_mape":241.56,"baseline_fa":0.0,"ml_fa":0.0,"improvement":0.0,"baseline_error_std":113.9,"ml_error_std":141.16,"mape_volatility":449.87,"avg_demand":248.17,"recent_avg_demand":173.67,"baseline_safety_stock":1029.3623884473,"ml_safety_stock":1275.7225175876,"safety_stock_reduction":-23.93,"risk_score":549.9},{"sku_id":"TMP-005","sku_name":"Hydrocortisone Cream","signal_pool":"Temperature","abc_xyz":"CY","baseline_mape":289.78,"ml_mape":206.9,"baseline_fa":0.0,"ml_fa":0.0,"improvement":0.0,"baseline_error_std":116.52,"ml_error_std":119.02,"mape_volatility":365.89,"avg_demand":186.67,"recent_avg_demand":122.0,"baseline_safety_stock":1053.0404346083,"ml_safety_stock":1075.6339901054,"safety_stock_reduction":-2.15,"risk_score":465.9},{"sku_id":"TMP-007","sku_name":"Isotonic Drink Mix","signal_pool":"Temperature","abc_xyz":"BZ","baseline_mape":161.24,"ml_mape":128.57,"baseline_fa":0.0,"ml_fa":0.0,"improvement":0.0,"baseline_error_std":352.61,"ml_error_std":325.97,"mape_volatility":248.45,"avg_demand":750.5,"recent_avg_demand":523.67,"baseline_safety_stock":3186.6854415313,"ml_safety_stock":2945.9285141543,"safety_stock_reduction":7.56,"risk_score":348.4},{"sku_id":"TMP-001","sku_name":"Electrolyte Powder","signal_pool":"Temperature","abc_xyz":"BZ","baseline_mape":142.49,"ml_mape":102.53,"baseline_fa":0.0,"ml_fa":0.0,"improvement":0.0,"baseline_error_std":351.19,"ml_error_std":269.92,"mape_volatility":107.57,"avg_demand":455.17,"recent_avg_demand":545.67,"baseline_safety_stock":3173.8523020089,"ml_safety_stock":2439.3809999096,"safety_stock_reduction":23.14,"risk_score":207.6},{"sku_id":"AQI-005","sku_name":"Levocetrizine 5mg","signal_pool":"AQI","abc_xyz":"CY","baseline_mape":91.31,"ml_mape":84.11,"baseline_fa":8.69,"ml_fa":15.89,"improvement":7.2,"baseline_error_std":87.02,"ml_error_std":50.71,"mape_volatility":116.71,"avg_demand":130.0,"recent_avg_demand":86.0,"baseline_safety_stock":786.4364797426,"ml_safety_stock":458.2876797029,"safety_stock_reduction":41.73,"risk_score":200.8},{"sku_id":"TMP-004","sku_name":"Glucose-D Powder","signal_pool":"Temperature","abc_xyz":"BZ","baseline_mape":69.11,"ml_mape":69.4,"baseline_fa":30.89,"ml_fa":30.6,"improvement":-0.29,"baseline_error_std":114.32,"ml_error_std":126.09,"mape_volatility":124.99,"avg_demand":360.83,"recent_avg_demand":311.0,"baseline_safety_stock":1033.1581057708,"ml_safety_stock":1139.5285650511,"safety_stock_reduction":-10.3,"risk_score":194.4},{"sku_id":"WED-004","sku_name":"Vitamin C 1000mg","signal_pool":"Wedding","abc_xyz":"BZ","baseline_mape":96.02,"ml_mape":70.49,"baseline_fa":3.98,"ml_fa":29.51,"improvement":25.53,"baseline_error_std":267.11,"ml_error_std":177.97,"mape_volatility":84.82,"avg_demand":398.67,"recent_avg_demand":385.67,"baseline_safety_stock":2413.9858435309,"ml_safety_stock":1608.3900287267,"safety_stock_reduction":33.37,"risk_score":155.3},{"sku_id":"WED-001","sku_name":"Multivitamin Tablets","signal_pool":"Wedding","abc_xyz":"BZ","baseline_mape":72.98,"ml_mape":80.44,"baseline_fa":27.02,"ml_fa":19.56,"improvement":-7.46,"baseline_error_std":246.91,"ml_error_std":246.97,"mape_volatility":71.38,"avg_demand":430.83,"recent_avg_demand":439.0,"baseline_safety_stock":2231.4299151144,"ml_safety_stock":2231.9721604463,"safety_stock_reduction":-0.02,"risk_score":151.8},{"sku_id":"WED-005","sku_name":"Collagen Powder","signal_pool":"Wedding","abc_xyz":"CY","baseline_mape":70.15,"ml_mape":44.55,"baseline_fa":29.85,"ml_fa":55.45,"improvement":25.6,"baseline_error_std":87.74,"ml_error_std":50.4,"mape_volatility":79.39,"avg_demand":183.0,"recent_avg_demand":147.33,"baseline_safety_stock":792.9434237258,"ml_safety_stock":455.4860788213,"safety_stock_reduction":42.56,"risk_score":123.9},{"sku_id":"GTR-008","sku_name":"Throat Lozenges","signal_pool":"GoogleTrends","abc_xyz":"CY","baseline_mape":57.57,"ml_mape":51.84,"baseline_fa":42.43,"ml_fa":48.16,"improvement":5.73,"baseline_error_std":38.57,"ml_error_std":36.12,"mape_volatility":60.41,"avg_demand":88.0,"recent_avg_demand":71.67,"baseline_safety_stock":348.5733742091,"ml_safety_stock":326.4316898219,"safety_stock_reduction":6.35,"risk_score":112.2},{"sku_id":"WED-007","sku_name":"Calcium + D3","signal_pool":"Wedding","abc_xyz":"BZ","baseline_mape":40.06,"ml_mape":39.99,"baseline_fa":59.94,"ml_fa":60.01,"improvement":0.08,"baseline_error_std":202.52,"ml_error_std":240.68,"mape_volatility":35.53,"avg_demand":550.67,"recent_avg_demand":503.67,"baseline_safety_stock":1830.2587437081,"ml_safety_stock":2175.1267748157,"safety_stock_reduction":-18.84,"risk_score":75.5},{"sku_id":"MON-002","sku_name":"Loperamide 2mg","signal_pool":"Monsoon","abc_xyz":"CY","baseline_mape":41.6,"ml_mape":43.54,"baseline_fa":58.4,"ml_fa":56.46,"improvement":-1.94,"baseline_error_std":83.65,"ml_error_std":86.86,"mape_volatility":29.91,"avg_demand":196.5,"recent_avg_demand":181.67,"baseline_safety_stock":755.9803669326,"ml_safety_stock":784.9904921908,"safety_stock_reduction":-3.84,"risk_score":73.4},{"sku_id":"AQI-008","sku_name":"Chlorpheniramine 4mg","signal_pool":"AQI","abc_xyz":"CY","baseline_mape":29.95,"ml_mape":32.65,"baseline_fa":70.05,"ml_fa":67.35,"improvement":-2.7,"baseline_error_std":80.64,"ml_error_std":84.25,"mape_volatility":40.32,"avg_demand":290.33,"recent_avg_demand":265.0,"baseline_safety_stock":728.7777261141,"ml_safety_stock":761.4028202519,"safety_stock_reduction":-4.48,"risk_score":73.0},{"sku_id":"MON-005","sku_name":"Zinc Dispersible 20mg","signal_pool":"Monsoon","abc_xyz":"CY","baseline_mape":36.86,"ml_mape":41.51,"baseline_fa":63.14,"ml_fa":58.49,"improvement":-4.65,"baseline_error_std":72.94,"ml_error_std":94.56,"mape_volatility":22.27,"avg_demand":214.17,"recent_avg_demand":234.33,"baseline_safety_stock":659.189575183,"ml_safety_stock":854.5786431219,"safety_stock_reduction":-29.64,"risk_score":63.8},{"sku_id":"MON-004","sku_name":"Artemether-Lumefantrine","signal_pool":"Monsoon","abc_xyz":"BZ","baseline_mape":89.77,"ml_mape":32.02,"baseline_fa":10.23,"ml_fa":67.98,"improvement":57.75,"baseline_error_std":245.09,"ml_error_std":89.57,"mape_volatility":30.77,"avg_demand":434.67,"recent_avg_demand":456.33,"baseline_safety_stock":2214.9818067125,"ml_safety_stock":809.4819063497,"safety_stock_reduction":63.45,"risk_score":62.8},{"sku_id":"GTR-007","sku_name":"Cough Syrup 100ml","signal_pool":"GoogleTrends","abc_xyz":"BZ","baseline_mape":51.87,"ml_mape":36.59,"baseline_fa":48.13,"ml_fa":63.41,"improvement":15.28,"baseline_error_std":301.87,"ml_error_std":187.29,"mape_volatility":17.35,"avg_demand":816.67,"recent_avg_demand":761.33,"baseline_safety_stock":2728.1266391624,"ml_safety_stock":1692.6188036199,"safety_stock_reduction":37.96,"risk_score":53.9}];
+const anomaliesData = [];
+const futureData = [{"sku_id":"AQI-001","sku_name":"Salbutamol Inhaler","signal_pool":"AQI","date":"2025-05-01T00:00:00.000","forecast":891.0,"lower_bound":764.0,"upper_bound":1018.0},{"sku_id":"AQI-001","sku_name":"Salbutamol Inhaler","signal_pool":"AQI","date":"2025-06-01T00:00:00.000","forecast":885.0,"lower_bound":758.0,"upper_bound":1012.0},{"sku_id":"AQI-001","sku_name":"Salbutamol Inhaler","signal_pool":"AQI","date":"2025-07-01T00:00:00.000","forecast":893.0,"lower_bound":766.0,"upper_bound":1020.0},{"sku_id":"AQI-002","sku_name":"Cetirizine 10mg","signal_pool":"AQI","date":"2025-05-01T00:00:00.000","forecast":114.0,"lower_bound":97.0,"upper_bound":130.0},{"sku_id":"AQI-002","sku_name":"Cetirizine 10mg","signal_pool":"AQI","date":"2025-06-01T00:00:00.000","forecast":111.0,"lower_bound":94.0,"upper_bound":128.0},{"sku_id":"AQI-002","sku_name":"Cetirizine 10mg","signal_pool":"AQI","date":"2025-07-01T00:00:00.000","forecast":111.0,"lower_bound":94.0,"upper_bound":128.0},{"sku_id":"AQI-003","sku_name":"Montelukast 10mg","signal_pool":"AQI","date":"2025-05-01T00:00:00.000","forecast":465.0,"lower_bound":393.0,"upper_bound":538.0},{"sku_id":"AQI-003","sku_name":"Montelukast 10mg","signal_pool":"AQI","date":"2025-06-01T00:00:00.000","forecast":461.0,"lower_bound":388.0,"upper_bound":533.0},{"sku_id":"AQI-003","sku_name":"Montelukast 10mg","signal_pool":"AQI","date":"2025-07-01T00:00:00.000","forecast":454.0,"lower_bound":382.0,"upper_bound":526.0},{"sku_id":"AQI-004","sku_name":"Budesonide Inhaler","signal_pool":"AQI","date":"2025-05-01T00:00:00.000","forecast":350.0,"lower_bound":311.0,"upper_bound":390.0},{"sku_id":"AQI-004","sku_name":"Budesonide Inhaler","signal_pool":"AQI","date":"2025-06-01T00:00:00.000","forecast":348.0,"lower_bound":309.0,"upper_bound":388.0},{"sku_id":"AQI-004","sku_name":"Budesonide Inhaler","signal_pool":"AQI","date":"2025-07-01T00:00:00.000","forecast":348.0,"lower_bound":309.0,"upper_bound":388.0},{"sku_id":"AQI-005","sku_name":"Levocetrizine 5mg","signal_pool":"AQI","date":"2025-05-01T00:00:00.000","forecast":131.0,"lower_bound":77.0,"upper_bound":186.0},{"sku_id":"AQI-005","sku_name":"Levocetrizine 5mg","signal_pool":"AQI","date":"2025-06-01T00:00:00.000","forecast":119.0,"lower_bound":64.0,"upper_bound":173.0},{"sku_id":"AQI-005","sku_name":"Levocetrizine 5mg","signal_pool":"AQI","date":"2025-07-01T00:00:00.000","forecast":120.0,"lower_bound":65.0,"upper_bound":174.0},{"sku_id":"AQI-006","sku_name":"Fluticasone Spray","signal_pool":"AQI","date":"2025-05-01T00:00:00.000","forecast":462.0,"lower_bound":414.0,"upper_bound":510.0},{"sku_id":"AQI-006","sku_name":"Fluticasone Spray","signal_pool":"AQI","date":"2025-06-01T00:00:00.000","forecast":461.0,"lower_bound":413.0,"upper_bound":509.0},{"sku_id":"AQI-006","sku_name":"Fluticasone Spray","signal_pool":"AQI","date":"2025-07-01T00:00:00.000","forecast":465.0,"lower_bound":417.0,"upper_bound":513.0},{"sku_id":"AQI-007","sku_name":"Theophylline 300mg","signal_pool":"AQI","date":"2025-05-01T00:00:00.000","forecast":617.0,"lower_bound":485.0,"upper_bound":750.0},{"sku_id":"AQI-007","sku_name":"Theophylline 300mg","signal_pool":"AQI","date":"2025-06-01T00:00:00.000","forecast":609.0,"lower_bound":477.0,"upper_bound":742.0},{"sku_id":"AQI-007","sku_name":"Theophylline 300mg","signal_pool":"AQI","date":"2025-07-01T00:00:00.000","forecast":654.0,"lower_bound":521.0,"upper_bound":786.0},{"sku_id":"AQI-008","sku_name":"Chlorpheniramine 4mg","signal_pool":"AQI","date":"2025-05-01T00:00:00.000","forecast":289.0,"lower_bound":207.0,"upper_bound":371.0},{"sku_id":"AQI-008","sku_name":"Chlorpheniramine 4mg","signal_pool":"AQI","date":"2025-06-01T00:00:00.000","forecast":291.0,"lower_bound":209.0,"upper_bound":373.0},{"sku_id":"AQI-008","sku_name":"Chlorpheniramine 4mg","signal_pool":"AQI","date":"2025-07-01T00:00:00.000","forecast":281.0,"lower_bound":199.0,"upper_bound":363.0},{"sku_id":"MON-001","sku_name":"ORS Sachets","signal_pool":"Monsoon","date":"2025-05-01T00:00:00.000","forecast":549.0,"lower_bound":433.0,"upper_bound":665.0},{"sku_id":"MON-001","sku_name":"ORS Sachets","signal_pool":"Monsoon","date":"2025-06-01T00:00:00.000","forecast":555.0,"lower_bound":439.0,"upper_bound":671.0},{"sku_id":"MON-001","sku_name":"ORS Sachets","signal_pool":"Monsoon","date":"2025-07-01T00:00:00.000","forecast":544.0,"lower_bound":428.0,"upper_bound":660.0},{"sku_id":"MON-002","sku_name":"Loperamide 2mg","signal_pool":"Monsoon","date":"2025-05-01T00:00:00.000","forecast":199.0,"lower_bound":123.0,"upper_bound":274.0},{"sku_id":"MON-002","sku_name":"Loperamide 2mg","signal_pool":"Monsoon","date":"2025-06-01T00:00:00.000","forecast":193.0,"lower_bound":117.0,"upper_bound":268.0},{"sku_id":"MON-002","sku_name":"Loperamide 2mg","signal_pool":"Monsoon","date":"2025-07-01T00:00:00.000","forecast":195.0,"lower_bound":119.0,"upper_bound":270.0},{"sku_id":"MON-003","sku_name":"Chloroquine 500mg","signal_pool":"Monsoon","date":"2025-05-01T00:00:00.000","forecast":207.0,"lower_bound":174.0,"upper_bound":239.0},{"sku_id":"MON-003","sku_name":"Chloroquine 500mg","signal_pool":"Monsoon","date":"2025-06-01T00:00:00.000","forecast":212.0,"lower_bound":180.0,"upper_bound":245.0},{"sku_id":"MON-003","sku_name":"Chloroquine 500mg","signal_pool":"Monsoon","date":"2025-07-01T00:00:00.000","forecast":208.0,"lower_bound":175.0,"upper_bound":241.0},{"sku_id":"MON-004","sku_name":"Artemether-Lumefantrine","signal_pool":"Monsoon","date":"2025-05-01T00:00:00.000","forecast":413.0,"lower_bound":335.0,"upper_bound":492.0},{"sku_id":"MON-004","sku_name":"Artemether-Lumefantrine","signal_pool":"Monsoon","date":"2025-06-01T00:00:00.000","forecast":451.0,"lower_bound":373.0,"upper_bound":530.0},{"sku_id":"MON-004","sku_name":"Artemether-Lumefantrine","signal_pool":"Monsoon","date":"2025-07-01T00:00:00.000","forecast":410.0,"lower_bound":332.0,"upper_bound":489.0},{"sku_id":"MON-005","sku_name":"Zinc Dispersible 20mg","signal_pool":"Monsoon","date":"2025-05-01T00:00:00.000","forecast":216.0,"lower_bound":132.0,"upper_bound":299.0},{"sku_id":"MON-005","sku_name":"Zinc Dispersible 20mg","signal_pool":"Monsoon","date":"2025-06-01T00:00:00.000","forecast":201.0,"lower_bound":118.0,"upper_bound":285.0},{"sku_id":"MON-005","sku_name":"Zinc Dispersible 20mg","signal_pool":"Monsoon","date":"2025-07-01T00:00:00.000","forecast":206.0,"lower_bound":122.0,"upper_bound":289.0},{"sku_id":"MON-006","sku_name":"Metronidazole 400mg","signal_pool":"Monsoon","date":"2025-05-01T00:00:00.000","forecast":124.0,"lower_bound":106.0,"upper_bound":142.0},{"sku_id":"MON-006","sku_name":"Metronidazole 400mg","signal_pool":"Monsoon","date":"2025-06-01T00:00:00.000","forecast":125.0,"lower_bound":108.0,"upper_bound":143.0},{"sku_id":"MON-006","sku_name":"Metronidazole 400mg","signal_pool":"Monsoon","date":"2025-07-01T00:00:00.000","forecast":124.0,"lower_bound":106.0,"upper_bound":142.0},{"sku_id":"MON-007","sku_name":"Doxycycline 100mg","signal_pool":"Monsoon","date":"2025-05-01T00:00:00.000","forecast":473.0,"lower_bound":384.0,"upper_bound":563.0},{"sku_id":"MON-007","sku_name":"Doxycycline 100mg","signal_pool":"Monsoon","date":"2025-06-01T00:00:00.000","forecast":472.0,"lower_bound":383.0,"upper_bound":562.0},{"sku_id":"MON-007","sku_name":"Doxycycline 100mg","signal_pool":"Monsoon","date":"2025-07-01T00:00:00.000","forecast":466.0,"lower_bound":376.0,"upper_bound":555.0},{"sku_id":"MON-008","sku_name":"Racecadotril 100mg","signal_pool":"Monsoon","date":"2025-05-01T00:00:00.000","forecast":269.0,"lower_bound":188.0,"upper_bound":350.0},{"sku_id":"MON-008","sku_name":"Racecadotril 100mg","signal_pool":"Monsoon","date":"2025-06-01T00:00:00.000","forecast":270.0,"lower_bound":190.0,"upper_bound":351.0},{"sku_id":"MON-008","sku_name":"Racecadotril 100mg","signal_pool":"Monsoon","date":"2025-07-01T00:00:00.000","forecast":279.0,"lower_bound":198.0,"upper_bound":360.0},{"sku_id":"TMP-001","sku_name":"Electrolyte Powder","signal_pool":"Temperature","date":"2025-05-01T00:00:00.000","forecast":463.0,"lower_bound":237.0,"upper_bound":690.0},{"sku_id":"TMP-001","sku_name":"Electrolyte Powder","signal_pool":"Temperature","date":"2025-06-01T00:00:00.000","forecast":414.0,"lower_bound":187.0,"upper_bound":640.0},{"sku_id":"TMP-001","sku_name":"Electrolyte Powder","signal_pool":"Temperature","date":"2025-07-01T00:00:00.000","forecast":463.0,"lower_bound":236.0,"upper_bound":689.0},{"sku_id":"TMP-002","sku_name":"Calamine Lotion","signal_pool":"Temperature","date":"2025-05-01T00:00:00.000","forecast":243.0,"lower_bound":120.0,"upper_bound":366.0},{"sku_id":"TMP-002","sku_name":"Calamine Lotion","signal_pool":"Temperature","date":"2025-06-01T00:00:00.000","forecast":239.0,"lower_bound":116.0,"upper_bound":363.0},{"sku_id":"TMP-002","sku_name":"Calamine Lotion","signal_pool":"Temperature","date":"2025-07-01T00:00:00.000","forecast":256.0,"lower_bound":133.0,"upper_bound":380.0},{"sku_id":"TMP-003","sku_name":"Sunscreen SPF50","signal_pool":"Temperature","date":"2025-05-01T00:00:00.000","forecast":158.0,"lower_bound":129.0,"upper_bound":186.0},{"sku_id":"TMP-003","sku_name":"Sunscreen SPF50","signal_pool":"Temperature","date":"2025-06-01T00:00:00.000","forecast":157.0,"lower_bound":128.0,"upper_bound":186.0},{"sku_id":"TMP-003","sku_name":"Sunscreen SPF50","signal_pool":"Temperature","date":"2025-07-01T00:00:00.000","forecast":149.0,"lower_bound":120.0,"upper_bound":178.0},{"sku_id":"TMP-004","sku_name":"Glucose-D Powder","signal_pool":"Temperature","date":"2025-05-01T00:00:00.000","forecast":357.0,"lower_bound":240.0,"upper_bound":474.0},{"sku_id":"TMP-004","sku_name":"Glucose-D Powder","signal_pool":"Temperature","date":"2025-06-01T00:00:00.000","forecast":365.0,"lower_bound":248.0,"upper_bound":482.0},{"sku_id":"TMP-004","sku_name":"Glucose-D Powder","signal_pool":"Temperature","date":"2025-07-01T00:00:00.000","forecast":373.0,"lower_bound":256.0,"upper_bound":490.0},{"sku_id":"TMP-005","sku_name":"Hydrocortisone Cream","signal_pool":"Temperature","date":"2025-05-01T00:00:00.000","forecast":182.0,"lower_bound":80.0,"upper_bound":284.0},{"sku_id":"TMP-005","sku_name":"Hydrocortisone Cream","signal_pool":"Temperature","date":"2025-06-01T00:00:00.000","forecast":185.0,"lower_bound":83.0,"upper_bound":287.0},{"sku_id":"TMP-005","sku_name":"Hydrocortisone Cream","signal_pool":"Temperature","date":"2025-07-01T00:00:00.000","forecast":175.0,"lower_bound":73.0,"upper_bound":277.0},{"sku_id":"TMP-006","sku_name":"Prickly Heat Powder","signal_pool":"Temperature","date":"2025-05-01T00:00:00.000","forecast":130.0,"lower_bound":89.0,"upper_bound":171.0},{"sku_id":"TMP-006","sku_name":"Prickly Heat Powder","signal_pool":"Temperature","date":"2025-06-01T00:00:00.000","forecast":137.0,"lower_bound":96.0,"upper_bound":178.0},{"sku_id":"TMP-006","sku_name":"Prickly Heat Powder","signal_pool":"Temperature","date":"2025-07-01T00:00:00.000","forecast":139.0,"lower_bound":98.0,"upper_bound":180.0},{"sku_id":"TMP-007","sku_name":"Isotonic Drink Mix","signal_pool":"Temperature","date":"2025-05-01T00:00:00.000","forecast":748.0,"lower_bound":474.0,"upper_bound":1022.0},{"sku_id":"TMP-007","sku_name":"Isotonic Drink Mix","signal_pool":"Temperature","date":"2025-06-01T00:00:00.000","forecast":784.0,"lower_bound":509.0,"upper_bound":1058.0},{"sku_id":"TMP-007","sku_name":"Isotonic Drink Mix","signal_pool":"Temperature","date":"2025-07-01T00:00:00.000","forecast":762.0,"lower_bound":488.0,"upper_bound":1037.0},{"sku_id":"TMP-008","sku_name":"Aloe Vera Gel","signal_pool":"Temperature","date":"2025-05-01T00:00:00.000","forecast":173.0,"lower_bound":132.0,"upper_bound":213.0},{"sku_id":"TMP-008","sku_name":"Aloe Vera Gel","signal_pool":"Temperature","date":"2025-06-01T00:00:00.000","forecast":175.0,"lower_bound":135.0,"upper_bound":215.0},{"sku_id":"TMP-008","sku_name":"Aloe Vera Gel","signal_pool":"Temperature","date":"2025-07-01T00:00:00.000","forecast":177.0,"lower_bound":137.0,"upper_bound":218.0},{"sku_id":"WED-001","sku_name":"Multivitamin Tablets","signal_pool":"Wedding","date":"2025-05-01T00:00:00.000","forecast":430.0,"lower_bound":211.0,"upper_bound":649.0},{"sku_id":"WED-001","sku_name":"Multivitamin Tablets","signal_pool":"Wedding","date":"2025-06-01T00:00:00.000","forecast":462.0,"lower_bound":243.0,"upper_bound":681.0},{"sku_id":"WED-001","sku_name":"Multivitamin Tablets","signal_pool":"Wedding","date":"2025-07-01T00:00:00.000","forecast":379.0,"lower_bound":159.0,"upper_bound":598.0},{"sku_id":"WED-002","sku_name":"Biotin 10000mcg","signal_pool":"Wedding","date":"2025-05-01T00:00:00.000","forecast":204.0,"lower_bound":174.0,"upper_bound":234.0},{"sku_id":"WED-002","sku_name":"Biotin 10000mcg","signal_pool":"Wedding","date":"2025-06-01T00:00:00.000","forecast":201.0,"lower_bound":171.0,"upper_bound":231.0},{"sku_id":"WED-002","sku_name":"Biotin 10000mcg","signal_pool":"Wedding","date":"2025-07-01T00:00:00.000","forecast":199.0,"lower_bound":170.0,"upper_bound":229.0},{"sku_id":"WED-003","sku_name":"Omega-3 Capsules","signal_pool":"Wedding","date":"2025-05-01T00:00:00.000","forecast":167.0,"lower_bound":132.0,"upper_bound":203.0},{"sku_id":"WED-003","sku_name":"Omega-3 Capsules","signal_pool":"Wedding","date":"2025-06-01T00:00:00.000","forecast":155.0,"lower_bound":119.0,"upper_bound":191.0},{"sku_id":"WED-003","sku_name":"Omega-3 Capsules","signal_pool":"Wedding","date":"2025-07-01T00:00:00.000","forecast":166.0,"lower_bound":130.0,"upper_bound":201.0},{"sku_id":"WED-004","sku_name":"Vitamin C 1000mg","signal_pool":"Wedding","date":"2025-05-01T00:00:00.000","forecast":405.0,"lower_bound":256.0,"upper_bound":555.0},{"sku_id":"WED-004","sku_name":"Vitamin C 1000mg","signal_pool":"Wedding","date":"2025-06-01T00:00:00.000","forecast":427.0,"lower_bound":277.0,"upper_bound":576.0},{"sku_id":"WED-004","sku_name":"Vitamin C 1000mg","signal_pool":"Wedding","date":"2025-07-01T00:00:00.000","forecast":389.0,"lower_bound":240.0,"upper_bound":538.0},{"sku_id":"WED-005","sku_name":"Collagen Powder","signal_pool":"Wedding","date":"2025-05-01T00:00:00.000","forecast":177.0,"lower_bound":130.0,"upper_bound":224.0},{"sku_id":"WED-005","sku_name":"Collagen Powder","signal_pool":"Wedding","date":"2025-06-01T00:00:00.000","forecast":179.0,"lower_bound":132.0,"upper_bound":226.0},{"sku_id":"WED-005","sku_name":"Collagen Powder","signal_pool":"Wedding","date":"2025-07-01T00:00:00.000","forecast":190.0,"lower_bound":143.0,"upper_bound":237.0},{"sku_id":"WED-006","sku_name":"Iron + Folic Acid","signal_pool":"Wedding","date":"2025-05-01T00:00:00.000","forecast":163.0,"lower_bound":149.0,"upper_bound":177.0},{"sku_id":"WED-006","sku_name":"Iron + Folic Acid","signal_pool":"Wedding","date":"2025-06-01T00:00:00.000","forecast":161.0,"lower_bound":147.0,"upper_bound":174.0},{"sku_id":"WED-006","sku_name":"Iron + Folic Acid","signal_pool":"Wedding","date":"2025-07-01T00:00:00.000","forecast":163.0,"lower_bound":150.0,"upper_bound":177.0},{"sku_id":"WED-007","sku_name":"Calcium + D3","signal_pool":"Wedding","date":"2025-05-01T00:00:00.000","forecast":552.0,"lower_bound":344.0,"upper_bound":761.0},{"sku_id":"WED-007","sku_name":"Calcium + D3","signal_pool":"Wedding","date":"2025-06-01T00:00:00.000","forecast":568.0,"lower_bound":360.0,"upper_bound":777.0},{"sku_id":"WED-007","sku_name":"Calcium + D3","signal_pool":"Wedding","date":"2025-07-01T00:00:00.000","forecast":538.0,"lower_bound":330.0,"upper_bound":746.0},{"sku_id":"WED-008","sku_name":"Protein Supplement","signal_pool":"Wedding","date":"2025-05-01T00:00:00.000","forecast":162.0,"lower_bound":138.0,"upper_bound":187.0},{"sku_id":"WED-008","sku_name":"Protein Supplement","signal_pool":"Wedding","date":"2025-06-01T00:00:00.000","forecast":162.0,"lower_bound":138.0,"upper_bound":187.0},{"sku_id":"WED-008","sku_name":"Protein Supplement","signal_pool":"Wedding","date":"2025-07-01T00:00:00.000","forecast":159.0,"lower_bound":134.0,"upper_bound":183.0},{"sku_id":"GTR-001","sku_name":"Paracetamol 500mg","signal_pool":"GoogleTrends","date":"2025-05-01T00:00:00.000","forecast":695.0,"lower_bound":602.0,"upper_bound":788.0},{"sku_id":"GTR-001","sku_name":"Paracetamol 500mg","signal_pool":"GoogleTrends","date":"2025-06-01T00:00:00.000","forecast":695.0,"lower_bound":602.0,"upper_bound":787.0},{"sku_id":"GTR-001","sku_name":"Paracetamol 500mg","signal_pool":"GoogleTrends","date":"2025-07-01T00:00:00.000","forecast":692.0,"lower_bound":600.0,"upper_bound":785.0},{"sku_id":"GTR-002","sku_name":"Azithromycin 500mg","signal_pool":"GoogleTrends","date":"2025-05-01T00:00:00.000","forecast":288.0,"lower_bound":221.0,"upper_bound":355.0},{"sku_id":"GTR-002","sku_name":"Azithromycin 500mg","signal_pool":"GoogleTrends","date":"2025-06-01T00:00:00.000","forecast":283.0,"lower_bound":215.0,"upper_bound":350.0},{"sku_id":"GTR-002","sku_name":"Azithromycin 500mg","signal_pool":"GoogleTrends","date":"2025-07-01T00:00:00.000","forecast":287.0,"lower_bound":220.0,"upper_bound":354.0},{"sku_id":"GTR-003","sku_name":"Ivermectin 12mg","signal_pool":"GoogleTrends","date":"2025-05-01T00:00:00.000","forecast":180.0,"lower_bound":151.0,"upper_bound":210.0},{"sku_id":"GTR-003","sku_name":"Ivermectin 12mg","signal_pool":"GoogleTrends","date":"2025-06-01T00:00:00.000","forecast":178.0,"lower_bound":149.0,"upper_bound":208.0},{"sku_id":"GTR-003","sku_name":"Ivermectin 12mg","signal_pool":"GoogleTrends","date":"2025-07-01T00:00:00.000","forecast":181.0,"lower_bound":152.0,"upper_bound":211.0},{"sku_id":"GTR-004","sku_name":"Dolo 650mg","signal_pool":"GoogleTrends","date":"2025-05-01T00:00:00.000","forecast":710.0,"lower_bound":596.0,"upper_bound":824.0},{"sku_id":"GTR-004","sku_name":"Dolo 650mg","signal_pool":"GoogleTrends","date":"2025-06-01T00:00:00.000","forecast":727.0,"lower_bound":613.0,"upper_bound":841.0},{"sku_id":"GTR-004","sku_name":"Dolo 650mg","signal_pool":"GoogleTrends","date":"2025-07-01T00:00:00.000","forecast":707.0,"lower_bound":593.0,"upper_bound":821.0},{"sku_id":"GTR-005","sku_name":"Vitamin D3 60K","signal_pool":"GoogleTrends","date":"2025-05-01T00:00:00.000","forecast":196.0,"lower_bound":164.0,"upper_bound":227.0},{"sku_id":"GTR-005","sku_name":"Vitamin D3 60K","signal_pool":"GoogleTrends","date":"2025-06-01T00:00:00.000","forecast":195.0,"lower_bound":163.0,"upper_bound":227.0},{"sku_id":"GTR-005","sku_name":"Vitamin D3 60K","signal_pool":"GoogleTrends","date":"2025-07-01T00:00:00.000","forecast":192.0,"lower_bound":160.0,"upper_bound":224.0},{"sku_id":"GTR-006","sku_name":"Zinc 50mg","signal_pool":"GoogleTrends","date":"2025-05-01T00:00:00.000","forecast":298.0,"lower_bound":238.0,"upper_bound":358.0},{"sku_id":"GTR-006","sku_name":"Zinc 50mg","signal_pool":"GoogleTrends","date":"2025-06-01T00:00:00.000","forecast":299.0,"lower_bound":239.0,"upper_bound":359.0},{"sku_id":"GTR-006","sku_name":"Zinc 50mg","signal_pool":"GoogleTrends","date":"2025-07-01T00:00:00.000","forecast":320.0,"lower_bound":260.0,"upper_bound":380.0},{"sku_id":"GTR-007","sku_name":"Cough Syrup 100ml","signal_pool":"GoogleTrends","date":"2025-05-01T00:00:00.000","forecast":812.0,"lower_bound":518.0,"upper_bound":1107.0},{"sku_id":"GTR-007","sku_name":"Cough Syrup 100ml","signal_pool":"GoogleTrends","date":"2025-06-01T00:00:00.000","forecast":824.0,"lower_bound":529.0,"upper_bound":1118.0},{"sku_id":"GTR-007","sku_name":"Cough Syrup 100ml","signal_pool":"GoogleTrends","date":"2025-07-01T00:00:00.000","forecast":816.0,"lower_bound":522.0,"upper_bound":1110.0},{"sku_id":"GTR-008","sku_name":"Throat Lozenges","signal_pool":"GoogleTrends","date":"2025-05-01T00:00:00.000","forecast":85.0,"lower_bound":52.0,"upper_bound":118.0},{"sku_id":"GTR-008","sku_name":"Throat Lozenges","signal_pool":"GoogleTrends","date":"2025-06-01T00:00:00.000","forecast":91.0,"lower_bound":58.0,"upper_bound":124.0},{"sku_id":"GTR-008","sku_name":"Throat Lozenges","signal_pool":"GoogleTrends","date":"2025-07-01T00:00:00.000","forecast":90.0,"lower_bound":57.0,"upper_bound":123.0}];
+const tsData = {"AQI-001": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [785, 655, 698, 352, 709, 781, 819, 870, 728, 631, 181, 894, 232, 791, 570, 844, 301, 922, 722, 902, 787, 713, 807, 914, 187, 752, 831, 909, 745, 741, 990, 949, 982], "baseline": [611.3333333333334, 646.0, 690.0, 712.6666666666666, 568.3333333333334, 586.3333333333334, 614.0, 769.6666666666666, 823.3333333333334, 805.6666666666666, 743.0, 513.3333333333334, 568.6666666666666, 435.6666666666667, 639.0, 531.0, 735.0, 571.6666666666666, 689.0, 648.3333333333334, 848.6666666666666, 803.6666666666666, 800.6666666666666, 769.0, 811.3333333333334, 636.0, 617.6666666666666, 590.0, 830.6666666666666, 828.3333333333334, 798.3333333333334, 825.3333333333334, 893.3333333333334], "ml": [766.0, 657.0, 704.0, 360.0, 707.0, 778.0, 811.0, 868.0, 732.0, 638.0, 193.0, 887.0, 242.0, 788.0, 575.0, 830.0, 300.0, 924.0, 717.0, 895.0, 779.0, 715.0, 803.0, 901.0, 190.0, 751.0, 822.0, 716.0, 755.0, 798.0, 792.0, 788.0, 762.0]}, "AQI-002": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [80, 136, 109, 82, 76, 114, 72, 98, 123, 139, 122, 24, 98, 97, 103, 158, 45, 94, 129, 72, 154, 112, 121, 78, 118, 128, 106, 123, 115, 84, 106, 113, 128], "baseline": [68.33333333333333, 76.33333333333333, 92.33333333333333, 108.33333333333333, 109.0, 89.0, 90.66666666666667, 87.33333333333333, 94.66666666666667, 97.66666666666667, 120.0, 128.0, 95.0, 81.33333333333333, 73.0, 99.33333333333333, 119.33333333333333, 102.0, 99.0, 89.33333333333333, 98.33333333333333, 118.33333333333333, 112.66666666666667, 129.0, 103.66666666666667, 105.66666666666667, 108.0, 117.33333333333333, 119.0, 114.66666666666667, 107.33333333333333, 101.66666666666667, 101.0], "ml": [88.0, 134.0, 110.0, 93.0, 91.0, 111.0, 76.0, 97.0, 117.0, 130.0, 125.0, 41.0, 104.0, 103.0, 104.0, 146.0, 58.0, 96.0, 124.0, 83.0, 145.0, 113.0, 126.0, 80.0, 112.0, 120.0, 108.0, 122.0, 103.0, 104.0, 110.0, 106.0, 113.0]}, "AQI-003": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [225, 244, 286, 387, 527, 531, 532, 406, 403, 278, 195, 180, 185, 200, 289, 456, 439, 491, 467, 435, 391, 280, 165, 205, 210, 223, 355, 395, 527, 513, 492, 397, 415], "baseline": [212.66666666666666, 200.0, 217.33333333333334, 251.66666666666666, 305.6666666666667, 400.0, 481.6666666666667, 530.0, 489.6666666666667, 447.0, 362.3333333333333, 292.0, 217.66666666666666, 186.66666666666666, 188.33333333333334, 224.66666666666666, 315.0, 394.6666666666667, 462.0, 465.6666666666667, 464.3333333333333, 431.0, 368.6666666666667, 278.6666666666667, 216.66666666666666, 193.33333333333334, 212.66666666666666, 262.6666666666667, 324.3333333333333, 425.6666666666667, 478.3333333333333, 510.6666666666667, 467.3333333333333], "ml": [231.0, 244.0, 281.0, 371.0, 519.0, 525.0, 524.0, 414.0, 405.0, 290.0, 191.0, 185.0, 185.0, 196.0, 277.0, 447.0, 442.0, 489.0, 468.0, 449.0, 395.0, 284.0, 173.0, 189.0, 214.0, 229.0, 355.0, 432.0, 353.0, 415.0, 495.0, 453.0, 413.0]}, "AQI-004": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [232, 304, 247, 263, 410, 394, 280, 321, 402, 387, 370, 270, 363, 234, 221, 146, 284, 435, 400, 397, 416, 334, 328, 54, 284, 245, 285, 359, 363, 339, 366, 302, 366], "baseline": [210.0, 194.0, 214.0, 261.0, 271.3333333333333, 306.6666666666667, 355.6666666666667, 361.3333333333333, 331.6666666666667, 334.3333333333333, 370.0, 386.3333333333333, 342.3333333333333, 334.3333333333333, 289.0, 272.6666666666667, 200.33333333333334, 217.0, 288.3333333333333, 373.0, 410.6666666666667, 404.3333333333333, 382.3333333333333, 359.3333333333333, 238.66666666666666, 222.0, 194.33333333333334, 271.3333333333333, 296.3333333333333, 335.6666666666667, 353.6666666666667, 356.0, 335.6666666666667], "ml": [241.0, 304.0, 253.0, 269.0, 408.0, 399.0, 284.0, 321.0, 386.0, 372.0, 364.0, 269.0, 348.0, 239.0, 229.0, 173.0, 286.0, 439.0, 395.0, 399.0, 408.0, 344.0, 317.0, 63.0, 291.0, 253.0, 277.0, 300.0, 311.0, 360.0, 329.0, 353.0, 341.0]}, "AQI-005": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [140, 148, 108, 187, 98, 156, 260, 172, 217, 145, 167, 128, 115, 96, 143, 112, 177, 200, 168, 154, 167, 124, 169, 53, 113, 46, 73, 217, 184, 121, 87, 35, 136], "baseline": [128.33333333333334, 122.33333333333333, 136.33333333333334, 132.0, 147.66666666666666, 131.0, 147.0, 171.33333333333334, 196.0, 216.33333333333334, 178.0, 176.33333333333334, 146.66666666666666, 136.66666666666666, 113.0, 118.0, 117.0, 144.0, 163.0, 181.66666666666666, 174.0, 163.0, 148.33333333333334, 153.33333333333334, 115.33333333333333, 111.66666666666667, 70.66666666666667, 77.33333333333333, 112.0, 158.0, 174.0, 130.66666666666666, 81.0], "ml": [127.0, 135.0, 120.0, 179.0, 107.0, 162.0, 254.0, 176.0, 210.0, 160.0, 174.0, 116.0, 120.0, 103.0, 136.0, 110.0, 161.0, 183.0, 177.0, 156.0, 163.0, 129.0, 156.0, 68.0, 113.0, 56.0, 76.0, 203.0, 238.0, 182.0, 131.0, 155.0, 102.0]}, "AQI-006": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [220, 223, 316, 360, 443, 528, 446, 431, 421, 321, 234, 204, 214, 221, 302, 423, 430, 558, 488, 477, 330, 243, 227, 156, 175, 234, 336, 474, 481, 453, 458, 511, 408], "baseline": [226.66666666666666, 197.33333333333334, 214.33333333333334, 253.0, 299.6666666666667, 373.0, 443.6666666666667, 472.3333333333333, 468.3333333333333, 432.6666666666667, 391.0, 325.3333333333333, 253.0, 217.33333333333334, 213.0, 245.66666666666666, 315.3333333333333, 385.0, 470.3333333333333, 492.0, 507.6666666666667, 431.6666666666667, 350.0, 266.6666666666667, 208.66666666666666, 186.0, 188.33333333333334, 248.33333333333334, 348.0, 430.3333333333333, 469.3333333333333, 464.0, 474.0], "ml": [222.0, 232.0, 303.0, 361.0, 426.0, 524.0, 439.0, 435.0, 429.0, 314.0, 252.0, 209.0, 214.0, 222.0, 291.0, 414.0, 425.0, 536.0, 481.0, 474.0, 340.0, 235.0, 243.0, 161.0, 179.0, 219.0, 334.0, 436.0, 366.0, 459.0, 447.0, 450.0, 431.0]}, "AQI-007": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [700, 135, 151, 194, 691, 688, 286, 703, 574, 211, 691, 539, 613, 190, 664, 293, 307, 204, 687, 815, 341, 713, 557, 467, 591, 163, 181, 606, 772, 325, 660, 622, 802], "baseline": [616.0, 673.0, 520.6666666666666, 328.6666666666667, 160.0, 345.3333333333333, 524.3333333333334, 555.0, 559.0, 521.0, 496.0, 492.0, 480.3333333333333, 614.3333333333334, 447.3333333333333, 489.0, 382.3333333333333, 421.3333333333333, 268.0, 399.3333333333333, 568.6666666666666, 614.3333333333334, 623.0, 537.0, 579.0, 538.3333333333334, 407.0, 311.6666666666667, 316.6666666666667, 519.6666666666666, 567.6666666666666, 585.6666666666666, 535.6666666666666], "ml": [712.0, 132.0, 160.0, 185.0, 689.0, 693.0, 296.0, 690.0, 575.0, 209.0, 681.0, 522.0, 606.0, 201.0, 658.0, 300.0, 296.0, 223.0, 689.0, 811.0, 347.0, 711.0, 552.0, 489.0, 587.0, 162.0, 190.0, 574.0, 640.0, 503.0, 745.0, 578.0, 501.0]}, "AQI-008": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [291, 197, 376, 253, 304, 342, 255, 375, 273, 254, 409, 177, 41, 405, 476, 269, 138, 289, 287, 324, 207, 332, 311, 139, 321, 444, 294, 297, 287, 363, 159, 344, 292], "baseline": [233.33333333333334, 255.66666666666666, 274.0, 288.0, 275.3333333333333, 311.0, 299.6666666666667, 300.3333333333333, 324.0, 301.0, 300.6666666666667, 312.0, 280.0, 209.0, 207.66666666666666, 307.3333333333333, 383.3333333333333, 294.3333333333333, 232.0, 238.0, 300.0, 272.6666666666667, 287.6666666666667, 283.3333333333333, 260.6666666666667, 257.0, 301.3333333333333, 353.0, 345.0, 292.6666666666667, 315.6666666666667, 269.6666666666667, 288.6666666666667], "ml": [285.0, 206.0, 360.0, 267.0, 309.0, 348.0, 270.0, 366.0, 278.0, 250.0, 396.0, 186.0, 46.0, 395.0, 474.0, 274.0, 162.0, 295.0, 302.0, 320.0, 219.0, 317.0, 305.0, 137.0, 312.0, 437.0, 306.0, 442.0, 326.0, 314.0, 343.0, 334.0, 296.0]}, "MON-001": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [646, 335, 509, 136, 666, 615, 601, 493, 490, 142, 753, 630, 786, 728, 216, 601, 597, 188, 430, 125, 497, 550, 627, 563, 555, 571, 519, 413, 665, 587, 520, 639, 499], "baseline": [547.6666666666666, 617.6666666666666, 556.0, 496.6666666666667, 326.6666666666667, 437.0, 472.3333333333333, 627.3333333333334, 569.6666666666666, 528.0, 375.0, 461.6666666666667, 508.3333333333333, 723.0, 714.6666666666666, 576.6666666666666, 515.0, 471.3333333333333, 462.0, 405.0, 247.66666666666666, 350.6666666666667, 390.6666666666667, 558.0, 580.0, 581.6666666666666, 563.0, 548.3333333333334, 501.0, 532.3333333333334, 555.0, 590.6666666666666, 582.0], "ml": [649.0, 345.0, 498.0, 146.0, 662.0, 618.0, 603.0, 498.0, 484.0, 146.0, 753.0, 629.0, 776.0, 725.0, 216.0, 592.0, 600.0, 198.0, 430.0, 137.0, 490.0, 549.0, 627.0, 570.0, 564.0, 571.0, 514.0, 417.0, 448.0, 396.0, 520.0, 497.0, 622.0]}, "MON-002": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [268, 212, 203, 106, 104, 181, 165, 191, 160, 177, 205, 228, 230, 106, 47, 220, 220, 114, 68, 172, 211, 253, 224, 177, 153, 191, 144, 108, 267, 259, 221, 117, 207], "baseline": [101.33333333333333, 175.33333333333334, 207.66666666666666, 227.66666666666666, 173.66666666666666, 137.66666666666666, 130.33333333333334, 150.0, 179.0, 172.0, 176.0, 180.66666666666666, 203.33333333333334, 221.0, 188.0, 127.66666666666667, 124.33333333333333, 162.33333333333334, 184.66666666666666, 134.0, 118.0, 150.33333333333334, 212.0, 229.33333333333334, 218.0, 184.66666666666666, 173.66666666666666, 162.66666666666666, 147.66666666666666, 173.0, 211.33333333333334, 249.0, 199.0], "ml": [268.0, 224.0, 202.0, 115.0, 112.0, 178.0, 168.0, 191.0, 172.0, 182.0, 196.0, 229.0, 230.0, 131.0, 54.0, 211.0, 218.0, 123.0, 72.0, 171.0, 212.0, 249.0, 237.0, 182.0, 155.0, 189.0, 150.0, 152.0, 128.0, 163.0, 231.0, 236.0, 155.0]}, "MON-003": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [411, 397, 334, 247, 201, 192, 180, 201, 228, 323, 417, 392, 410, 457, 308, 301, 260, 161, 142, 221, 238, 255, 453, 494, 472, 453, 316, 242, 238, 186, 181, 205, 196], "baseline": [354.3333333333333, 405.0, 408.3333333333333, 380.6666666666667, 326.0, 260.6666666666667, 213.33333333333334, 191.0, 191.0, 203.0, 250.66666666666666, 322.6666666666667, 377.3333333333333, 406.3333333333333, 419.6666666666667, 391.6666666666667, 355.3333333333333, 289.6666666666667, 240.66666666666666, 187.66666666666666, 174.66666666666666, 200.33333333333334, 238.0, 315.3333333333333, 400.6666666666667, 473.0, 473.0, 413.6666666666667, 337.0, 265.3333333333333, 222.0, 201.66666666666666, 190.66666666666666], "ml": [410.0, 398.0, 339.0, 255.0, 212.0, 185.0, 193.0, 204.0, 217.0, 311.0, 398.0, 396.0, 408.0, 446.0, 322.0, 301.0, 271.0, 169.0, 155.0, 212.0, 234.0, 255.0, 437.0, 479.0, 460.0, 461.0, 319.0, 300.0, 293.0, 176.0, 187.0, 206.0, 217.0]}, "MON-004": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [795, 815, 186, 469, 610, 477, 172, 510, 161, 719, 264, 775, 269, 772, 687, 518, 252, 502, 680, 769, 683, 176, 772, 703, 866, 619, 566, 498, 568, 173, 693, 154, 522], "baseline": [712.6666666666666, 739.0, 762.6666666666666, 598.6666666666666, 490.0, 421.6666666666667, 518.6666666666666, 419.6666666666667, 386.3333333333333, 281.0, 463.3333333333333, 381.3333333333333, 586.0, 436.0, 605.3333333333334, 576.0, 659.0, 485.6666666666667, 424.0, 478.0, 650.3333333333334, 710.6666666666666, 542.6666666666666, 543.6666666666666, 550.3333333333334, 780.3333333333334, 729.3333333333334, 683.6666666666666, 561.0, 544.0, 413.0, 478.0, 340.0], "ml": [796.0, 808.0, 183.0, 473.0, 606.0, 473.0, 174.0, 497.0, 167.0, 720.0, 274.0, 776.0, 273.0, 775.0, 681.0, 529.0, 249.0, 503.0, 666.0, 762.0, 677.0, 174.0, 778.0, 699.0, 861.0, 619.0, 560.0, 503.0, 496.0, 317.0, 594.0, 255.0, 602.0]}, "MON-005": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [306, 266, 92, 86, 211, 195, 207, 214, 239, 278, 186, 172, 179, 267, 294, 195, 47, 106, 158, 183, 190, 218, 242, 328, 216, 194, 242, 108, 243, 231, 207, 321, 175], "baseline": [221.0, 253.33333333333334, 252.0, 221.33333333333334, 148.0, 129.66666666666666, 164.0, 204.33333333333334, 205.33333333333334, 220.0, 243.66666666666666, 234.33333333333334, 212.0, 179.0, 206.0, 246.66666666666666, 252.0, 178.66666666666666, 116.0, 103.66666666666667, 149.0, 177.0, 197.0, 216.66666666666666, 262.6666666666667, 262.0, 246.0, 217.33333333333334, 181.33333333333334, 197.66666666666666, 194.0, 227.0, 253.0], "ml": [288.0, 258.0, 99.0, 76.0, 199.0, 199.0, 201.0, 218.0, 228.0, 269.0, 197.0, 180.0, 184.0, 259.0, 283.0, 188.0, 53.0, 110.0, 152.0, 182.0, 184.0, 215.0, 235.0, 309.0, 229.0, 187.0, 231.0, 170.0, 53.0, 156.0, 223.0, 227.0, 252.0]}, "MON-006": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [118, 123, 130, 147, 141, 156, 146, 123, 87, 71, 82, 83, 96, 141, 146, 166, 154, 150, 132, 114, 86, 63, 81, 103, 110, 143, 116, 149, 142, 142, 114, 97, 99], "baseline": [79.0, 92.33333333333333, 108.33333333333333, 123.66666666666667, 133.33333333333334, 139.33333333333334, 148.0, 147.66666666666666, 141.66666666666666, 118.66666666666667, 93.66666666666667, 80.0, 78.66666666666667, 87.0, 106.66666666666667, 127.66666666666667, 151.0, 155.33333333333334, 156.66666666666666, 145.33333333333334, 132.0, 110.66666666666667, 87.66666666666667, 76.66666666666667, 82.33333333333333, 98.0, 118.66666666666667, 123.0, 136.0, 135.66666666666666, 144.33333333333334, 132.66666666666666, 117.66666666666667], "ml": [116.0, 121.0, 122.0, 140.0, 142.0, 150.0, 144.0, 128.0, 91.0, 74.0, 82.0, 88.0, 98.0, 140.0, 151.0, 162.0, 155.0, 151.0, 133.0, 122.0, 94.0, 74.0, 84.0, 101.0, 107.0, 134.0, 128.0, 111.0, 153.0, 139.0, 132.0, 100.0, 91.0]}, "MON-007": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [554, 666, 374, 542, 523, 394, 139, 359, 138, 462, 485, 519, 199, 530, 487, 594, 392, 559, 456, 195, 158, 427, 229, 540, 618, 641, 495, 440, 389, 530, 513, 432, 539], "baseline": [395.6666666666667, 432.6666666666667, 496.0, 531.3333333333334, 527.3333333333334, 479.6666666666667, 486.3333333333333, 352.0, 297.3333333333333, 212.0, 319.6666666666667, 361.6666666666667, 488.6666666666667, 401.0, 416.0, 405.3333333333333, 537.0, 491.0, 515.0, 469.0, 403.3333333333333, 269.6666666666667, 260.0, 271.3333333333333, 398.6666666666667, 462.3333333333333, 599.6666666666666, 584.6666666666666, 525.3333333333334, 441.3333333333333, 453.0, 477.3333333333333, 491.6666666666667], "ml": [550.0, 660.0, 381.0, 540.0, 510.0, 399.0, 145.0, 354.0, 144.0, 456.0, 477.0, 518.0, 208.0, 530.0, 482.0, 584.0, 395.0, 541.0, 450.0, 195.0, 172.0, 425.0, 232.0, 538.0, 617.0, 639.0, 501.0, 450.0, 374.0, 308.0, 391.0, 508.0, 513.0]}, "MON-008": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [339, 339, 366, 337, 330, 335, 361, 108, 283, 100, 371, 352, 453, 461, 318, 270, 346, 260, 302, 404, 255, 380, 434, 276, 460, 421, 306, 226, 226, 267, 358, 215, 347], "baseline": [274.0, 319.6666666666667, 346.0, 348.0, 347.3333333333333, 344.3333333333333, 334.0, 342.0, 268.0, 250.66666666666666, 163.66666666666666, 251.33333333333334, 274.3333333333333, 392.0, 422.0, 410.6666666666667, 349.6666666666667, 311.3333333333333, 292.0, 302.6666666666667, 322.0, 320.3333333333333, 346.3333333333333, 356.3333333333333, 363.3333333333333, 390.0, 385.6666666666667, 395.6666666666667, 317.6666666666667, 252.66666666666666, 239.66666666666666, 283.6666666666667, 280.0], "ml": [351.0, 352.0, 352.0, 339.0, 344.0, 332.0, 348.0, 120.0, 280.0, 113.0, 378.0, 347.0, 441.0, 454.0, 317.0, 278.0, 318.0, 269.0, 310.0, 392.0, 250.0, 372.0, 448.0, 299.0, 459.0, 425.0, 297.0, 303.0, 275.0, 159.0, 183.0, 248.0, 306.0]}, "TMP-001": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [880, 775, 969, 610, 836, 551, 502, 798, 515, 727, 358, 676, 773, 379, 939, 754, 715, 714, 291, 453, 810, 616, 571, 745, 961, 840, 937, 779, 177, 138, 633, 427, 577], "baseline": [661.3333333333334, 734.3333333333334, 785.3333333333334, 874.6666666666666, 784.6666666666666, 805.0, 665.6666666666666, 629.6666666666666, 617.0, 605.0, 680.0, 533.3333333333334, 587.0, 602.3333333333334, 609.3333333333334, 697.0, 690.6666666666666, 802.6666666666666, 727.6666666666666, 573.3333333333334, 486.0, 518.0, 626.3333333333334, 665.6666666666666, 644.0, 759.0, 848.6666666666666, 912.6666666666666, 852.0, 631.0, 364.6666666666667, 316.0, 399.3333333333333], "ml": [866.0, 777.0, 956.0, 619.0, 824.0, 571.0, 523.0, 783.0, 523.0, 719.0, 369.0, 666.0, 783.0, 397.0, 931.0, 750.0, 697.0, 715.0, 305.0, 455.0, 806.0, 600.0, 579.0, 739.0, 955.0, 841.0, 938.0, 788.0, 480.0, 566.0, 430.0, 121.0, 410.0]}, "TMP-002": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [343, 338, 168, 241, 279, 215, 377, 242, 369, 286, 303, 321, 351, 486, 140, 147, 246, 272, 330, 280, 231, 344, 385, 343, 434, 383, 304, 382, 304, 282, 380, 21, 120], "baseline": [331.6666666666667, 360.3333333333333, 384.0, 283.0, 249.0, 229.33333333333334, 245.0, 290.3333333333333, 278.0, 329.3333333333333, 299.0, 319.3333333333333, 303.3333333333333, 325.0, 386.0, 325.6666666666667, 257.6666666666667, 177.66666666666666, 221.66666666666666, 282.6666666666667, 294.0, 280.3333333333333, 285.0, 320.0, 357.3333333333333, 387.3333333333333, 386.6666666666667, 373.6666666666667, 356.3333333333333, 330.0, 322.6666666666667, 322.0, 227.66666666666666], "ml": [342.0, 351.0, 194.0, 232.0, 272.0, 218.0, 357.0, 235.0, 364.0, 296.0, 299.0, 321.0, 327.0, 452.0, 147.0, 167.0, 233.0, 249.0, 307.0, 274.0, 231.0, 319.0, 355.0, 350.0, 426.0, 378.0, 314.0, 239.0, 312.0, 259.0, 282.0, 282.0, 279.0]}, "TMP-003": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [144, 187, 208, 176, 175, 187, 151, 114, 93, 94, 97, 112, 138, 153, 194, 193, 201, 189, 136, 94, 90, 86, 91, 101, 154, 172, 197, 228, 172, 169, 154, 100, 95], "baseline": [91.33333333333333, 113.66666666666667, 146.0, 179.66666666666666, 190.33333333333334, 186.33333333333334, 179.33333333333334, 171.0, 150.66666666666666, 119.33333333333333, 100.33333333333333, 94.66666666666667, 101.0, 115.66666666666667, 134.33333333333334, 161.66666666666666, 180.0, 196.0, 194.33333333333334, 175.33333333333334, 139.66666666666666, 106.66666666666667, 90.0, 89.0, 92.66666666666667, 115.33333333333333, 142.33333333333334, 174.33333333333334, 199.0, 199.0, 189.66666666666666, 165.0, 141.0], "ml": [144.0, 188.0, 198.0, 183.0, 172.0, 181.0, 156.0, 122.0, 103.0, 102.0, 104.0, 113.0, 138.0, 161.0, 185.0, 184.0, 191.0, 174.0, 150.0, 91.0, 98.0, 94.0, 95.0, 103.0, 146.0, 177.0, 192.0, 171.0, 197.0, 134.0, 147.0, 115.0, 111.0]}, "TMP-004": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [487, 497, 536, 548, 112, 329, 305, 127, 387, 75, 407, 208, 447, 209, 597, 451, 357, 339, 475, 328, 379, 467, 139, 471, 506, 537, 485, 391, 481, 360, 428, 416, 89], "baseline": [416.0, 463.6666666666667, 508.0, 506.6666666666667, 527.0, 398.6666666666667, 329.6666666666667, 248.66666666666666, 253.66666666666666, 273.0, 196.33333333333334, 289.6666666666667, 230.0, 354.0, 288.0, 417.6666666666667, 419.0, 468.3333333333333, 382.3333333333333, 390.3333333333333, 380.6666666666667, 394.0, 391.3333333333333, 328.3333333333333, 359.0, 372.0, 504.6666666666667, 509.3333333333333, 471.0, 452.3333333333333, 410.6666666666667, 423.0, 401.3333333333333], "ml": [495.0, 493.0, 545.0, 531.0, 122.0, 319.0, 297.0, 139.0, 373.0, 86.0, 400.0, 205.0, 449.0, 230.0, 588.0, 446.0, 359.0, 356.0, 446.0, 330.0, 372.0, 464.0, 142.0, 475.0, 494.0, 522.0, 497.0, 497.0, 407.0, 420.0, 396.0, 410.0, 399.0]}, "TMP-005": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [268, 326, 269, 414, 301, 230, 325, 61, 74, 315, 275, 316, 213, 301, 464, 354, 277, 209, 212, 49, 259, 297, 144, 243, 225, 248, 322, 127, 314, 313, 208, 17, 141], "baseline": [302.3333333333333, 272.0, 303.0, 287.6666666666667, 336.3333333333333, 328.0, 315.0, 285.3333333333333, 205.33333333333334, 153.33333333333334, 150.0, 221.33333333333334, 302.0, 268.0, 276.6666666666667, 326.0, 373.0, 365.0, 280.0, 232.66666666666666, 156.66666666666666, 173.33333333333334, 201.66666666666666, 233.33333333333334, 228.0, 204.0, 238.66666666666666, 265.0, 232.33333333333334, 254.33333333333334, 251.33333333333334, 278.3333333333333, 179.33333333333334], "ml": [265.0, 326.0, 267.0, 387.0, 305.0, 232.0, 326.0, 80.0, 80.0, 309.0, 277.0, 313.0, 235.0, 294.0, 446.0, 348.0, 288.0, 223.0, 234.0, 64.0, 246.0, 297.0, 165.0, 256.0, 242.0, 254.0, 315.0, 234.0, 155.0, 201.0, 287.0, 191.0, 128.0]}, "TMP-006": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [327, 305, 223, 167, 150, 90, 106, 132, 184, 204, 283, 289, 313, 233, 228, 178, 119, 92, 102, 115, 155, 243, 259, 324, 341, 251, 246, 195, 136, 110, 100, 97, 166], "baseline": [243.33333333333334, 281.3333333333333, 297.3333333333333, 285.0, 231.66666666666666, 180.0, 135.66666666666666, 115.33333333333333, 109.33333333333333, 140.66666666666666, 173.33333333333334, 223.66666666666666, 258.6666666666667, 295.0, 278.3333333333333, 258.0, 213.0, 175.0, 129.66666666666666, 104.33333333333333, 103.0, 124.0, 171.0, 219.0, 275.3333333333333, 308.0, 305.3333333333333, 279.3333333333333, 230.66666666666666, 192.33333333333334, 147.0, 115.33333333333333, 102.33333333333333], "ml": [328.0, 303.0, 227.0, 195.0, 153.0, 110.0, 112.0, 125.0, 164.0, 188.0, 256.0, 274.0, 307.0, 256.0, 243.0, 192.0, 121.0, 106.0, 102.0, 109.0, 147.0, 231.0, 274.0, 316.0, 332.0, 275.0, 243.0, 270.0, 162.0, 134.0, 120.0, 108.0, 118.0]}, "TMP-007": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [856, 1164, 1018, 377, 851, 983, 624, 931, 894, 945, 391, 299, 1025, 1126, 471, 907, 792, 622, 895, 869, 584, 628, 230, 1115, 385, 891, 890, 1091, 903, 938, 881, 90, 600], "baseline": [987.3333333333334, 981.6666666666666, 1036.0, 1012.6666666666666, 853.0, 748.6666666666666, 737.0, 819.3333333333334, 846.0, 816.3333333333334, 923.3333333333334, 743.3333333333334, 545.0, 571.6666666666666, 816.6666666666666, 874.0, 834.6666666666666, 723.3333333333334, 773.6666666666666, 769.6666666666666, 795.3333333333334, 782.6666666666666, 693.6666666666666, 480.6666666666667, 657.6666666666666, 576.6666666666666, 797.0, 722.0, 957.3333333333334, 961.3333333333334, 977.3333333333334, 907.3333333333334, 636.3333333333334], "ml": [869.0, 1158.0, 1006.0, 380.0, 855.0, 975.0, 615.0, 936.0, 881.0, 933.0, 388.0, 321.0, 1020.0, 1119.0, 475.0, 901.0, 785.0, 625.0, 879.0, 868.0, 597.0, 641.0, 228.0, 1111.0, 391.0, 889.0, 892.0, 634.0, 687.0, 878.0, 872.0, 705.0, 511.0]}, "TMP-008": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [229, 270, 323, 229, 153, 237, 231, 215, 220, 176, 150, 174, 143, 245, 229, 194, 25, 111, 252, 124, 203, 93, 288, 216, 258, 384, 332, 202, 167, 174, 204, 154, 143], "baseline": [217.0, 211.66666666666666, 234.66666666666666, 274.0, 274.0, 235.0, 206.33333333333334, 207.0, 227.66666666666666, 222.0, 203.66666666666666, 182.0, 166.66666666666666, 155.66666666666666, 187.33333333333334, 205.66666666666666, 222.66666666666666, 149.33333333333334, 110.0, 129.33333333333334, 162.33333333333334, 193.0, 140.0, 194.66666666666666, 199.0, 254.0, 286.0, 324.6666666666667, 306.0, 233.66666666666666, 181.0, 181.66666666666666, 177.33333333333334], "ml": [219.0, 262.0, 316.0, 241.0, 168.0, 217.0, 229.0, 211.0, 216.0, 192.0, 158.0, 176.0, 155.0, 228.0, 236.0, 193.0, 50.0, 123.0, 256.0, 137.0, 205.0, 109.0, 279.0, 220.0, 257.0, 384.0, 331.0, 239.0, 210.0, 161.0, 126.0, 118.0, 146.0]}, "WED-001": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [521, 541, 529, 731, 591, 603, 145, 657, 591, 676, 220, 456, 534, 482, 444, 721, 663, 604, 526, 473, 585, 641, 605, 481, 524, 506, 607, 308, 763, 197, 243, 530, 544], "baseline": [523.0, 587.0, 573.3333333333334, 530.3333333333334, 600.3333333333334, 617.0, 641.6666666666666, 446.3333333333333, 468.3333333333333, 464.3333333333333, 641.3333333333334, 495.6666666666667, 450.6666666666667, 403.3333333333333, 490.6666666666667, 486.6666666666667, 549.0, 609.3333333333334, 662.6666666666666, 597.6666666666666, 534.3333333333334, 528.0, 566.3333333333334, 610.3333333333334, 575.6666666666666, 536.6666666666666, 503.6666666666667, 545.6666666666666, 473.6666666666667, 559.3333333333334, 422.6666666666667, 401.0, 323.3333333333333], "ml": [515.0, 548.0, 531.0, 727.0, 598.0, 607.0, 158.0, 653.0, 592.0, 677.0, 221.0, 454.0, 528.0, 480.0, 448.0, 710.0, 666.0, 610.0, 518.0, 475.0, 595.0, 630.0, 598.0, 490.0, 513.0, 513.0, 599.0, 672.0, 636.0, 624.0, 435.0, 303.0, 494.0]}, "WED-002": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [270, 136, 335, 201, 308, 103, 151, 304, 245, 314, 224, 202, 294, 194, 97, 211, 296, 234, 111, 163, 225, 238, 123, 169, 163, 257, 260, 252, 236, 218, 158, 137, 202], "baseline": [257.3333333333333, 247.33333333333334, 211.33333333333334, 247.0, 224.0, 281.3333333333333, 204.0, 187.33333333333334, 186.0, 233.33333333333334, 287.6666666666667, 261.0, 246.66666666666666, 240.0, 230.0, 195.0, 167.33333333333334, 201.33333333333334, 247.0, 213.66666666666666, 169.33333333333334, 166.33333333333334, 208.66666666666666, 195.33333333333334, 176.66666666666666, 151.66666666666666, 196.33333333333334, 226.66666666666666, 256.3333333333333, 249.33333333333334, 235.33333333333334, 204.0, 171.0], "ml": [263.0, 143.0, 318.0, 201.0, 299.0, 116.0, 150.0, 300.0, 242.0, 310.0, 229.0, 198.0, 289.0, 187.0, 102.0, 213.0, 286.0, 222.0, 110.0, 161.0, 213.0, 229.0, 134.0, 166.0, 161.0, 247.0, 251.0, 234.0, 266.0, 198.0, 174.0, 189.0, 163.0]}, "WED-003": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [172, 225, 234, 239, 243, 141, 105, 103, 145, 126, 113, 155, 203, 182, 210, 262, 217, 140, 112, 98, 131, 151, 129, 163, 212, 203, 210, 273, 210, 165, 133, 89, 131], "baseline": [135.0, 148.0, 182.66666666666666, 210.33333333333334, 232.66666666666666, 238.66666666666666, 207.66666666666666, 163.0, 116.33333333333333, 117.66666666666667, 124.66666666666667, 128.0, 131.33333333333334, 157.0, 180.0, 198.33333333333334, 218.0, 229.66666666666666, 206.33333333333334, 156.33333333333334, 116.66666666666667, 113.66666666666667, 126.66666666666667, 137.0, 147.66666666666666, 168.0, 192.66666666666666, 208.33333333333334, 228.66666666666666, 231.0, 216.0, 169.33333333333334, 129.0], "ml": [157.0, 220.0, 225.0, 241.0, 239.0, 146.0, 104.0, 105.0, 142.0, 135.0, 116.0, 141.0, 205.0, 174.0, 200.0, 264.0, 222.0, 151.0, 127.0, 103.0, 133.0, 149.0, 129.0, 159.0, 202.0, 201.0, 215.0, 222.0, 247.0, 200.0, 185.0, 133.0, 123.0]}, "WED-004": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [375, 347, 128, 590, 427, 448, 362, 182, 466, 594, 444, 346, 508, 409, 143, 585, 478, 368, 421, 399, 603, 568, 425, 479, 167, 198, 448, 618, 503, 114, 397, 186, 574], "baseline": [389.6666666666667, 343.6666666666667, 299.3333333333333, 283.3333333333333, 355.0, 381.6666666666667, 488.3333333333333, 412.3333333333333, 330.6666666666667, 336.6666666666667, 414.0, 501.3333333333333, 461.3333333333333, 432.6666666666667, 421.0, 353.3333333333333, 379.0, 402.0, 477.0, 422.3333333333333, 396.0, 474.3333333333333, 523.3333333333334, 532.0, 490.6666666666667, 357.0, 281.3333333333333, 271.0, 421.3333333333333, 523.0, 411.6666666666667, 338.0, 232.33333333333334], "ml": [380.0, 344.0, 136.0, 594.0, 430.0, 435.0, 372.0, 195.0, 468.0, 590.0, 431.0, 353.0, 504.0, 417.0, 144.0, 583.0, 475.0, 374.0, 418.0, 398.0, 589.0, 576.0, 439.0, 479.0, 177.0, 202.0, 446.0, 432.0, 516.0, 401.0, 324.0, 342.0, 366.0]}, "WED-005": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [94, 118, 143, 277, 181, 204, 143, 184, 206, 258, 144, 90, 100, 144, 107, 235, 190, 293, 82, 181, 156, 188, 178, 52, 183, 269, 148, 227, 266, 163, 141, 54, 247], "baseline": [174.33333333333334, 128.33333333333334, 123.0, 118.33333333333333, 179.33333333333334, 200.33333333333334, 220.66666666666666, 176.0, 177.0, 177.66666666666666, 216.0, 202.66666666666666, 164.0, 111.33333333333333, 111.33333333333333, 117.0, 162.0, 177.33333333333334, 239.33333333333334, 188.33333333333334, 185.33333333333334, 139.66666666666666, 175.0, 174.0, 139.33333333333334, 137.66666666666666, 168.0, 200.0, 214.66666666666666, 213.66666666666666, 218.66666666666666, 190.0, 119.33333333333333], "ml": [103.0, 123.0, 143.0, 275.0, 188.0, 198.0, 143.0, 176.0, 204.0, 255.0, 142.0, 101.0, 107.0, 130.0, 117.0, 223.0, 194.0, 280.0, 88.0, 184.0, 164.0, 184.0, 168.0, 61.0, 178.0, 267.0, 152.0, 226.0, 231.0, 214.0, 141.0, 173.0, 242.0]}, "WED-006": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [73, 85, 108, 154, 170, 144, 182, 124, 135, 133, 79, 77, 80, 105, 123, 172, 199, 163, 152, 140, 136, 132, 72, 63, 71, 104, 112, 179, 205, 144, 172, 134, 138], "baseline": [101.33333333333333, 80.0, 79.33333333333333, 88.66666666666667, 115.66666666666667, 144.0, 156.0, 165.33333333333334, 150.0, 147.0, 130.66666666666666, 115.66666666666667, 96.33333333333333, 78.66666666666667, 87.33333333333333, 102.66666666666667, 133.33333333333334, 164.66666666666666, 178.0, 171.33333333333334, 151.66666666666666, 142.66666666666666, 136.0, 113.33333333333333, 89.0, 68.66666666666667, 79.33333333333333, 95.66666666666667, 131.66666666666666, 165.33333333333334, 176.0, 173.66666666666666, 150.0], "ml": [75.0, 85.0, 106.0, 159.0, 174.0, 148.0, 164.0, 135.0, 145.0, 135.0, 81.0, 77.0, 79.0, 104.0, 115.0, 172.0, 199.0, 163.0, 159.0, 138.0, 141.0, 137.0, 80.0, 71.0, 71.0, 107.0, 112.0, 182.0, 193.0, 155.0, 160.0, 129.0, 156.0]}, "WED-007": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [559, 733, 539, 808, 748, 755, 783, 761, 838, 976, 686, 753, 682, 813, 666, 377, 747, 516, 763, 526, 726, 322, 621, 648, 590, 226, 789, 333, 757, 703, 320, 721, 470], "baseline": [755.3333333333334, 655.0, 668.0, 610.3333333333334, 693.3333333333334, 698.3333333333334, 770.3333333333334, 762.0, 766.3333333333334, 794.0, 858.3333333333334, 833.3333333333334, 805.0, 707.0, 749.3333333333334, 720.3333333333334, 618.6666666666666, 596.6666666666666, 546.6666666666666, 675.3333333333334, 601.6666666666666, 671.6666666666666, 524.6666666666666, 556.3333333333334, 530.3333333333334, 619.6666666666666, 488.0, 535.0, 449.3333333333333, 626.3333333333334, 597.6666666666666, 593.3333333333334, 581.3333333333334], "ml": [568.0, 724.0, 539.0, 806.0, 744.0, 756.0, 780.0, 764.0, 837.0, 971.0, 693.0, 745.0, 685.0, 808.0, 668.0, 381.0, 744.0, 513.0, 756.0, 521.0, 731.0, 326.0, 615.0, 640.0, 590.0, 227.0, 788.0, 704.0, 522.0, 380.0, 359.0, 439.0, 471.0]}, "WED-008": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [170, 198, 100, 160, 199, 137, 90, 152, 192, 172, 144, 125, 195, 99, 111, 169, 204, 74, 82, 52, 170, 123, 119, 162, 109, 144, 123, 196, 188, 107, 128, 177, 185], "baseline": [152.0, 143.66666666666666, 176.66666666666666, 156.0, 152.66666666666666, 153.0, 165.33333333333334, 142.0, 126.33333333333333, 144.66666666666666, 172.0, 169.33333333333334, 147.0, 154.66666666666666, 139.66666666666666, 135.0, 126.33333333333333, 161.33333333333334, 149.0, 120.0, 69.33333333333333, 101.33333333333333, 115.0, 137.33333333333334, 134.66666666666666, 130.0, 138.33333333333334, 125.33333333333333, 154.33333333333334, 169.0, 163.66666666666666, 141.0, 137.33333333333334], "ml": [172.0, 201.0, 121.0, 163.0, 193.0, 135.0, 95.0, 139.0, 192.0, 175.0, 143.0, 138.0, 186.0, 110.0, 112.0, 179.0, 201.0, 91.0, 83.0, 56.0, 166.0, 130.0, 117.0, 156.0, 122.0, 151.0, 130.0, 172.0, 185.0, 138.0, 129.0, 144.0, 160.0]}, "GTR-001": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [293, 518, 707, 756, 544, 576, 568, 830, 642, 764, 762, 469, 612, 475, 579, 518, 758, 789, 827, 161, 885, 265, 505, 629, 548, 472, 521, 743, 604, 794, 613, 577, 822], "baseline": [624.0, 537.0, 440.0, 506.0, 660.3333333333334, 669.0, 625.3333333333334, 562.6666666666666, 658.0, 680.0, 745.3333333333334, 722.6666666666666, 665.0, 614.3333333333334, 518.6666666666666, 555.3333333333334, 524.0, 618.3333333333334, 688.3333333333334, 791.3333333333334, 592.3333333333334, 624.3333333333334, 437.0, 551.6666666666666, 466.3333333333333, 560.6666666666666, 549.6666666666666, 513.6666666666666, 578.6666666666666, 622.6666666666666, 713.6666666666666, 670.3333333333334, 661.3333333333334], "ml": [299.0, 521.0, 720.0, 760.0, 564.0, 572.0, 580.0, 830.0, 655.0, 770.0, 761.0, 476.0, 602.0, 482.0, 580.0, 516.0, 751.0, 774.0, 814.0, 165.0, 883.0, 274.0, 504.0, 615.0, 546.0, 479.0, 529.0, 597.0, 688.0, 692.0, 741.0, 695.0, 769.0]}, "GTR-002": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [215, 210, 214, 165, 273, 169, 129, 308, 140, 260, 219, 185, 421, 273, 280, 121, 222, 308, 223, 372, 229, 240, 229, 274, 197, 229, 266, 219, 304, 307, 280, 255, 370], "baseline": [296.3333333333333, 305.3333333333333, 229.33333333333334, 213.0, 196.33333333333334, 217.33333333333334, 202.33333333333334, 190.33333333333334, 202.0, 192.33333333333334, 236.0, 206.33333333333334, 221.33333333333334, 275.0, 293.0, 324.6666666666667, 224.66666666666666, 207.66666666666666, 217.0, 251.0, 301.0, 274.6666666666667, 280.3333333333333, 232.66666666666666, 247.66666666666666, 233.33333333333334, 233.33333333333334, 230.66666666666666, 238.0, 263.0, 276.6666666666667, 297.0, 280.6666666666667], "ml": [223.0, 214.0, 224.0, 163.0, 255.0, 162.0, 135.0, 302.0, 149.0, 267.0, 225.0, 194.0, 420.0, 278.0, 275.0, 145.0, 222.0, 297.0, 215.0, 357.0, 235.0, 241.0, 230.0, 279.0, 210.0, 224.0, 266.0, 220.0, 227.0, 228.0, 251.0, 233.0, 207.0]}, "GTR-003": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [337, 264, 256, 240, 207, 166, 184, 176, 156, 217, 202, 250, 264, 294, 247, 281, 249, 161, 173, 157, 175, 180, 229, 285, 318, 246, 298, 270, 186, 175, 173, 124, 163], "baseline": [221.33333333333334, 277.0, 282.0, 285.6666666666667, 253.33333333333334, 234.33333333333334, 204.33333333333334, 185.66666666666666, 175.33333333333334, 172.0, 183.0, 191.66666666666666, 223.0, 238.66666666666666, 269.3333333333333, 268.3333333333333, 274.0, 259.0, 230.33333333333334, 194.33333333333334, 163.66666666666666, 168.33333333333334, 170.66666666666666, 194.66666666666666, 231.33333333333334, 277.3333333333333, 283.0, 287.3333333333333, 271.3333333333333, 251.33333333333334, 210.33333333333334, 178.0, 157.33333333333334], "ml": [324.0, 276.0, 268.0, 231.0, 213.0, 168.0, 175.0, 183.0, 161.0, 207.0, 206.0, 228.0, 262.0, 286.0, 261.0, 269.0, 241.0, 178.0, 183.0, 167.0, 177.0, 176.0, 211.0, 271.0, 306.0, 260.0, 286.0, 229.0, 215.0, 181.0, 183.0, 161.0, 153.0]}, "GTR-004": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [288, 579, 919, 911, 724, 223, 971, 928, 217, 704, 691, 589, 609, 678, 697, 863, 650, 250, 834, 709, 756, 877, 832, 889, 563, 701, 817, 917, 553, 686, 612, 680, 782], "baseline": [562.3333333333334, 388.3333333333333, 476.3333333333333, 595.3333333333334, 803.0, 851.3333333333334, 619.3333333333334, 639.3333333333334, 707.3333333333334, 705.3333333333334, 616.3333333333334, 537.3333333333334, 661.3333333333334, 629.6666666666666, 625.3333333333334, 661.3333333333334, 746.0, 736.6666666666666, 587.6666666666666, 578.0, 597.6666666666666, 766.3333333333334, 780.6666666666666, 821.6666666666666, 866.0, 761.3333333333334, 717.6666666666666, 693.6666666666666, 811.6666666666666, 762.3333333333334, 718.6666666666666, 617.0, 659.3333333333334], "ml": [309.0, 570.0, 904.0, 903.0, 712.0, 222.0, 971.0, 930.0, 216.0, 703.0, 693.0, 586.0, 613.0, 664.0, 698.0, 842.0, 654.0, 266.0, 826.0, 710.0, 765.0, 859.0, 835.0, 889.0, 556.0, 696.0, 813.0, 633.0, 703.0, 730.0, 665.0, 715.0, 760.0]}, "GTR-005": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [200, 217, 213, 163, 139, 135, 216, 219, 212, 206, 224, 164, 197, 210, 119, 73, 250, 192, 102, 146, 243, 148, 145, 233, 100, 114, 187, 193, 188, 224, 187, 205, 174], "baseline": [173.0, 170.66666666666666, 173.66666666666666, 210.0, 197.66666666666666, 171.66666666666666, 145.66666666666666, 163.33333333333334, 190.0, 215.66666666666666, 212.33333333333334, 214.0, 198.0, 195.0, 190.33333333333334, 175.33333333333334, 134.0, 147.33333333333334, 171.66666666666666, 181.33333333333334, 146.66666666666666, 163.66666666666666, 179.0, 178.66666666666666, 175.33333333333334, 159.33333333333334, 149.0, 133.66666666666666, 164.66666666666666, 189.33333333333334, 201.66666666666666, 199.66666666666666, 205.33333333333334], "ml": [198.0, 210.0, 197.0, 169.0, 155.0, 137.0, 194.0, 220.0, 204.0, 210.0, 213.0, 191.0, 197.0, 208.0, 141.0, 84.0, 254.0, 196.0, 114.0, 146.0, 232.0, 150.0, 152.0, 226.0, 113.0, 116.0, 181.0, 159.0, 178.0, 167.0, 184.0, 169.0, 174.0]}, "GTR-006": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [399, 414, 436, 389, 366, 276, 280, 282, 200, 279, 254, 339, 386, 476, 468, 372, 382, 300, 313, 233, 235, 218, 224, 303, 374, 341, 466, 470, 315, 329, 246, 232, 198], "baseline": [276.3333333333333, 336.3333333333333, 369.6666666666667, 416.3333333333333, 413.0, 397.0, 343.6666666666667, 307.3333333333333, 279.3333333333333, 254.0, 253.66666666666666, 244.33333333333334, 290.6666666666667, 326.3333333333333, 400.3333333333333, 443.3333333333333, 438.6666666666667, 407.3333333333333, 351.3333333333333, 331.6666666666667, 282.0, 260.3333333333333, 228.66666666666666, 225.66666666666666, 248.33333333333334, 300.3333333333333, 339.3333333333333, 393.6666666666667, 425.6666666666667, 417.0, 371.3333333333333, 296.6666666666667, 269.0], "ml": [389.0, 423.0, 441.0, 384.0, 369.0, 294.0, 293.0, 271.0, 203.0, 271.0, 253.0, 325.0, 378.0, 449.0, 456.0, 384.0, 381.0, 308.0, 309.0, 241.0, 240.0, 216.0, 231.0, 299.0, 358.0, 329.0, 449.0, 345.0, 375.0, 331.0, 339.0, 236.0, 206.0]}, "GTR-007": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [1091, 917, 977, 641, 335, 732, 865, 1130, 920, 753, 790, 594, 259, 159, 704, 706, 752, 797, 799, 813, 960, 720, 985, 916, 560, 810, 279, 836, 863, 917, 324, 941, 1019], "baseline": [801.3333333333334, 897.6666666666666, 882.3333333333334, 995.0, 845.0, 651.0, 569.3333333333334, 644.0, 909.0, 971.6666666666666, 934.3333333333334, 821.0, 712.3333333333334, 547.6666666666666, 337.3333333333333, 374.0, 523.0, 720.6666666666666, 751.6666666666666, 782.6666666666666, 803.0, 857.3333333333334, 831.0, 888.3333333333334, 873.6666666666666, 820.3333333333334, 762.0, 549.6666666666666, 641.6666666666666, 659.3333333333334, 872.0, 701.3333333333334, 727.3333333333334], "ml": [1083.0, 914.0, 975.0, 646.0, 336.0, 723.0, 856.0, 1123.0, 913.0, 755.0, 795.0, 603.0, 261.0, 174.0, 699.0, 703.0, 748.0, 793.0, 809.0, 816.0, 949.0, 724.0, 978.0, 916.0, 568.0, 811.0, 283.0, 541.0, 448.0, 728.0, 295.0, 504.0, 406.0]}, "GTR-008": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [108, 99, 62, 53, 128, 63, 72, 109, 91, 80, 87, 116, 60, 49, 109, 100, 73, 51, 80, 94, 138, 57, 87, 102, 17, 109, 60, 99, 92, 122, 108, 30, 77], "baseline": [120.0, 122.33333333333333, 117.33333333333333, 89.66666666666667, 71.33333333333333, 81.0, 81.33333333333333, 87.66666666666667, 81.33333333333333, 90.66666666666667, 93.33333333333333, 86.0, 94.33333333333333, 87.66666666666667, 75.0, 72.66666666666667, 86.0, 94.0, 74.66666666666667, 68.0, 75.0, 104.0, 96.33333333333333, 94.0, 82.0, 68.66666666666667, 76.0, 62.0, 89.33333333333333, 83.66666666666667, 104.33333333333333, 107.33333333333333, 86.66666666666667], "ml": [110.0, 93.0, 66.0, 63.0, 122.0, 61.0, 74.0, 107.0, 87.0, 86.0, 88.0, 107.0, 63.0, 54.0, 101.0, 94.0, 75.0, 51.0, 83.0, 93.0, 134.0, 61.0, 88.0, 111.0, 25.0, 106.0, 70.0, 76.0, 97.0, 62.0, 71.0, 85.0, 65.0]}};
+
+const COLORS = {
+    navy: '#0a1628',
+    navyLight: '#132042',
+    green: '#00d68f',
+    blue: '#4dabf7',
+    red: '#ff6b6b',
+    amber: '#ffc107',
+    text: '#e8edf5',
+    textSec: '#8899b4',
+    gridColor: '#1e3258',
+};
+
+const plotLayout = {
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { family: 'Segoe UI, system-ui, sans-serif', color: COLORS.text, size: 12 },
+    margin: { l: 50, r: 30, t: 20, b: 50 },
+    xaxis: { gridcolor: COLORS.gridColor, zerolinecolor: COLORS.gridColor },
+    yaxis: { gridcolor: COLORS.gridColor, zerolinecolor: COLORS.gridColor },
+    legend: { bgcolor: 'rgba(0,0,0,0)', font: { size: 11 } },
+};
+
+function switchTab(name) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+    // Trigger resize for plotly
+    window.dispatchEvent(new Event('resize'));
+}
+
+// ---- TAB 1: OVERVIEW ----
+function renderOverview() {
+    // Pool comparison bar chart
+    const pools = poolData.map(p => p.signal_pool);
+    Plotly.newPlot('chart-pool-comparison', [
+        {
+            x: pools, y: poolData.map(p => p.baseline_fa),
+            type: 'bar', name: 'Baseline (SMA)',
+            marker: { color: COLORS.blue, opacity: 0.8 },
+            text: poolData.map(p => p.baseline_fa.toFixed(1) + '%'),
+            textposition: 'outside', textfont: { size: 11 },
+        },
+        {
+            x: pools, y: poolData.map(p => p.ml_fa),
+            type: 'bar', name: 'ML (GBR)',
+            marker: { color: COLORS.green, opacity: 0.9 },
+            text: poolData.map(p => p.ml_fa.toFixed(1) + '%'),
+            textposition: 'outside', textfont: { size: 11 },
+        }
+    ], {
+        ...plotLayout,
+        barmode: 'group',
+        yaxis: { ...plotLayout.yaxis, title: 'Forecast Accuracy %', range: [0, 105] },
+        xaxis: { ...plotLayout.xaxis, title: '' },
+        legend: { ...plotLayout.legend, orientation: 'h', y: 1.12, x: 0.5, xanchor: 'center' },
+    }, { responsive: true });
+
+    // FA distribution
+    Plotly.newPlot('chart-fa-distribution', [
+        {
+            x: metricsData.map(m => m.baseline_fa),
+            type: 'histogram', name: 'Baseline',
+            marker: { color: COLORS.blue, opacity: 0.6 },
+            nbinsx: 15,
+        },
+        {
+            x: metricsData.map(m => m.ml_fa),
+            type: 'histogram', name: 'ML Model',
+            marker: { color: COLORS.green, opacity: 0.6 },
+            nbinsx: 15,
+        }
+    ], {
+        ...plotLayout,
+        barmode: 'overlay',
+        xaxis: { ...plotLayout.xaxis, title: 'Forecast Accuracy %' },
+        yaxis: { ...plotLayout.yaxis, title: 'Number of SKUs' },
+        legend: { ...plotLayout.legend, orientation: 'h', y: 1.12, x: 0.5, xanchor: 'center' },
+    }, { responsive: true });
+
+    // SKU scatter
+    const poolColors = {
+        'AQI': '#ff6b6b', 'Monsoon': '#4dabf7', 'Temperature': '#ffc107',
+        'Wedding': '#cc5de8', 'GoogleTrends': '#51cf66'
+    };
+    const scatterTraces = [];
+    const poolNames = [...new Set(metricsData.map(m => m.signal_pool))];
+    poolNames.forEach(pool => {
+        const items = metricsData.filter(m => m.signal_pool === pool);
+        scatterTraces.push({
+            x: items.map(i => i.baseline_fa),
+            y: items.map(i => i.ml_fa),
+            text: items.map(i => i.sku_name + ' (' + i.sku_id + ')'),
+            mode: 'markers',
+            type: 'scatter',
+            name: pool,
+            marker: { color: poolColors[pool] || COLORS.green, size: 10, opacity: 0.8 },
+        });
+    });
+    // Add diagonal reference line
+    scatterTraces.push({
+        x: [0, 100], y: [0, 100],
+        mode: 'lines', name: 'No Change Line',
+        line: { color: COLORS.textSec, dash: 'dash', width: 1 },
+        showlegend: false,
+    });
+    Plotly.newPlot('chart-sku-scatter', scatterTraces, {
+        ...plotLayout,
+        xaxis: { ...plotLayout.xaxis, title: 'Baseline FA %', range: [0, 105] },
+        yaxis: { ...plotLayout.yaxis, title: 'ML FA %', range: [0, 105] },
+        legend: { ...plotLayout.legend, orientation: 'h', y: 1.15, x: 0.5, xanchor: 'center' },
+        annotations: [{
+            x: 30, y: 90, text: 'ML Better', showarrow: false,
+            font: { color: COLORS.green, size: 12 },
+        }, {
+            x: 90, y: 30, text: 'Baseline Better', showarrow: false,
+            font: { color: COLORS.red, size: 12 },
+        }],
+    }, { responsive: true });
+}
+
+// ---- TAB 2: RISK FLAGS ----
+function renderRisk() {
+    // Anomaly alerts
+    const alertContainer = document.getElementById('anomaly-alerts');
+    if (anomaliesData.length === 0) {
+        alertContainer.innerHTML = '<div class="chart-container" style="border-color:rgba(0,214,143,0.3);background:rgba(0,214,143,0.05)"><span style="color:var(--accent-green);font-weight:600">&#10003; No signal anomalies detected — all external indicators within normal range.</span></div>';
+    } else {
+        alertContainer.innerHTML = anomaliesData.map(a =>
+            `<div class="alert-box"><span class="icon">&#9888;</span><span>${a.message}</span></div>`
+        ).join('');
+    }
+
+    // Risk table
+    const tableContainer = document.getElementById('risk-table-container');
+    if (riskData.length === 0) {
+        tableContainer.innerHTML = '<p style="color:var(--accent-green);padding:20px;text-align:center">No SKUs below 70% forecast accuracy — all performing within acceptable range.</p>';
+    } else {
+        let html = '<table><thead><tr><th>SKU ID</th><th>SKU Name</th><th>Pool</th><th>Class</th><th>ML FA%</th><th>MAPE Vol.</th><th>Risk Score</th><th>Status</th></tr></thead><tbody>';
+        riskData.forEach(r => {
+            const badge = r.risk_score > 60 ? 'badge-red' : (r.risk_score > 40 ? 'badge-amber' : 'badge-green');
+            const status = r.risk_score > 60 ? 'CRITICAL' : (r.risk_score > 40 ? 'WARNING' : 'WATCH');
+            html += `<tr>
+                <td style="font-weight:600">${r.sku_id}</td>
+                <td>${r.sku_name}</td>
+                <td>${r.signal_pool}</td>
+                <td><span class="badge badge-amber">${r.abc_xyz}</span></td>
+                <td style="color:${r.ml_fa < 50 ? COLORS.red : COLORS.amber}">${r.ml_fa.toFixed(1)}%</td>
+                <td>${r.mape_volatility.toFixed(1)}</td>
+                <td style="font-weight:700;color:${r.risk_score > 60 ? COLORS.red : COLORS.amber}">${r.risk_score.toFixed(0)}</td>
+                <td><span class="badge ${badge}">${status}</span></td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        tableContainer.innerHTML = html;
+    }
+
+    // Risk scatter
+    if (riskData.length > 0) {
+        Plotly.newPlot('chart-risk-scatter', [{
+            x: riskData.map(r => r.ml_fa),
+            y: riskData.map(r => r.risk_score),
+            text: riskData.map(r => r.sku_name),
+            mode: 'markers+text',
+            type: 'scatter',
+            textposition: 'top center',
+            textfont: { size: 10, color: COLORS.textSec },
+            marker: {
+                color: riskData.map(r => r.risk_score),
+                colorscale: [[0, COLORS.amber], [1, COLORS.red]],
+                size: 14,
+                line: { color: 'rgba(255,255,255,0.2)', width: 1 },
+            },
+        }], {
+            ...plotLayout,
+            xaxis: { ...plotLayout.xaxis, title: 'ML Forecast Accuracy %' },
+            yaxis: { ...plotLayout.yaxis, title: 'Risk Score' },
+            showlegend: false,
+        }, { responsive: true });
+    }
+}
+
+// ---- TAB 3: RECOMMENDATIONS ----
+function populateSkuDropdowns() {
+    const selector = document.getElementById('sku-selector');
+    const safetySelector = document.getElementById('safety-sku-selector');
+    metricsData.forEach(m => {
+        const opt = `<option value="${m.sku_id}">${m.sku_id} — ${m.sku_name} (${m.signal_pool})</option>`;
+        selector.innerHTML += opt;
+        safetySelector.innerHTML += opt;
+    });
+}
+
+function updateRecommendation() {
+    const skuId = document.getElementById('sku-selector').value;
+    const m = metricsData.find(x => x.sku_id === skuId);
+    if (!m) return;
+
+    const recommended = m.ml_fa > m.baseline_fa ? 'ML (Gradient Boosting)' : 'Baseline (3M SMA)';
+    const recFA = Math.max(m.ml_fa, m.baseline_fa);
+    const ts = tsData[skuId];
+    const future = futureData.filter(f => f.sku_id === skuId);
+
+    let html = `
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="label">Recommended Model</div>
+            <div class="value green" style="font-size:22px">${recommended}</div>
+            <div class="sub">Best performing model for this SKU</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Current FA%</div>
+            <div class="value green">${recFA.toFixed(1)}%</div>
+            <div class="sub">On test period (6 months)</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Improvement over Baseline</div>
+            <div class="value" style="color:${m.improvement > 0 ? COLORS.green : COLORS.red}">${m.improvement > 0 ? '+' : ''}${m.improvement.toFixed(1)}%</div>
+            <div class="sub">ML vs Baseline accuracy delta</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Avg Monthly Demand</div>
+            <div class="value blue">${Math.round(m.avg_demand)}</div>
+            <div class="sub">units/month</div>
+        </div>
+    </div>
+    <div class="two-col">
+        <div class="chart-container">
+            <div class="chart-title">Historical Demand vs Forecasts — ${m.sku_name}</div>
+            <div id="chart-ts-detail"></div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-title">Next 3-Month Forecast with Confidence Interval</div>
+            <div id="chart-future-forecast"></div>
+        </div>
+    </div>`;
+    document.getElementById('recommendation-content').innerHTML = html;
+
+    // Time series chart
+    if (ts) {
+        const traces = [
+            { x: ts.dates, y: ts.actual, name: 'Actual', type: 'scatter', mode: 'lines+markers',
+               line: { color: COLORS.text, width: 2 }, marker: { size: 4 } },
+            { x: ts.dates, y: ts.baseline, name: 'Baseline (SMA)', type: 'scatter', mode: 'lines',
+               line: { color: COLORS.blue, width: 2, dash: 'dot' } },
+        ];
+        if (ts.ml) {
+            traces.push({ x: ts.dates, y: ts.ml, name: 'ML Model', type: 'scatter', mode: 'lines',
+               line: { color: COLORS.green, width: 2 } });
+        }
+        // Add train/test split line
+        const splitIdx = Math.min(29, ts.dates.length - 1);
+        traces.push({
+            x: [ts.dates[splitIdx], ts.dates[splitIdx]],
+            y: [0, Math.max(...ts.actual.filter(v => v !== null)) * 1.2],
+            mode: 'lines', name: 'Train/Test Split',
+            line: { color: COLORS.amber, dash: 'dash', width: 1 },
+        });
+        Plotly.newPlot('chart-ts-detail', traces, {
+            ...plotLayout,
+            xaxis: { ...plotLayout.xaxis, title: '' },
+            yaxis: { ...plotLayout.yaxis, title: 'Demand (units)' },
+            legend: { ...plotLayout.legend, orientation: 'h', y: 1.12, x: 0.5, xanchor: 'center' },
+        }, { responsive: true });
+    }
+
+    // Future forecast
+    if (future.length > 0) {
+        const futureDates = future.map(f => f.date.substring(0, 10));
+        Plotly.newPlot('chart-future-forecast', [
+            {
+                x: futureDates, y: future.map(f => f.upper_bound),
+                type: 'scatter', mode: 'lines', name: 'Upper Bound',
+                line: { color: 'rgba(0,214,143,0.3)', width: 0 }, showlegend: false,
+            },
+            {
+                x: futureDates, y: future.map(f => f.lower_bound),
+                type: 'scatter', mode: 'lines', name: 'Confidence Interval',
+                fill: 'tonexty', fillcolor: 'rgba(0,214,143,0.12)',
+                line: { color: 'rgba(0,214,143,0.3)', width: 0 },
+            },
+            {
+                x: futureDates, y: future.map(f => f.forecast),
+                type: 'scatter', mode: 'lines+markers', name: 'Point Forecast',
+                line: { color: COLORS.green, width: 3 },
+                marker: { size: 8 },
+            },
+        ], {
+            ...plotLayout,
+            xaxis: { ...plotLayout.xaxis, title: '' },
+            yaxis: { ...plotLayout.yaxis, title: 'Forecasted Demand' },
+            legend: { ...plotLayout.legend, orientation: 'h', y: 1.12, x: 0.5, xanchor: 'center' },
+        }, { responsive: true });
+    }
+}
+
+// ---- TAB 4: SAFETY STOCK ----
+function updateSafetyStock() {
+    const skuId = document.getElementById('safety-sku-selector').value;
+    const m = metricsData.find(x => x.sku_id === skuId);
+    if (!m) return;
+
+    const baselineSS = m.baseline_safety_stock;
+    const mlSS = m.ml_safety_stock;
+    const reduction = m.safety_stock_reduction;
+
+    // Estimate cost: assume unit cost proportional to avg demand category
+    const unitCost = m.abc_xyz.startsWith('B') ? 45 : 22;
+    const baselineCost = baselineSS * unitCost;
+    const mlCost = mlSS * unitCost;
+    const costSaving = baselineCost - mlCost;
+    const costSavingPct = baselineCost > 0 ? (costSaving / baselineCost * 100) : 0;
+
+    let html = `
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="label">SKU</div>
+            <div class="value blue" style="font-size:18px">${m.sku_name}</div>
+            <div class="sub">${m.sku_id} | ${m.signal_pool} Pool | ${m.abc_xyz}</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Forecast Error Std (Baseline)</div>
+            <div class="value" style="color:var(--accent-blue)">${m.baseline_error_std.toFixed(0)}</div>
+            <div class="sub">units</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Forecast Error Std (ML)</div>
+            <div class="value green">${m.ml_error_std.toFixed(0)}</div>
+            <div class="sub">units</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Inventory Cost Saving</div>
+            <div class="value green">${costSavingPct.toFixed(1)}%</div>
+            <div class="sub">&#8377;${Math.round(costSaving).toLocaleString()} saved</div>
+        </div>
+    </div>
+
+    <div class="two-col">
+        <div class="chart-container">
+            <div class="chart-title">Safety Stock Comparison</div>
+            <div class="comparison-row">
+                <div class="stat-block baseline">
+                    <div class="stat-label">Baseline Safety Stock</div>
+                    <div class="stat-value">${Math.round(baselineSS)}</div>
+                    <div style="font-size:12px;color:var(--text-secondary)">units</div>
+                </div>
+                <div class="arrow">&#10132;</div>
+                <div class="stat-block ml">
+                    <div class="stat-label">Optimized (ML) Safety Stock</div>
+                    <div class="stat-value">${Math.round(mlSS)}</div>
+                    <div style="font-size:12px;color:var(--text-secondary)">units</div>
+                </div>
+            </div>
+            <div style="text-align:center;margin-top:16px">
+                <div style="font-size:12px;color:var(--text-secondary)">Safety Stock Reduction</div>
+                <div class="savings-badge">${reduction.toFixed(1)}% reduction</div>
+            </div>
+            <div style="margin-top:20px;padding:16px;background:var(--navy);border-radius:8px;font-size:12px;color:var(--text-secondary)">
+                <strong>Formula:</strong> Safety Stock = Z &times; &sigma;<sub>forecast error</sub> &times; &radic;Lead Time<br>
+                <strong>Parameters:</strong> Z = 1.65 (95% SL) | Lead Time = 30 days
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-title">Safety Stock — All SKUs</div>
+            <div id="chart-safety-all"></div>
+        </div>
+    </div>`;
+
+    document.getElementById('safety-content').innerHTML = html;
+
+    // All SKUs safety stock chart
+    const sorted = [...metricsData].sort((a, b) => b.safety_stock_reduction - a.safety_stock_reduction);
+    const top20 = sorted.slice(0, 20);
+    Plotly.newPlot('chart-safety-all', [
+        {
+            y: top20.map(s => s.sku_id),
+            x: top20.map(s => s.baseline_safety_stock),
+            type: 'bar', orientation: 'h', name: 'Baseline',
+            marker: { color: COLORS.blue, opacity: 0.7 },
+        },
+        {
+            y: top20.map(s => s.sku_id),
+            x: top20.map(s => s.ml_safety_stock),
+            type: 'bar', orientation: 'h', name: 'ML Optimized',
+            marker: { color: COLORS.green, opacity: 0.8 },
+        },
+    ], {
+        ...plotLayout,
+        barmode: 'group',
+        height: 500,
+        margin: { l: 80, r: 30, t: 10, b: 40 },
+        xaxis: { ...plotLayout.xaxis, title: 'Safety Stock (units)' },
+        yaxis: { ...plotLayout.yaxis, autorange: 'reversed' },
+        legend: { ...plotLayout.legend, orientation: 'h', y: 1.05, x: 0.5, xanchor: 'center' },
+    }, { responsive: true });
+}
+
+// ---- INIT ----
+function init() {
+    populateSkuDropdowns();
+    renderOverview();
+    renderRisk();
+    updateRecommendation();
+    updateSafetyStock();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
