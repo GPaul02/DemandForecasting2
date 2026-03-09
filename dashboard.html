@@ -267,6 +267,205 @@ select:focus { outline: none; border-color: var(--accent-green); }
     font-weight: 700;
     margin-top: 12px;
 }
+
+/* ---- CHATBOT STYLES ---- */
+.chat-fab {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-green), #00b377);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,214,143,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.chat-fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(0,214,143,0.55); }
+.chat-fab svg { width: 26px; height: 26px; fill: var(--navy); }
+
+.chat-panel {
+    position: fixed;
+    bottom: 96px;
+    right: 28px;
+    width: 400px;
+    max-height: 560px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+    z-index: 9998;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+.chat-panel.open { display: flex; }
+
+.chat-header {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, var(--navy-mid), var(--navy-light));
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.chat-header .chat-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--navy);
+}
+.chat-header .chat-title {
+    flex: 1;
+}
+.chat-header .chat-title h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+}
+.chat-header .chat-title span {
+    font-size: 11px;
+    color: var(--accent-green);
+}
+.chat-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+}
+.chat-close:hover { color: var(--text-primary); }
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 380px;
+    min-height: 200px;
+}
+.chat-msg {
+    max-width: 88%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+.chat-msg.bot {
+    align-self: flex-start;
+    background: var(--navy-light);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+}
+.chat-msg.user {
+    align-self: flex-end;
+    background: var(--accent-green);
+    color: var(--navy);
+    font-weight: 500;
+}
+.chat-msg .msg-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    opacity: 0.7;
+}
+.chat-msg code {
+    background: rgba(0,0,0,0.2);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+.chat-msg strong { color: var(--accent-green); }
+.chat-msg.user strong { color: var(--navy); }
+
+.chat-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 16px 12px;
+}
+.chat-suggestion {
+    background: var(--navy);
+    border: 1px solid var(--card-border);
+    color: var(--text-secondary);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.chat-suggestion:hover {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+}
+
+.chat-input-row {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--card-border);
+    background: var(--navy-light);
+}
+.chat-input-row input {
+    flex: 1;
+    background: var(--input-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    outline: none;
+}
+.chat-input-row input::placeholder { color: var(--text-secondary); opacity: 0.6; }
+.chat-input-row input:focus { border-color: var(--accent-green); }
+.chat-send {
+    background: var(--accent-green);
+    border: none;
+    color: var(--navy);
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    transition: background 0.15s;
+}
+.chat-send:hover { background: #00c480; }
+.typing-dots { display: inline-flex; gap: 3px; padding: 4px 0; }
+.typing-dots span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--text-secondary);
+    animation: dotPulse 1.2s infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotPulse {
+    0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1); }
+}
+@media (max-width: 500px) {
+    .chat-panel { width: calc(100vw - 24px); right: 12px; bottom: 80px; }
+}
 </style>
 </head>
 <body>
@@ -375,6 +574,39 @@ select:focus { outline: none; border-color: var(--accent-green); }
         <select id="safety-sku-selector" onchange="updateSafetyStock()"></select>
     </div>
     <div id="safety-content"></div>
+</div>
+
+<!-- CHATBOT WIDGET -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()" title="Ask PharmaCast Assistant">
+    <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/><path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/></svg>
+</button>
+
+<div class="chat-panel" id="chatPanel">
+    <div class="chat-header">
+        <div class="chat-avatar">PC</div>
+        <div class="chat-title">
+            <h3>PharmaCast Assistant</h3>
+            <span>Online — Ask me about your forecast data</span>
+        </div>
+        <button class="chat-close" onclick="toggleChat()">&times;</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+        <div class="chat-msg bot">
+            <div class="msg-label">PharmaCast Assistant</div>
+            Welcome! I can help you understand your demand forecasts, risk flags, safety stock, and more.<br><br>
+            Try asking me about a specific SKU, signal pool, or any of the topics below.
+        </div>
+    </div>
+    <div class="chat-suggestions" id="chatSuggestions">
+        <div class="chat-suggestion" onclick="askSuggestion(this)">Which SKUs are at risk?</div>
+        <div class="chat-suggestion" onclick="askSuggestion(this)">Best performing pool?</div>
+        <div class="chat-suggestion" onclick="askSuggestion(this)">Show top improvements</div>
+        <div class="chat-suggestion" onclick="askSuggestion(this)">Safety stock savings</div>
+    </div>
+    <div class="chat-input-row">
+        <input type="text" id="chatInput" placeholder="Ask about forecasts, risk, SKUs..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="chat-send" onclick="sendChat()">&#10148;</button>
+    </div>
 </div>
 
 <script>
@@ -793,6 +1025,455 @@ function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+// ============================================================
+// CHATBOT ENGINE
+// ============================================================
+
+function toggleChat() {
+    const panel = document.getElementById('chatPanel');
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open')) {
+        document.getElementById('chatInput').focus();
+    }
+}
+
+function askSuggestion(el) {
+    document.getElementById('chatInput').value = el.textContent;
+    sendChat();
+}
+
+function sendChat() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+
+    appendMsg(text, 'user');
+    showTyping();
+
+    setTimeout(() => {
+        removeTyping();
+        const response = generateResponse(text);
+        appendMsg(response, 'bot');
+        updateSuggestions(text);
+    }, 400 + Math.random() * 400);
+}
+
+function appendMsg(html, role) {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    if (role === 'bot') div.innerHTML = '<div class="msg-label">PharmaCast Assistant</div>' + html;
+    else div.textContent = html;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'chat-msg bot';
+    div.id = 'typingIndicator';
+    div.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+
+function removeTyping() {
+    const el = document.getElementById('typingIndicator');
+    if (el) el.remove();
+}
+
+function updateSuggestions(lastQuery) {
+    const sugBox = document.getElementById('chatSuggestions');
+    const q = lastQuery.toLowerCase();
+    let suggestions = [];
+
+    if (q.includes('risk') || q.includes('flag'))
+        suggestions = ['Show worst performing SKU', 'Any signal anomalies?', 'How to reduce risk?', 'Explain risk score'];
+    else if (q.includes('safety') || q.includes('stock') || q.includes('inventory'))
+        suggestions = ['Biggest safety stock saving?', 'Explain the formula', 'Which SKU needs most stock?', 'Total cost savings'];
+    else if (q.includes('pool') || q.includes('signal'))
+        suggestions = ['AQI pool details', 'Monsoon pool details', 'Which pool improved most?', 'Signal anomalies?'];
+    else if (q.includes('improv') || q.includes('best') || q.includes('top'))
+        suggestions = ['Worst performing SKUs', 'Which pool is best?', 'Overall accuracy summary', 'Any at-risk SKUs?'];
+    else
+        suggestions = ['Overall summary', 'Which SKUs are at risk?', 'Best performing pool?', 'Safety stock savings'];
+
+    sugBox.innerHTML = suggestions.map(s =>
+        `<div class="chat-suggestion" onclick="askSuggestion(this)">${s}</div>`
+    ).join('');
+}
+
+// ---- CORE NLP RESPONSE ENGINE ----
+function generateResponse(query) {
+    const q = query.toLowerCase().replace(/[?!.,]/g, '');
+    const words = q.split(/\s+/);
+
+    // Try to find a mentioned SKU
+    const skuMatch = findMentionedSku(q);
+    // Try to find a mentioned pool
+    const poolMatch = findMentionedPool(q);
+
+    // ---- SKU-specific queries ----
+    if (skuMatch) return skuDetailResponse(skuMatch, q);
+
+    // ---- Pool-specific queries ----
+    if (poolMatch) return poolDetailResponse(poolMatch, q);
+
+    // ---- Risk / at-risk queries ----
+    if (matchesAny(q, ['risk', 'at risk', 'flag', 'critical', 'warning', 'danger', 'alert', 'problem']))
+        return riskResponse(q);
+
+    // ---- Safety stock / inventory ----
+    if (matchesAny(q, ['safety stock', 'inventory', 'stock saving', 'cost saving', 'warehouse']))
+        return safetyStockResponse(q);
+
+    // ---- Best / top / improvement ----
+    if (matchesAny(q, ['best', 'top', 'improv', 'winner', 'highest accuracy', 'good']))
+        return topPerformersResponse(q);
+
+    // ---- Worst / lowest ----
+    if (matchesAny(q, ['worst', 'lowest', 'poor', 'bad', 'underperform']))
+        return worstPerformersResponse(q);
+
+    // ---- Summary / overview / how are we doing ----
+    if (matchesAny(q, ['summary', 'overview', 'overall', 'how are', 'status', 'dashboard', 'kpi', 'total']))
+        return overviewResponse();
+
+    // ---- Model / recommend / which model ----
+    if (matchesAny(q, ['model', 'recommend', 'which model', 'algorithm', 'ml', 'baseline', 'gradient', 'xgboost', 'sma']))
+        return modelResponse(q);
+
+    // ---- Signal / anomaly ----
+    if (matchesAny(q, ['signal', 'anomal', 'aqi', 'weather', 'temperature', 'monsoon', 'wedding', 'google trend', 'external']))
+        return signalResponse(q);
+
+    // ---- Formula / explain ----
+    if (matchesAny(q, ['formula', 'explain', 'how does', 'what is', 'meaning', 'define', 'calculate']))
+        return explainResponse(q);
+
+    // ---- Forecast / predict / next month ----
+    if (matchesAny(q, ['forecast', 'predict', 'next month', 'future', 'project']))
+        return forecastResponse(q);
+
+    // ---- Help / what can you do ----
+    if (matchesAny(q, ['help', 'what can', 'how to', 'guide', 'capability']))
+        return helpResponse();
+
+    // ---- Greeting ----
+    if (matchesAny(q, ['hello', 'hi', 'hey', 'good morning', 'good afternoon']))
+        return "Hello! I'm your PharmaCast Assistant. I can help you with:<br><br>" +
+               "&#8226; <strong>SKU analysis</strong> — ask about any specific SKU<br>" +
+               "&#8226; <strong>Risk flags</strong> — which SKUs need attention<br>" +
+               "&#8226; <strong>Forecast accuracy</strong> — baseline vs ML comparison<br>" +
+               "&#8226; <strong>Safety stock</strong> — optimization and savings<br>" +
+               "&#8226; <strong>Signal pools</strong> — AQI, Monsoon, Temperature, etc.<br><br>" +
+               "Just type your question!";
+
+    // ---- Fallback ----
+    return fallbackResponse(q);
+}
+
+function matchesAny(text, keywords) {
+    return keywords.some(k => text.includes(k));
+}
+
+function findMentionedSku(q) {
+    // Check for SKU ID pattern
+    for (const m of metricsData) {
+        if (q.includes(m.sku_id.toLowerCase())) return m;
+    }
+    // Check for product name
+    for (const m of metricsData) {
+        const nameLower = m.sku_name.toLowerCase();
+        const nameWords = nameLower.split(/\s+/);
+        // Match if at least the first significant word of the name appears
+        if (nameWords.some(w => w.length > 3 && q.includes(w))) return m;
+    }
+    return null;
+}
+
+function findMentionedPool(q) {
+    const poolMap = {
+        'aqi': 'AQI', 'respiratory': 'AQI', 'air quality': 'AQI',
+        'monsoon': 'Monsoon', 'rain': 'Monsoon', 'precipitation': 'Monsoon', 'malaria': 'Monsoon',
+        'temperature': 'Temperature', 'heat': 'Temperature', 'electrolyte': 'Temperature', 'summer': 'Temperature',
+        'wedding': 'Wedding', 'vitamin': 'Wedding', 'supplement': 'Wedding', 'nutraceut': 'Wedding',
+        'google': 'GoogleTrends', 'trend': 'GoogleTrends', 'search': 'GoogleTrends', 'symptom': 'GoogleTrends',
+    };
+    for (const [keyword, pool] of Object.entries(poolMap)) {
+        if (q.includes(keyword)) return pool;
+    }
+    return null;
+}
+
+function skuDetailResponse(m, q) {
+    const recommended = m.ml_fa > m.baseline_fa ? 'ML (Gradient Boosting)' : 'Baseline (3M SMA)';
+    const bestFA = Math.max(m.ml_fa, m.baseline_fa);
+    const riskStatus = m.ml_fa < 70 ? '<span style="color:#ff6b6b">&#9888; AT RISK</span>' : '<span style="color:#00d68f">&#10003; Healthy</span>';
+    const unitCost = m.abc_xyz.startsWith('B') ? 45 : 22;
+    const bSS = m.baseline_safety_stock;
+    const mSS = m.ml_safety_stock;
+    const saving = bSS > 0 ? ((bSS - mSS) / bSS * 100).toFixed(1) : '0';
+
+    let resp = `<strong>${m.sku_name}</strong> (<code>${m.sku_id}</code>)<br>`;
+    resp += `Pool: ${m.signal_pool} | Class: ${m.abc_xyz} | Status: ${riskStatus}<br><br>`;
+    resp += `<strong>Forecast Accuracy:</strong><br>`;
+    resp += `&#8226; Baseline (SMA): ${m.baseline_fa.toFixed(1)}%<br>`;
+    resp += `&#8226; ML Model: ${m.ml_fa.toFixed(1)}%<br>`;
+    resp += `&#8226; Improvement: <strong>${m.improvement > 0 ? '+' : ''}${m.improvement.toFixed(1)}%</strong><br><br>`;
+    resp += `<strong>Recommendation:</strong> Use ${recommended} (${bestFA.toFixed(1)}% accuracy)<br>`;
+    resp += `<strong>Avg Monthly Demand:</strong> ${Math.round(m.avg_demand)} units<br>`;
+    resp += `<strong>Safety Stock Saving:</strong> ${saving}% (${Math.round(bSS)} → ${Math.round(mSS)} units)`;
+
+    // If they asked about forecast specifically
+    if (matchesAny(q, ['forecast', 'predict', 'next'])) {
+        const future = futureData.filter(f => f.sku_id === m.sku_id);
+        if (future.length > 0) {
+            resp += `<br><br><strong>Next 3-Month Forecast:</strong><br>`;
+            future.forEach(f => {
+                const dt = f.date.substring(0, 7);
+                resp += `&#8226; ${dt}: ${Math.round(f.forecast)} units (${Math.round(f.lower_bound)} – ${Math.round(f.upper_bound)})<br>`;
+            });
+        }
+    }
+
+    return resp;
+}
+
+function poolDetailResponse(pool, q) {
+    const poolSkus = metricsData.filter(m => m.signal_pool === pool);
+    const pd = poolData.find(p => p.signal_pool === pool);
+    if (!pd) return `I don't have data for pool "${pool}".`;
+
+    const atRiskCount = poolSkus.filter(s => s.ml_fa < 70).length;
+    const bestSku = poolSkus.reduce((a, b) => a.ml_fa > b.ml_fa ? a : b);
+    const worstSku = poolSkus.reduce((a, b) => a.ml_fa < b.ml_fa ? a : b);
+
+    let resp = `<strong>${pool} Signal Pool</strong><br><br>`;
+    resp += `<strong>Performance:</strong><br>`;
+    resp += `&#8226; Baseline FA: ${pd.baseline_fa.toFixed(1)}%<br>`;
+    resp += `&#8226; ML FA: ${pd.ml_fa.toFixed(1)}%<br>`;
+    resp += `&#8226; Improvement: <strong>+${pd.improvement.toFixed(1)}%</strong><br>`;
+    resp += `&#8226; SKUs: ${poolSkus.length} total, <span style="color:${atRiskCount > 0 ? '#ff6b6b' : '#00d68f'}">${atRiskCount} at risk</span><br><br>`;
+    resp += `<strong>Best:</strong> ${bestSku.sku_name} (${bestSku.ml_fa.toFixed(1)}% FA)<br>`;
+    resp += `<strong>Worst:</strong> ${worstSku.sku_name} (${worstSku.ml_fa.toFixed(1)}% FA)`;
+
+    return resp;
+}
+
+function riskResponse(q) {
+    const atRiskSkus = metricsData.filter(m => m.ml_fa < 70)
+        .sort((a, b) => a.ml_fa - b.ml_fa);
+
+    if (atRiskSkus.length === 0)
+        return "<strong style='color:#00d68f'>&#10003; Great news!</strong> No SKUs are currently below the 70% forecast accuracy threshold.";
+
+    let resp = `<strong style="color:#ff6b6b">&#9888; ${atRiskSkus.length} SKUs At Risk</strong> (FA < 70%)<br><br>`;
+
+    // Show top 5 worst
+    const show = atRiskSkus.slice(0, 5);
+    show.forEach((s, i) => {
+        const riskScore = (100 - s.ml_fa + s.mape_volatility).toFixed(0);
+        resp += `${i+1}. <strong>${s.sku_name}</strong> (<code>${s.sku_id}</code>) — ${s.ml_fa.toFixed(1)}% FA, Risk: ${riskScore}<br>`;
+    });
+
+    if (atRiskSkus.length > 5)
+        resp += `<br>...and ${atRiskSkus.length - 5} more. Check the <strong>Forecast Risk Flags</strong> tab for full details.`;
+
+    // Add anomaly info
+    if (anomaliesData.length > 0) {
+        resp += `<br><br><strong>Active Signal Anomalies:</strong><br>`;
+        anomaliesData.forEach(a => {
+            resp += `&#9888; ${a.message}<br>`;
+        });
+    }
+
+    if (matchesAny(q, ['reduce', 'fix', 'how to', 'improve', 'action'])) {
+        resp += `<br><br><strong>Recommendations:</strong><br>`;
+        resp += `&#8226; Review external signal inputs for these SKUs<br>`;
+        resp += `&#8226; Consider increasing safety stock for critical items<br>`;
+        resp += `&#8226; Investigate if demand patterns have shifted recently<br>`;
+        resp += `&#8226; Coordinate with sales team for qualitative demand intelligence`;
+    }
+
+    return resp;
+}
+
+function safetyStockResponse(q) {
+    const sorted = [...metricsData].sort((a, b) => b.safety_stock_reduction - a.safety_stock_reduction);
+    const avgReduction = metricsData.reduce((s, m) => s + m.safety_stock_reduction, 0) / metricsData.length;
+    const totalBaselineSS = metricsData.reduce((s, m) => s + m.baseline_safety_stock, 0);
+    const totalMlSS = metricsData.reduce((s, m) => s + m.ml_safety_stock, 0);
+    const totalReduction = totalBaselineSS - totalMlSS;
+
+    let resp = `<strong>Safety Stock Optimization Summary</strong><br><br>`;
+    resp += `&#8226; Total Baseline Safety Stock: <strong>${Math.round(totalBaselineSS).toLocaleString()}</strong> units<br>`;
+    resp += `&#8226; Total ML-Optimized: <strong>${Math.round(totalMlSS).toLocaleString()}</strong> units<br>`;
+    resp += `&#8226; <strong style="color:#00d68f">Total Reduction: ${Math.round(totalReduction).toLocaleString()} units (${avgReduction.toFixed(1)}% avg)</strong><br><br>`;
+
+    resp += `<strong>Top Savers:</strong><br>`;
+    sorted.slice(0, 5).forEach((s, i) => {
+        resp += `${i+1}. ${s.sku_name} — ${s.safety_stock_reduction.toFixed(1)}% reduction (${Math.round(s.baseline_safety_stock)} → ${Math.round(s.ml_safety_stock)} units)<br>`;
+    });
+
+    if (matchesAny(q, ['formula', 'how', 'explain'])) {
+        resp += `<br><strong>Formula:</strong> Safety Stock = Z &times; &sigma;<sub>forecast_error</sub> &times; &radic;Lead Time<br>`;
+        resp += `Z = 1.65 (95% service level), Lead Time = 30 days`;
+    }
+
+    return resp;
+}
+
+function topPerformersResponse(q) {
+    const sorted = [...metricsData].sort((a, b) => b.improvement - a.improvement);
+    const bestPool = [...poolData].sort((a, b) => b.improvement - a.improvement)[0];
+
+    let resp = `<strong>Top ML Improvements</strong><br><br>`;
+    resp += `<strong>Best Pool:</strong> ${bestPool.signal_pool} (+${bestPool.improvement.toFixed(1)}% improvement)<br><br>`;
+    resp += `<strong>Top 5 SKUs by Improvement:</strong><br>`;
+    sorted.slice(0, 5).forEach((s, i) => {
+        resp += `${i+1}. <strong>${s.sku_name}</strong> — +${s.improvement.toFixed(1)}% (${s.baseline_fa.toFixed(1)}% → ${s.ml_fa.toFixed(1)}%)<br>`;
+    });
+
+    const improved = metricsData.filter(m => m.improvement > 0).length;
+    resp += `<br>${improved} of ${metricsData.length} SKUs improved with the ML model.`;
+    return resp;
+}
+
+function worstPerformersResponse(q) {
+    const sorted = [...metricsData].sort((a, b) => a.ml_fa - b.ml_fa);
+    const worstPool = [...poolData].sort((a, b) => a.ml_fa - b.ml_fa)[0];
+
+    let resp = `<strong>Lowest Performing SKUs</strong><br><br>`;
+    resp += `<strong>Weakest Pool:</strong> ${worstPool.signal_pool} (${worstPool.ml_fa.toFixed(1)}% ML FA)<br><br>`;
+    resp += `<strong>Bottom 5 SKUs:</strong><br>`;
+    sorted.slice(0, 5).forEach((s, i) => {
+        resp += `${i+1}. <strong>${s.sku_name}</strong> (${s.sku_id}) — ${s.ml_fa.toFixed(1)}% FA (${s.signal_pool})<br>`;
+    });
+    return resp;
+}
+
+function overviewResponse() {
+    const avgBFA = metricsData.reduce((s, m) => s + m.baseline_fa, 0) / metricsData.length;
+    const avgMFA = metricsData.reduce((s, m) => s + m.ml_fa, 0) / metricsData.length;
+    const improved = metricsData.filter(m => m.improvement > 0).length;
+    const atRisk = metricsData.filter(m => m.ml_fa < 70).length;
+
+    let resp = `<strong>PharmaCast Dashboard Summary</strong><br><br>`;
+    resp += `&#8226; <strong>${metricsData.length}</strong> SKUs monitored (BZ/CY/CZ segments)<br>`;
+    resp += `&#8226; Avg Baseline Accuracy: <strong>${avgBFA.toFixed(1)}%</strong><br>`;
+    resp += `&#8226; Avg ML Accuracy: <strong style="color:#00d68f">${avgMFA.toFixed(1)}%</strong><br>`;
+    resp += `&#8226; Improvement: <strong>+${(avgMFA - avgBFA).toFixed(1)}%</strong><br>`;
+    resp += `&#8226; SKUs improved: <strong>${improved}/${metricsData.length}</strong><br>`;
+    resp += `&#8226; At-risk SKUs (FA<70%): <strong style="color:${atRisk > 0 ? '#ff6b6b' : '#00d68f'}">${atRisk}</strong><br>`;
+    resp += `&#8226; Signal anomalies: <strong>${anomaliesData.length}</strong><br><br>`;
+    resp += `5 signal pools: AQI, Monsoon, Temperature, Wedding Season, Google Trends`;
+    return resp;
+}
+
+function modelResponse(q) {
+    const mlWins = metricsData.filter(m => m.ml_fa > m.baseline_fa).length;
+    const baselineWins = metricsData.length - mlWins;
+
+    let resp = `<strong>Model Comparison</strong><br><br>`;
+    resp += `<strong>Baseline:</strong> 3-Month Simple Moving Average (SMA)<br>`;
+    resp += `<strong>ML Model:</strong> Gradient Boosting Regressor with external signals<br><br>`;
+    resp += `<strong>Results:</strong><br>`;
+    resp += `&#8226; ML wins on <strong>${mlWins}</strong> SKUs<br>`;
+    resp += `&#8226; Baseline wins on <strong>${baselineWins}</strong> SKUs<br><br>`;
+    resp += `The ML model uses baseline forecast + external signals (AQI, temperature, precipitation, wedding season, Google Trends) + lag features and seasonality encodings.<br><br>`;
+    resp += `Check the <strong>Model Recommendations</strong> tab to see per-SKU recommendations.`;
+    return resp;
+}
+
+function signalResponse(q) {
+    let resp = `<strong>External Signal Status</strong><br><br>`;
+    resp += `<strong>5 Signal Pools:</strong><br>`;
+    resp += `&#8226; <strong>AQI</strong> → Respiratory/antihistamine SKUs<br>`;
+    resp += `&#8226; <strong>Monsoon</strong> → Anti-malarials, ORS, anti-diarrhoeals<br>`;
+    resp += `&#8226; <strong>Temperature</strong> → Electrolytes, dermatological<br>`;
+    resp += `&#8226; <strong>Wedding Season</strong> → Vitamins, supplements<br>`;
+    resp += `&#8226; <strong>Google Trends</strong> → Symptom-search linked<br><br>`;
+
+    if (anomaliesData.length > 0) {
+        resp += `<strong style="color:#ff6b6b">Active Anomalies:</strong><br>`;
+        anomaliesData.forEach(a => resp += `&#9888; ${a.message}<br>`);
+    } else {
+        resp += `<strong style="color:#00d68f">&#10003; No signal anomalies detected.</strong> All environmental indicators are within normal range.`;
+    }
+    return resp;
+}
+
+function explainResponse(q) {
+    if (matchesAny(q, ['mape', 'accuracy', 'fa', 'forecast accuracy']))
+        return `<strong>Forecast Accuracy (FA)</strong><br><br>FA = 100% - MAPE<br><br>Where <strong>MAPE</strong> (Mean Absolute Percentage Error) = average of |Actual - Forecast| / Actual &times; 100%<br><br>An FA of 80% means forecasts are on average within 20% of actual demand. SKUs below 70% FA are flagged as "At Risk".`;
+
+    if (matchesAny(q, ['safety stock', 'z score', 'lead time']))
+        return `<strong>Safety Stock Formula</strong><br><br>Safety Stock = Z &times; &sigma;<sub>forecast_error</sub> &times; &radic;Lead Time<br><br>&#8226; <strong>Z = 1.65</strong> (95% service level)<br>&#8226; <strong>&sigma;</strong> = standard deviation of forecast errors<br>&#8226; <strong>Lead Time = 30 days</strong><br><br>Better forecasts (lower &sigma;) directly reduce required safety stock, freeing up working capital.`;
+
+    if (matchesAny(q, ['risk score']))
+        return `<strong>Risk Score</strong><br><br>Risk Score = (100 - ML_FA%) + MAPE_Volatility<br><br>Higher scores indicate SKUs that are both inaccurate and unpredictable. Scores above 60 are flagged as <span style="color:#ff6b6b">CRITICAL</span>.`;
+
+    if (matchesAny(q, ['abc', 'xyz', 'bz', 'cy', 'cz', 'class', 'segment']))
+        return `<strong>ABC-XYZ Classification</strong><br><br><strong>ABC</strong> (value-based):<br>&#8226; A = high revenue, B = medium, C = low<br><br><strong>XYZ</strong> (variability-based):<br>&#8226; X = stable demand, Y = moderate variation, Z = highly erratic<br><br>This dashboard focuses on <strong>BZ, CY, CZ</strong> — medium-to-low value SKUs with high demand variability, which are hardest to forecast.`;
+
+    if (matchesAny(q, ['gradient', 'boosting', 'ml model', 'machine learning', 'algorithm']))
+        return `<strong>ML Model: Gradient Boosting Regressor</strong><br><br>A tree-based ensemble that learns residual errors iteratively.<br><br><strong>Features used:</strong><br>&#8226; Baseline forecast (3M SMA)<br>&#8226; External signals (AQI, temp, precipitation, wedding, trends)<br>&#8226; Lag-1 and lag-2 demand<br>&#8226; Rolling 3-month demand std<br>&#8226; Seasonal encodings (sin/cos of month)<br><br>Models are trained per signal pool (not globally) to capture pool-specific patterns.`;
+
+    return `I can explain several concepts:<br><br>&#8226; <strong>Forecast Accuracy / MAPE</strong><br>&#8226; <strong>Safety Stock formula</strong><br>&#8226; <strong>Risk Score</strong><br>&#8226; <strong>ABC-XYZ classification</strong><br>&#8226; <strong>ML model (Gradient Boosting)</strong><br><br>Ask me about any of these!`;
+}
+
+function forecastResponse(q) {
+    let resp = `<strong>Forecast Overview</strong><br><br>`;
+    resp += `The system generates 3-month ahead forecasts for all 40 SKUs with 95% confidence intervals.<br><br>`;
+    resp += `To see a specific SKU forecast, ask me about a SKU by name (e.g., "forecast for Paracetamol") or check the <strong>Model Recommendations</strong> tab.<br><br>`;
+
+    // Show a sample
+    const sample = metricsData[0];
+    const future = futureData.filter(f => f.sku_id === sample.sku_id);
+    if (future.length > 0) {
+        resp += `<strong>Example — ${sample.sku_name}:</strong><br>`;
+        future.forEach(f => {
+            resp += `&#8226; ${f.date.substring(0,7)}: ${Math.round(f.forecast)} units (${Math.round(f.lower_bound)} – ${Math.round(f.upper_bound)})<br>`;
+        });
+    }
+    return resp;
+}
+
+function helpResponse() {
+    return `<strong>What I Can Help With</strong><br><br>` +
+        `&#128202; <strong>SKU lookup</strong> — "Tell me about Paracetamol" or "AQI-001 details"<br>` +
+        `&#9888;&#65039; <strong>Risk analysis</strong> — "Which SKUs are at risk?" or "Show critical items"<br>` +
+        `&#128200; <strong>Performance</strong> — "Best performing pool?" or "Top improvements"<br>` +
+        `&#128230; <strong>Safety stock</strong> — "Total safety stock savings" or "Biggest saver"<br>` +
+        `&#127777;&#65039; <strong>Signals</strong> — "Any signal anomalies?" or "AQI pool details"<br>` +
+        `&#128300; <strong>Explanations</strong> — "Explain MAPE" or "What is risk score?"<br>` +
+        `&#128302; <strong>Forecasts</strong> — "Forecast for Salbutamol" or "Next 3 months"<br><br>` +
+        `Just type naturally — I understand SKU names, IDs, pool names, and common supply chain terms!`;
+}
+
+function fallbackResponse(q) {
+    // Try fuzzy matching on any SKU name
+    const words = q.split(/\s+/).filter(w => w.length > 3);
+    for (const w of words) {
+        for (const m of metricsData) {
+            if (m.sku_name.toLowerCase().includes(w) || m.sku_id.toLowerCase().includes(w)) {
+                return skuDetailResponse(m, q);
+            }
+        }
+    }
+
+    return `I'm not sure I understood that. Here are things I can help with:<br><br>` +
+        `&#8226; Ask about a <strong>specific SKU</strong> (e.g., "Paracetamol details")<br>` +
+        `&#8226; <strong>Risk flags</strong> — "Which SKUs are at risk?"<br>` +
+        `&#8226; <strong>Pool analysis</strong> — "How is the AQI pool doing?"<br>` +
+        `&#8226; <strong>Safety stock</strong> — "Show safety stock savings"<br>` +
+        `&#8226; <strong>Explanations</strong> — "Explain risk score"<br><br>` +
+        `Try the suggestion chips below for quick questions!`;
+}
 </script>
 
 </body>
