@@ -30,6 +30,136 @@ body {
     color: var(--text-primary);
     min-height: 100vh;
 }
+
+/* ---- MICRO ANIMATIONS ---- */
+@keyframes countUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.animate-in { animation: fadeSlideIn 0.5s ease-out forwards; }
+.animate-in-delay { animation: fadeSlideIn 0.5s ease-out 0.15s forwards; opacity: 0; }
+.animate-in-delay2 { animation: fadeSlideIn 0.5s ease-out 0.3s forwards; opacity: 0; }
+
+/* ---- EXECUTIVE BANNER (Level 1) ---- */
+.executive-banner {
+    background: linear-gradient(135deg, rgba(0,214,143,0.08), rgba(77,171,247,0.06));
+    border: 1px solid rgba(0,214,143,0.2);
+    border-radius: 14px;
+    padding: 28px 36px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    animation: fadeSlideIn 0.5s ease-out;
+}
+.executive-banner .exec-main {
+    flex: 1;
+}
+.executive-banner .exec-headline {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent-green);
+    margin-bottom: 4px;
+}
+.executive-banner .exec-sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+.executive-banner .exec-stats {
+    display: flex;
+    gap: 32px;
+}
+.executive-banner .exec-stat {
+    text-align: center;
+}
+.executive-banner .exec-stat .num {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.1;
+}
+.executive-banner .exec-stat .lbl {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+/* ---- ALERT ZONE (Level 2) ---- */
+.alert-zone {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 28px;
+    animation: fadeSlideIn 0.5s ease-out 0.15s forwards;
+    opacity: 0;
+}
+.alert-zone-card {
+    flex: 1;
+    padding: 18px 24px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.alert-zone-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.alert-zone-card.risk {
+    background: var(--accent-red-dim);
+    border: 1px solid rgba(255,107,107,0.3);
+}
+.alert-zone-card.healthy {
+    background: var(--accent-green-dim);
+    border: 1px solid rgba(0,214,143,0.3);
+}
+.alert-zone-card.neutral {
+    background: rgba(77,171,247,0.08);
+    border: 1px solid rgba(77,171,247,0.2);
+}
+.alert-zone-card .az-icon {
+    font-size: 28px;
+    min-width: 36px;
+    text-align: center;
+}
+.alert-zone-card .az-content .az-num {
+    font-size: 22px;
+    font-weight: 700;
+}
+.alert-zone-card .az-content .az-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+.alert-zone-card .az-action {
+    margin-left: auto;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text-primary);
+    background: rgba(255,255,255,0.05);
+    white-space: nowrap;
+    transition: background 0.15s;
+}
+.alert-zone-card .az-action:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+/* ---- SECTION LABEL (Level 3) ---- */
+.section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--card-border);
+}
 .header {
     background: linear-gradient(135deg, var(--navy-light), var(--navy-mid));
     border-bottom: 1px solid var(--card-border);
@@ -91,7 +221,24 @@ body {
     border-radius: 12px;
     padding: 24px;
     text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    cursor: default;
 }
+.kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    border-color: rgba(255,255,255,0.1);
+}
+.kpi-card .trend {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-left: 6px;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+.kpi-card .trend.up { background: var(--accent-green-dim); color: var(--accent-green); }
+.kpi-card .trend.down { background: var(--accent-red-dim); color: var(--accent-red); }
 .kpi-card .label {
     font-size: 12px;
     text-transform: uppercase;
@@ -115,15 +262,18 @@ body {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 12px;
-    padding: 20px;
+    padding: 28px;
     margin-bottom: 24px;
+    animation: fadeIn 0.6s ease-out;
 }
 .chart-title {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     padding-bottom: 12px;
-    border-bottom: 1px solid var(--card-border);
+    border-bottom: 1px solid rgba(30,50,88,0.5);
+    color: var(--text-secondary);
+    letter-spacing: 0.3px;
 }
 table {
     width: 100%;
@@ -228,12 +378,15 @@ select:focus { outline: none; border-color: var(--accent-green); }
     font-weight: 600;
     font-size: 14px;
 }
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
 @media (max-width: 900px) {
     .two-col, .detail-grid { grid-template-columns: 1fr; }
     .header { padding: 16px 20px; }
     .tab-content { padding: 20px; }
     .tab-bar { padding: 0 20px; overflow-x: auto; }
+    .executive-banner { flex-direction: column; text-align: center; }
+    .executive-banner .exec-stats { justify-content: center; }
+    .alert-zone { flex-direction: column; }
 }
 .comparison-row {
     display: grid;
@@ -522,36 +675,66 @@ select:focus { outline: none; border-color: var(--accent-green); }
 
 <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
-    <button class="tab-btn" onclick="switchTab('risk')">Forecast Risk Flags</button>
-    <button class="tab-btn" onclick="switchTab('recommend')">Model Recommendations</button>
-    <button class="tab-btn" onclick="switchTab('safety')">Safety Stock Optimizer</button>
-    <button class="tab-btn" onclick="toggleChat()" style="margin-left:auto; background:var(--accent-green); color:var(--navy); font-weight:700; border-radius:20px; padding:8px 18px;">💬 Chat Assistant</button>
+    <button class="tab-btn" onclick="switchTab('risk')">Risks</button>
+    <button class="tab-btn" onclick="switchTab('recommend')">Model Insights</button>
+    <button class="tab-btn" onclick="switchTab('safety')">Inventory Optimization</button>
+    <button class="tab-btn" onclick="toggleChat()" style="margin-left:auto; background:var(--accent-green); color:var(--navy); font-weight:700; border-radius:20px; padding:8px 18px;">Ask Assistant</button>
 </div>
 
 <!-- TAB 1: OVERVIEW -->
 <div id="tab-overview" class="tab-content active">
-    <div class="kpi-row">
-        <div class="kpi-card">
-            <div class="label">Total SKUs Monitored</div>
-            <div class="value blue">40</div>
-            <div class="sub">BZ / CY / CZ Segments</div>
+    <!-- LEVEL 1: Executive Insight Banner -->
+    <div class="executive-banner" id="exec-banner">
+        <div class="exec-main">
+            <div class="exec-headline">Forecast Accuracy Improved <span id="exec-improvement">+8.7%</span></div>
+            <div class="exec-sub">ML models outperform baseline on <span id="exec-improved-count">29</span> of 40 SKUs — Gradient Boosting recommended for most segments</div>
         </div>
-        <div class="kpi-card">
-            <div class="label">Avg Baseline Accuracy</div>
-            <div class="value" style="color:var(--accent-blue)">56.3%</div>
-            <div class="sub">3-Month Moving Average</div>
-        </div>
-        <div class="kpi-card">
-            <div class="label">Avg ML Accuracy</div>
-            <div class="value green">65.0%</div>
-            <div class="sub">Gradient Boosting Model</div>
-        </div>
-        <div class="kpi-card">
-            <div class="label">Avg Improvement</div>
-            <div class="value green">+8.7%</div>
-            <div class="sub">29/40 SKUs improved</div>
+        <div class="exec-stats">
+            <div class="exec-stat">
+                <div class="num" style="color:var(--accent-blue)" data-count="56.3">0</div>
+                <div class="lbl">Baseline FA%</div>
+            </div>
+            <div class="exec-stat">
+                <div class="num" style="color:var(--accent-green)" data-count="65.0">0</div>
+                <div class="lbl">ML FA%</div>
+            </div>
+            <div class="exec-stat">
+                <div class="num" style="color:var(--text-primary)" data-count="40">0</div>
+                <div class="lbl">SKUs Monitored</div>
+            </div>
         </div>
     </div>
+
+    <!-- LEVEL 2: Operational Health / Alert Zone -->
+    <div class="alert-zone" id="alert-zone">
+        <div class="alert-zone-card risk" onclick="switchTab('risk')">
+            <div class="az-icon">&#9888;</div>
+            <div class="az-content">
+                <div class="az-num" style="color:var(--accent-red)" id="az-risk-count">16</div>
+                <div class="az-label">SKUs need attention (FA &lt; 70%)</div>
+            </div>
+            <div class="az-action">Review Risks &#8594;</div>
+        </div>
+        <div class="alert-zone-card healthy">
+            <div class="az-icon">&#10003;</div>
+            <div class="az-content">
+                <div class="az-num" style="color:var(--accent-green)" id="az-anomaly-count">0</div>
+                <div class="az-label">Signal anomalies active</div>
+            </div>
+            <div class="az-action">View Signals &#8594;</div>
+        </div>
+        <div class="alert-zone-card neutral" onclick="switchTab('safety')">
+            <div class="az-icon">&#128230;</div>
+            <div class="az-content">
+                <div class="az-num" style="color:var(--accent-blue)" id="az-savings">--</div>
+                <div class="az-label">Avg safety stock reduction</div>
+            </div>
+            <div class="az-action">Optimize Inventory &#8594;</div>
+        </div>
+    </div>
+
+    <!-- LEVEL 3: Analytics -->
+    <div class="section-label animate-in-delay2">Analytics</div>
     <div class="two-col">
         <div class="chart-container">
             <div class="chart-title">Baseline vs ML Forecast Accuracy by Signal Pool</div>
@@ -571,20 +754,20 @@ select:focus { outline: none; border-color: var(--accent-green); }
 <!-- TAB 2: RISK FLAGS -->
 <div id="tab-risk" class="tab-content">
     <div class="kpi-row">
-        <div class="kpi-card">
+        <div class="kpi-card" style="border-left: 3px solid var(--accent-red);">
             <div class="label">At-Risk SKUs (FA &lt; 70%)</div>
             <div class="value" style="color:var(--accent-red)">16</div>
             <div class="sub">Require immediate attention</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card" style="border-left: 3px solid var(--accent-green);">
             <div class="label">Signal Anomalies</div>
-            <div class="value amber">0</div>
-            <div class="sub">Active environmental alerts</div>
+            <div class="value" style="color:var(--accent-green)">0</div>
+            <div class="sub">All signals in normal range</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card" style="border-left: 3px solid var(--accent-red);">
             <div class="label">Highest Risk Score</div>
             <div class="value" style="color:var(--accent-red)">550</div>
-            <div class="sub">Calamine Lotion</div>
+            <div class="sub">Calamine Lotion — <span style="cursor:pointer;color:var(--accent-green);text-decoration:underline" onclick="document.getElementById('sku-selector').value='MSN-003';switchTab('recommend');updateRecommendation()">View recommendation &#8594;</span></div>
         </div>
     </div>
     <div id="anomaly-alerts"></div>
@@ -675,18 +858,22 @@ const plotLayout = {
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
     font: { family: 'Segoe UI, system-ui, sans-serif', color: COLORS.text, size: 12 },
-    margin: { l: 50, r: 30, t: 20, b: 50 },
-    xaxis: { gridcolor: COLORS.gridColor, zerolinecolor: COLORS.gridColor },
-    yaxis: { gridcolor: COLORS.gridColor, zerolinecolor: COLORS.gridColor },
+    margin: { l: 55, r: 30, t: 30, b: 55 },
+    xaxis: { gridcolor: 'rgba(30,50,88,0.4)', zerolinecolor: 'rgba(30,50,88,0.4)', gridwidth: 1, linewidth: 0 },
+    yaxis: { gridcolor: 'rgba(30,50,88,0.4)', zerolinecolor: 'rgba(30,50,88,0.4)', gridwidth: 1, linewidth: 0 },
     legend: { bgcolor: 'rgba(0,0,0,0)', font: { size: 11 } },
+    hoverlabel: { bgcolor: '#1a2d5a', bordercolor: 'rgba(255,255,255,0.1)', font: { size: 12, color: '#e8edf5' } },
 };
 
 function switchTab(name) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById('tab-' + name).classList.add('active');
-    event.target.classList.add('active');
-    // Trigger resize for plotly
+    const tab = document.getElementById('tab-' + name);
+    tab.classList.add('active');
+    // Find the right button to activate
+    const tabNames = {'overview': 0, 'risk': 1, 'recommend': 2, 'safety': 3};
+    const btns = document.querySelectorAll('.tab-btn');
+    if (tabNames[name] !== undefined && btns[tabNames[name]]) btns[tabNames[name]].classList.add('active');
     window.dispatchEvent(new Event('resize'));
 }
 
@@ -765,18 +952,32 @@ function renderOverview() {
         line: { color: COLORS.textSec, dash: 'dash', width: 1 },
         showlegend: false,
     });
+    // Add quadrant background shading
+    scatterTraces.unshift(
+        // Green region: ML advantage (above diagonal)
+        {
+            x: [0, 0, 100], y: [0, 100, 100],
+            fill: 'toself', fillcolor: 'rgba(0,214,143,0.04)',
+            line: { width: 0 }, mode: 'lines', showlegend: false, hoverinfo: 'skip',
+        },
+        // Red region: Baseline advantage (below diagonal)
+        {
+            x: [0, 100, 100], y: [0, 0, 100],
+            fill: 'toself', fillcolor: 'rgba(255,107,107,0.03)',
+            line: { width: 0 }, mode: 'lines', showlegend: false, hoverinfo: 'skip',
+        }
+    );
     Plotly.newPlot('chart-sku-scatter', scatterTraces, {
         ...plotLayout,
         xaxis: { ...plotLayout.xaxis, title: 'Baseline FA %', range: [0, 105] },
         yaxis: { ...plotLayout.yaxis, title: 'ML FA %', range: [0, 105] },
         legend: { ...plotLayout.legend, orientation: 'h', y: 1.15, x: 0.5, xanchor: 'center' },
-        annotations: [{
-            x: 30, y: 90, text: 'ML Better', showarrow: false,
-            font: { color: COLORS.green, size: 12 },
-        }, {
-            x: 90, y: 30, text: 'Baseline Better', showarrow: false,
-            font: { color: COLORS.red, size: 12 },
-        }],
+        annotations: [
+            { x: 20, y: 95, text: '<b>ML Much Better</b>', showarrow: false, font: { color: 'rgba(0,214,143,0.5)', size: 13 } },
+            { x: 95, y: 15, text: '<b>Baseline Better</b>', showarrow: false, font: { color: 'rgba(255,107,107,0.5)', size: 13 } },
+            { x: 85, y: 92, text: 'Both Strong', showarrow: false, font: { color: 'rgba(255,255,255,0.25)', size: 11 } },
+            { x: 15, y: 8, text: 'Both Weak', showarrow: false, font: { color: 'rgba(255,255,255,0.25)', size: 11 } },
+        ],
     }, { responsive: true });
 }
 
@@ -797,7 +998,7 @@ function renderRisk() {
     if (riskData.length === 0) {
         tableContainer.innerHTML = '<p style="color:var(--accent-green);padding:20px;text-align:center">No SKUs below 70% forecast accuracy — all performing within acceptable range.</p>';
     } else {
-        let html = '<table><thead><tr><th>SKU ID</th><th>SKU Name</th><th>Pool</th><th>Class</th><th>ML FA%</th><th>MAPE Vol.</th><th>Risk Score</th><th>Status</th></tr></thead><tbody>';
+        let html = '<table><thead><tr><th>SKU ID</th><th>SKU Name</th><th>Pool</th><th>Class</th><th>ML FA%</th><th>MAPE Vol.</th><th>Risk Score</th><th>Status</th><th>Action</th></tr></thead><tbody>';
         riskData.forEach(r => {
             const badge = r.risk_score > 60 ? 'badge-red' : (r.risk_score > 40 ? 'badge-amber' : 'badge-green');
             const status = r.risk_score > 60 ? 'CRITICAL' : (r.risk_score > 40 ? 'WARNING' : 'WATCH');
@@ -810,6 +1011,7 @@ function renderRisk() {
                 <td>${r.mape_volatility.toFixed(1)}</td>
                 <td style="font-weight:700;color:${r.risk_score > 60 ? COLORS.red : COLORS.amber}">${r.risk_score.toFixed(0)}</td>
                 <td><span class="badge ${badge}">${status}</span></td>
+                <td><span style="color:var(--accent-green);cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap" onclick="document.getElementById('sku-selector').value='${r.sku_id}';switchTab('recommend');updateRecommendation()">View Fix &#8594;</span></td>
             </tr>`;
         });
         html += '</tbody></table>';
@@ -862,9 +1064,25 @@ function updateRecommendation() {
     const ts = tsData[skuId];
     const future = futureData.filter(f => f.sku_id === skuId);
 
+    const isRisk = recFA < 70;
+    const actionText = m.ml_fa > m.baseline_fa
+        ? (isRisk ? `Switch to ${recommended} — current accuracy is low` : `Use ${recommended} for best results`)
+        : 'Baseline performs better — keep current model';
     let html = `
+    <!-- Decision card -->
+    <div style="background:${isRisk ? 'var(--accent-red-dim)' : 'var(--accent-green-dim)'};border:1px solid ${isRisk ? 'rgba(255,107,107,0.3)' : 'rgba(0,214,143,0.3)'};border-radius:12px;padding:20px 28px;margin-bottom:24px;display:flex;align-items:center;gap:20px">
+        <div style="font-size:28px">${isRisk ? '&#9888;' : '&#10003;'}</div>
+        <div style="flex:1">
+            <div style="font-size:16px;font-weight:700;margin-bottom:2px;color:${isRisk ? 'var(--accent-red)' : 'var(--accent-green)'}">${m.sku_name} (${m.sku_id})</div>
+            <div style="font-size:13px;color:var(--text-secondary)">Recommended action: <strong style="color:var(--text-primary)">${actionText}</strong></div>
+        </div>
+        <div style="text-align:right">
+            <div style="font-size:28px;font-weight:700;color:${isRisk ? 'var(--accent-red)' : 'var(--accent-green)'}">${recFA.toFixed(1)}%</div>
+            <div style="font-size:11px;color:var(--text-secondary)">Best FA</div>
+        </div>
+    </div>
     <div class="kpi-row">
-        <div class="kpi-card">
+        <div class="kpi-card" style="border-left:3px solid var(--accent-green)">
             <div class="label">Recommended Model</div>
             <div class="value green" style="font-size:22px">${recommended}</div>
             <div class="sub">Best performing model for this SKU</div>
@@ -875,9 +1093,9 @@ function updateRecommendation() {
             <div class="sub">On test period (6 months)</div>
         </div>
         <div class="kpi-card">
-            <div class="label">Improvement over Baseline</div>
-            <div class="value" style="color:${m.improvement > 0 ? COLORS.green : COLORS.red}">${m.improvement > 0 ? '+' : ''}${m.improvement.toFixed(1)}%</div>
-            <div class="sub">ML vs Baseline accuracy delta</div>
+            <div class="label">Improvement</div>
+            <div class="value" style="color:${m.improvement > 0 ? COLORS.green : COLORS.red}">${m.improvement > 0 ? '+' : ''}${m.improvement.toFixed(1)}%<span class="trend ${m.improvement > 0 ? 'up' : 'down'}">${m.improvement > 0 ? '&#9650;' : '&#9660;'}</span></div>
+            <div class="sub">ML vs Baseline delta</div>
         </div>
         <div class="kpi-card">
             <div class="label">Avg Monthly Demand</div>
@@ -972,27 +1190,28 @@ function updateSafetyStock() {
     const costSaving = baselineCost - mlCost;
     const costSavingPct = baselineCost > 0 ? (costSaving / baselineCost * 100) : 0;
 
+    const errorReduction = m.baseline_error_std > 0 ? ((m.baseline_error_std - m.ml_error_std) / m.baseline_error_std * 100) : 0;
     let html = `
     <div class="kpi-row">
-        <div class="kpi-card">
+        <div class="kpi-card" style="border-left:3px solid var(--accent-blue)">
             <div class="label">SKU</div>
             <div class="value blue" style="font-size:18px">${m.sku_name}</div>
             <div class="sub">${m.sku_id} | ${m.signal_pool} Pool | ${m.abc_xyz}</div>
         </div>
         <div class="kpi-card">
-            <div class="label">Forecast Error Std (Baseline)</div>
-            <div class="value" style="color:var(--accent-blue)">${m.baseline_error_std.toFixed(0)}</div>
-            <div class="sub">units</div>
+            <div class="label">Forecast Error Std</div>
+            <div class="value green">${m.ml_error_std.toFixed(0)}<span class="trend up">&#9660; ${errorReduction.toFixed(0)}%</span></div>
+            <div class="sub">ML model (was ${m.baseline_error_std.toFixed(0)} baseline)</div>
         </div>
-        <div class="kpi-card">
-            <div class="label">Forecast Error Std (ML)</div>
-            <div class="value green">${m.ml_error_std.toFixed(0)}</div>
-            <div class="sub">units</div>
-        </div>
-        <div class="kpi-card">
+        <div class="kpi-card" style="border-left:3px solid var(--accent-green)">
             <div class="label">Inventory Cost Saving</div>
             <div class="value green">${costSavingPct.toFixed(1)}%</div>
-            <div class="sub">&#8377;${Math.round(costSaving).toLocaleString()} saved</div>
+            <div class="sub">&#8377;${Math.round(costSaving).toLocaleString()} saved per cycle</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Stock Reduction</div>
+            <div class="value green">${reduction.toFixed(1)}%</div>
+            <div class="sub">${Math.round(baselineSS)} &#8594; ${Math.round(mlSS)} units</div>
         </div>
     </div>
 
@@ -1056,9 +1275,54 @@ function updateSafetyStock() {
     }, { responsive: true });
 }
 
+// ---- COUNT-UP ANIMATION ----
+function animateCountUp(el, target, duration, suffix) {
+    suffix = suffix || '';
+    const isFloat = String(target).includes('.');
+    const decimals = isFloat ? 1 : 0;
+    const start = 0;
+    const startTime = performance.now();
+    function update(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // ease-out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = start + (target - start) * eased;
+        el.textContent = current.toFixed(decimals) + suffix;
+        if (progress < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+}
+
+// ---- POPULATE EXEC BANNER WITH COMPUTED DATA ----
+function populateExecBanner() {
+    const totalSKUs = metricsData.length;
+    const avgBaseline = metricsData.reduce((s, m) => s + m.baseline_fa, 0) / totalSKUs;
+    const avgML = metricsData.reduce((s, m) => s + m.ml_fa, 0) / totalSKUs;
+    const improvement = avgML - avgBaseline;
+    const improvedCount = metricsData.filter(m => m.ml_fa > m.baseline_fa).length;
+    const atRisk = metricsData.filter(m => m.ml_fa < 70).length;
+    const avgReduction = metricsData.reduce((s, m) => s + m.safety_stock_reduction, 0) / totalSKUs;
+
+    document.getElementById('exec-improvement').textContent = '+' + improvement.toFixed(1) + '%';
+    document.getElementById('exec-improved-count').textContent = improvedCount;
+    document.getElementById('az-risk-count').textContent = atRisk;
+    document.getElementById('az-anomaly-count').textContent = anomaliesData.length;
+    document.getElementById('az-savings').textContent = avgReduction.toFixed(1) + '%';
+
+    // Animate the executive stat numbers
+    const statNums = document.querySelectorAll('.exec-stat .num');
+    statNums.forEach(el => {
+        const target = parseFloat(el.dataset.count);
+        const suffix = el.dataset.count.includes('.') ? '%' : '';
+        animateCountUp(el, target, 1200, suffix);
+    });
+}
+
 // ---- INIT ----
 function init() {
     populateSkuDropdowns();
+    populateExecBanner();
     renderOverview();
     renderRisk();
     updateRecommendation();
