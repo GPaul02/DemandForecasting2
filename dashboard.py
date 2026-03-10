@@ -707,14 +707,14 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 
 .chat-panel {{
     position: fixed;
-    bottom: 96px;
-    right: 28px;
-    width: 400px;
-    max-height: 560px;
+    top: 0;
+    right: 0;
+    width: 380px;
+    height: 100vh;
     background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 16px;
-    box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+    border-left: 1px solid var(--card-border);
+    border-radius: 0;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.3);
     z-index: 9998;
     display: none;
     flex-direction: column;
@@ -772,8 +772,7 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     display: flex;
     flex-direction: column;
     gap: 12px;
-    max-height: 380px;
-    min-height: 200px;
+    min-height: 0;
 }}
 .chat-msg {{
     max-width: 88%;
@@ -880,8 +879,10 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     40% {{ opacity: 1; transform: scale(1); }}
 }}
 @media (max-width: 500px) {{
-    .chat-panel {{ width: calc(100vw - 24px); right: 12px; bottom: 80px; }}
+    .chat-panel {{ width: 100vw; }}
 }}
+/* Push main content when chat is docked */
+body.chat-open {{ margin-right: 380px; transition: margin-right 0.2s; }}
 </style>
 </head>
 <body>
@@ -927,41 +928,42 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 <!-- TAB 1: OVERVIEW -->
 <div id="tab-overview" class="tab-content active">
     <!-- Tab question -->
-    <div class="tab-question">How well are your <strong>forecasts performing</strong>?</div>
+    <div class="tab-question"><strong>Forecast Performance</strong></div>
 
     <!-- AI Briefing (proactive co-pilot) -->
     <div class="ai-briefing" id="ai-briefing-overview"></div>
 
-    <!-- Hero Banner — Tier 1 Decision Signal -->
-    <div style="text-align:center;margin-bottom:32px;padding:8px 0">
-        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px;letter-spacing:0.5px;text-transform:uppercase;font-weight:600" class="has-tooltip" data-tooltip="Difference between ML model and baseline (3-month SMA) forecast accuracy averaged across all SKUs">Forecast Accuracy Improvement</div>
-        <div style="font-size:56px;font-weight:800;color:var(--accent-green);letter-spacing:-2px;line-height:1">+{avg_improvement}%</div>
-        <div style="font-size:14px;color:var(--text-secondary);margin-top:8px">{skus_improved} of {total_skus} SKUs improved &mdash; Avg ML Forecast Accuracy: {avg_ml_fa}%</div>
+    <!-- Hero Banner — Tier 1 Decision Signal (Stripe-style) -->
+    <div style="text-align:center;margin-bottom:36px;padding:12px 0">
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;font-weight:600" class="has-tooltip" data-tooltip="Difference between ML model and baseline (3-month SMA) forecast accuracy averaged across all SKUs">ML vs Baseline Improvement</div>
+        <div style="font-size:72px;font-weight:800;color:var(--accent-green);letter-spacing:-3px;line-height:1">+{avg_improvement}% <span style="font-size:20px;vertical-align:middle;letter-spacing:0">&#9650;</span></div>
+        <div style="font-size:14px;color:var(--text-secondary);margin-top:10px">{skus_improved} of {total_skus} SKUs improved &mdash; Avg ML Forecast Accuracy: {avg_ml_fa}%</div>
     </div>
 
-    <!-- Action Cards with urgency differentiation -->
-    <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">
-        <div class="kpi-card {'urgent' if num_at_risk > 0 else 'healthy'}" onclick="switchTab('risk')" style="cursor:pointer">
+    <!-- Asymmetric cards: Risk dominates -->
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:20px;margin-bottom:32px">
+        <div class="kpi-card {'urgent' if num_at_risk > 0 else 'healthy'}" onclick="switchTab('risk')" style="cursor:pointer;padding:28px">
             <div class="label" style="font-weight:600;letter-spacing:0.3px;font-size:12px;color:{'var(--accent-red)' if num_at_risk > 0 else 'var(--accent-green)'}">{"&#9888; Needs Attention" if num_at_risk > 0 else "&#10003; All Clear"}</div>
-            <div class="value" style="color:{'var(--accent-red)' if num_at_risk > 0 else 'var(--accent-green)'}">{str(num_at_risk) + ' SKUs at Risk' if num_at_risk > 0 else 'No At-Risk SKUs'}</div>
-            <div class="sub">{'Click to review risk flags &#8594;' if num_at_risk > 0 else 'All above 70% FA threshold'}</div>
+            <div class="value" style="font-size:44px;color:{'var(--accent-red)' if num_at_risk > 0 else 'var(--accent-green)'}">{num_at_risk if num_at_risk > 0 else '0'}</div>
+            <div style="font-size:16px;font-weight:600;color:var(--text-primary);margin:-4px 0 4px">{'SKUs at Risk' if num_at_risk > 0 else 'SKUs at Risk'}</div>
+            <div class="sub" style="font-size:13px">{'Forecast accuracy below 70% — click to review &#8594;' if num_at_risk > 0 else 'All above 70% threshold'}</div>
         </div>
-        <div class="kpi-card {'urgent' if num_anomalies > 0 else 'healthy'}" style="{'padding:16px' if num_anomalies == 0 else ''}">
+        <div class="kpi-card {'urgent' if num_anomalies > 0 else 'healthy'}">
             <div class="label" style="font-size:12px">{"&#9888; Signal Anomalies" if num_anomalies > 0 else "&#10003; Signals Normal"}</div>
             <div class="value {'amber' if num_anomalies > 0 else ''}" style="{'font-size:28px;color:var(--accent-green)' if num_anomalies == 0 else ''}">{num_anomalies if num_anomalies > 0 else '&#10003;'}</div>
-            <div class="sub">{'Active environmental alerts' if num_anomalies > 0 else 'All indicators in normal range'}</div>
+            <div class="sub">{'Active environmental alerts' if num_anomalies > 0 else 'All indicators normal'}</div>
         </div>
-        <div class="kpi-card" onclick="switchTab('safety')" style="cursor:pointer;border-color:rgba(0,214,143,0.2)">
-            <div class="label" style="font-size:12px">Safety Stock Optimization</div>
+        <div class="kpi-card" onclick="switchTab('safety')" style="cursor:pointer">
+            <div class="label" style="font-size:12px">Safety Stock Saving</div>
             <div class="value green" id="overview-stock-reduction">—</div>
-            <div class="sub">Avg reduction via ML &mdash; Click for details \u2192</div>
+            <div class="sub">Avg reduction via ML &#8594;</div>
         </div>
     </div>
 
-    <!-- Cross-filter bar -->
+    <!-- Cross-filter bar (legend-style) -->
     <div class="pool-filter-bar" id="pool-filter-bar">
-        <span style="font-size:11px;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-right:4px">Filter by Signal:</span>
-        <div class="pool-pill active" onclick="setPoolFilter('all')" data-pool="all">All Pools</div>
+        <span style="font-size:11px;color:var(--text-secondary);font-weight:600;letter-spacing:0.5px;margin-right:4px">Signals</span>
+        <div class="pool-pill active" onclick="setPoolFilter('all')" data-pool="all">All</div>
     </div>
 
     <!-- PROMOTED: SKU scatter (most analytically valuable) — Tier 2 Diagnostic -->
@@ -987,7 +989,7 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 
 <!-- TAB 2: RISK FLAGS -->
 <div id="tab-risk" class="tab-content">
-    <div class="tab-question">Which SKUs are <strong>dangerous</strong>?</div>
+    <div class="tab-question"><strong>Forecast Risk Flags</strong></div>
     <div class="kpi-row">
         <div class="kpi-card">
             <div class="label has-tooltip" data-tooltip="SKUs where ML Forecast Accuracy is below 70% — these need manual review or model retraining">At-Risk SKUs</div>
@@ -1018,7 +1020,7 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 
 <!-- TAB 3: MODEL RECOMMENDATIONS -->
 <div id="tab-recommend" class="tab-content">
-    <div class="tab-question">What forecasting model should we <strong>use</strong>?</div>
+    <div class="tab-question"><strong>Model Recommendation</strong></div>
     <div class="selector">
         <label style="font-weight:600;letter-spacing:0.3px">Select SKU</label>
         <div class="sku-search-wrap" id="sku-search-wrap-recommend">
@@ -1033,7 +1035,7 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 
 <!-- TAB 4: SAFETY STOCK -->
 <div id="tab-safety" class="tab-content">
-    <div class="tab-question">How much inventory should we <strong>hold</strong>?</div>
+    <div class="tab-question"><strong>Safety Stock Optimizer</strong></div>
     <div class="selector">
         <label style="font-weight:600;letter-spacing:0.3px">Select SKU</label>
         <div class="sku-search-wrap" id="sku-search-wrap-safety">
@@ -1191,25 +1193,44 @@ function renderOverview() {{
         legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.12, x: 0.5, xanchor: 'center' }},
     }}, {{ responsive: true }});
 
-    // FA distribution
+    // FA distribution — KDE density curves (Netflix/Stripe style)
+    // Simple KDE using Gaussian kernel
+    function kde(data, bandwidth) {{
+        const min = Math.min(...data) - 10;
+        const max = Math.max(...data) + 10;
+        const step = 0.5;
+        const xs = [];
+        const ys = [];
+        for (let x = min; x <= max; x += step) {{
+            let density = 0;
+            data.forEach(d => {{
+                density += Math.exp(-0.5 * Math.pow((x - d) / bandwidth, 2));
+            }});
+            density /= (data.length * bandwidth * Math.sqrt(2 * Math.PI));
+            xs.push(x);
+            ys.push(density);
+        }}
+        return {{ xs, ys }};
+    }}
+    const baselineKDE = kde(metricsData.map(m => m.baseline_fa), 5);
+    const mlKDE = kde(metricsData.map(m => m.ml_fa), 5);
     Plotly.newPlot('chart-fa-distribution', [
         {{
-            x: metricsData.map(m => m.baseline_fa),
-            type: 'histogram', name: 'Baseline',
-            marker: {{ color: COLORS.blue, opacity: 0.6 }},
-            nbinsx: 15,
+            x: baselineKDE.xs, y: baselineKDE.ys,
+            type: 'scatter', mode: 'lines', name: 'Baseline (SMA)',
+            fill: 'tozeroy', fillcolor: 'rgba(77,171,247,0.12)',
+            line: {{ color: COLORS.blue, width: 2.5 }},
         }},
         {{
-            x: metricsData.map(m => m.ml_fa),
-            type: 'histogram', name: 'ML Model',
-            marker: {{ color: COLORS.green, opacity: 0.6 }},
-            nbinsx: 15,
+            x: mlKDE.xs, y: mlKDE.ys,
+            type: 'scatter', mode: 'lines', name: 'ML Model',
+            fill: 'tozeroy', fillcolor: 'rgba(0,214,143,0.12)',
+            line: {{ color: COLORS.green, width: 2.5 }},
         }}
     ], {{
         ...plotLayout,
-        barmode: 'overlay',
         xaxis: {{ ...plotLayout.xaxis, title: 'Forecast Accuracy %' }},
-        yaxis: {{ ...plotLayout.yaxis, title: 'Number of SKUs' }},
+        yaxis: {{ ...plotLayout.yaxis, title: 'Density', showticklabels: false }},
         legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.12, x: 0.5, xanchor: 'center' }},
     }}, {{ responsive: true }});
 
@@ -1266,6 +1287,19 @@ function renderOverview() {{
             font: {{ color: COLORS.amber, size: 12 }}, borderpad: 4,
         }}],
     }}, {{ responsive: true }});
+
+    // Click-to-navigate: click a dot to open SKU detail
+    document.getElementById('chart-sku-scatter').on('plotly_click', function(data) {{
+        if (data.points && data.points.length > 0) {{
+            const pt = data.points[0];
+            const textVal = pt.text || '';
+            // Extract SKU ID from "SKU Name (SKU_ID)" format
+            const match = textVal.match(/\(([^)]+)\)/);
+            if (match) {{
+                navigateToSku(match[1]);
+            }}
+        }}
+    }});
 }}
 
 // ---- TAB 2: RISK FLAGS ----
@@ -1651,16 +1685,45 @@ function updateSafetyStock() {{
                 <div style="font-size:12px;color:var(--text-secondary)">Safety Stock Reduction</div>
                 <div class="savings-badge">${{reduction.toFixed(1)}}% reduction</div>
             </div>
-            <div style="margin-top:20px;padding:16px;background:var(--navy);border-radius:8px;font-size:12px;color:var(--text-secondary)">
-                <strong>Formula:</strong> Safety Stock = Z &times; &sigma;<sub>forecast error</sub> &times; &radic;Lead Time<br>
-                <strong>Parameters:</strong> Z = 1.65 (95% SL) | Lead Time = 30 days<br>
-                <span style="color:var(--accent-amber);font-size:11px;margin-top:4px;display:inline-block">&#9432; Note: Z and Lead Time shown are system defaults. In production, these would vary per SKU based on individual service level agreements and supplier lead times.</span>
+            <div style="margin-top:16px;padding:12px;background:var(--navy);border-radius:8px;font-size:11px;color:var(--text-secondary)">
+                <strong>Formula:</strong> Safety Stock = Z &times; &sigma;<sub>error</sub> &times; &radic;Lead Time &nbsp;|&nbsp; Z = 1.65 (95% SL) &nbsp;|&nbsp; Lead Time = 30 days
             </div>
         </div>
         <div class="chart-container">
-            <div class="chart-title">Safety Stock — All SKUs</div>
-            <div id="chart-safety-all"></div>
+            <div class="chart-title">What-If Scenario Simulator</div>
+            <div class="chart-subtitle">Adjust parameters to see safety stock impact in real-time</div>
+            <div style="display:flex;flex-direction:column;gap:20px;padding:4px 0">
+                <div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+                        <span style="color:var(--text-secondary);font-weight:600">Service Level</span>
+                        <span id="sim-sl-val" style="color:var(--accent-green);font-weight:700">95%</span>
+                    </div>
+                    <input type="range" id="sim-sl" min="80" max="99" value="95" step="1" oninput="runSimulation()" style="width:100%;accent-color:var(--accent-green)">
+                    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-secondary)"><span>80%</span><span>99%</span></div>
+                </div>
+                <div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+                        <span style="color:var(--text-secondary);font-weight:600">Lead Time (days)</span>
+                        <span id="sim-lt-val" style="color:var(--accent-green);font-weight:700">30</span>
+                    </div>
+                    <input type="range" id="sim-lt" min="7" max="90" value="30" step="1" oninput="runSimulation()" style="width:100%;accent-color:var(--accent-green)">
+                    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-secondary)"><span>7 days</span><span>90 days</span></div>
+                </div>
+                <div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+                        <span style="color:var(--text-secondary);font-weight:600">Forecast Error Adjustment</span>
+                        <span id="sim-err-val" style="color:var(--accent-green);font-weight:700">+0%</span>
+                    </div>
+                    <input type="range" id="sim-err" min="-50" max="100" value="0" step="5" oninput="runSimulation()" style="width:100%;accent-color:var(--accent-green)">
+                    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-secondary)"><span>-50%</span><span>+100%</span></div>
+                </div>
+            </div>
+            <div id="sim-results" style="margin-top:16px;padding:16px;background:var(--navy);border-radius:10px"></div>
         </div>
+    </div>
+    <div class="chart-container" style="margin-top:0">
+        <div class="chart-title">Safety Stock — All SKUs (Top 20 by Reduction)</div>
+        <div id="chart-safety-all"></div>
     </div>`;
 
     document.getElementById('safety-content').innerHTML = html;
@@ -1700,6 +1763,70 @@ function updateSafetyStock() {{
         legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.05, x: 0.5, xanchor: 'center' }},
         annotations: reductionAnnotations,
     }}, {{ responsive: true }});
+
+    // Initialize simulator
+    runSimulation();
+}}
+
+// ---- SCENARIO SIMULATOR ----
+function runSimulation() {{
+    const skuId = document.getElementById('safety-sku-selector').value;
+    const m = metricsData.find(x => x.sku_id === skuId);
+    if (!m) return;
+
+    const sl = parseFloat(document.getElementById('sim-sl').value);
+    const lt = parseFloat(document.getElementById('sim-lt').value);
+    const errAdj = parseFloat(document.getElementById('sim-err').value);
+
+    // Update displayed values
+    document.getElementById('sim-sl-val').textContent = sl + '%';
+    document.getElementById('sim-lt-val').textContent = lt;
+    document.getElementById('sim-err-val').textContent = (errAdj >= 0 ? '+' : '') + errAdj + '%';
+
+    // Z-score lookup for service levels
+    const zLookup = {{ 80: 0.84, 85: 1.04, 90: 1.28, 91: 1.34, 92: 1.41, 93: 1.48, 94: 1.55, 95: 1.65, 96: 1.75, 97: 1.88, 98: 2.05, 99: 2.33 }};
+    const zScore = zLookup[sl] || (0.84 + (sl - 80) * 0.078);
+
+    // Adjusted forecast error std
+    const adjErrStd = m.ml_error_std * (1 + errAdj / 100);
+
+    // Safety stock = Z * sigma * sqrt(lead_time_in_months)
+    const ltMonths = lt / 30;
+    const simSS = zScore * adjErrStd * Math.sqrt(ltMonths);
+    const defaultSS = m.ml_safety_stock;  // Z=1.65, LT=30d, no error adj
+
+    const unitCost = m.abc_xyz.startsWith('B') ? 45 : 22;
+    const simCost = Math.round(simSS * unitCost);
+    const defaultCost = Math.round(defaultSS * unitCost);
+    const costDelta = simCost - defaultCost;
+    const ssDelta = simSS - defaultSS;
+    const deltaColor = costDelta > 0 ? COLORS.red : COLORS.green;
+    const deltaSign = costDelta >= 0 ? '+' : '';
+
+    // Stockout risk estimate (simplified)
+    const stockoutRisk = (100 - sl).toFixed(1);
+
+    const resultsEl = document.getElementById('sim-results');
+    if (!resultsEl) return;
+    resultsEl.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center">
+            <div>
+                <div style="font-size:10px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Simulated Safety Stock</div>
+                <div style="font-size:24px;font-weight:700;color:var(--accent-green);margin:4px 0">${{Math.round(simSS)}}</div>
+                <div style="font-size:11px;color:${{deltaColor}}">${{deltaSign}}${{Math.round(ssDelta)}} vs default</div>
+            </div>
+            <div>
+                <div style="font-size:10px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Holding Cost</div>
+                <div style="font-size:24px;font-weight:700;color:var(--accent-blue);margin:4px 0">&#8377;${{simCost.toLocaleString()}}</div>
+                <div style="font-size:11px;color:${{deltaColor}}">${{deltaSign}}&#8377;${{Math.abs(costDelta).toLocaleString()}}</div>
+            </div>
+            <div>
+                <div style="font-size:10px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Stockout Risk</div>
+                <div style="font-size:24px;font-weight:700;color:${{sl < 90 ? COLORS.red : (sl < 95 ? COLORS.amber : COLORS.green)}};margin:4px 0">${{stockoutRisk}}%</div>
+                <div style="font-size:11px;color:var(--text-secondary)">${{sl >= 95 ? 'Low risk' : (sl >= 90 ? 'Moderate' : 'High risk')}}</div>
+            </div>
+        </div>
+    `;
 }}
 
 // ---- CROSS-FILTERING ----
@@ -1718,8 +1845,8 @@ function buildPoolFilterBar() {{
     const bar = document.getElementById('pool-filter-bar');
     if (!bar) return;
     const pools = [...new Set(metricsData.map(m => m.signal_pool))];
-    let html = `<span style="font-size:11px;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-right:4px">Filter by Signal:</span>`;
-    html += `<div class="pool-pill active" onclick="setPoolFilter('all')" data-pool="all">All Pools</div>`;
+    let html = `<span style="font-size:11px;color:var(--text-secondary);font-weight:600;letter-spacing:0.5px;margin-right:4px">Signals</span>`;
+    html += `<div class="pool-pill active" onclick="setPoolFilter('all')" data-pool="all">All</div>`;
     pools.forEach(pool => {{
         html += `<div class="pool-pill" onclick="setPoolFilter('${{pool}}')" data-pool="${{pool}}"><span class="pill-dot" style="background:${{POOL_COLORS[pool] || COLORS.green}}"></span>${{pool}}</div>`;
     }});
@@ -1822,11 +1949,14 @@ document.addEventListener('DOMContentLoaded', init);
 function toggleChat() {{
     const panel = document.getElementById('chatPanel');
     panel.classList.toggle('open');
+    document.body.classList.toggle('chat-open', panel.classList.contains('open'));
     const label = document.getElementById('chatLabel');
     if (label) label.style.display = 'none';
     if (panel.classList.contains('open')) {{
         document.getElementById('chatInput').focus();
     }}
+    // Resize charts after body margin change
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 250);
 }}
 
 function askSuggestion(el) {{
