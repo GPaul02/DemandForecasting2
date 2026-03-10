@@ -1285,7 +1285,7 @@ function renderRisk() {{
     if (riskData.length === 0) {{
         tableContainer.innerHTML = '<div class="empty-state"><div class="empty-icon">&#10003;</div><h3>All SKUs Performing Well</h3><p>No SKUs are below the 70% forecast accuracy threshold. All models are within acceptable range.</p></div>';
     }} else {{
-        let html = '<table><thead><tr><th>SKU ID</th><th>SKU Name</th><th>Pool</th><th>Class</th><th>ML FA%</th><th title="MAPE Volatility: Standard deviation of monthly MAPE values — measures how erratic forecast errors are over time. Higher = less predictable.">MAPE Vol. <span style="cursor:help;opacity:0.6;font-size:10px">&#9432;</span></th><th>Risk Score</th><th>Severity</th></tr></thead><tbody>';
+        let html = '<table><thead><tr><th>SKU ID</th><th>SKU Name</th><th>Signal Pool</th><th>Class</th><th class="has-tooltip" data-tooltip="ML Forecast Accuracy — 100% minus MAPE. Higher is better.">ML Forecast Accuracy</th><th class="has-tooltip" data-tooltip="MAPE Volatility: Standard deviation of monthly MAPE values. Measures how erratic forecast errors are over time. Higher = less predictable.">MAPE Volatility</th><th class="has-tooltip" data-tooltip="Risk Score = (100 - ML FA%) + MAPE Volatility. Combines inaccuracy with unpredictability.">Risk Score</th><th>Severity</th></tr></thead><tbody>';
         riskData.forEach(r => {{
             // Tiered severity: CRITICAL (FA<30%), HIGH (FA 30-50%), MODERATE (FA 50-70%)
             let badge, status;
@@ -1307,23 +1307,46 @@ function renderRisk() {{
         tableContainer.innerHTML = html;
     }}
 
-    // Risk scatter
-    if (riskData.length > 0) {{
-        Plotly.newPlot('chart-risk-scatter', [{{
-            x: riskData.map(r => r.ml_fa),
-            y: riskData.map(r => r.risk_score),
-            text: riskData.map(r => r.sku_name),
-            mode: 'markers+text',
-            type: 'scatter',
-            textposition: 'top center',
-            textfont: {{ size: 10, color: COLORS.textSec }},
-            marker: {{
-                color: riskData.map(r => r.risk_score),
-                colorscale: [[0, COLORS.amber], [1, COLORS.red]],
-                size: 14,
-                line: {{ color: 'rgba(255,255,255,0.2)', width: 1 }},
+    // Risk scatter — highlight top 5, fade the rest
+    const filteredRisk = activePoolFilter === 'all' ? riskData : riskData.filter(r => r.signal_pool === activePoolFilter);
+    if (filteredRisk.length > 0) {{
+        const sortedRisk = [...filteredRisk].sort((a, b) => b.risk_score - a.risk_score);
+        const top5ids = new Set(sortedRisk.slice(0, 5).map(r => r.sku_id));
+        Plotly.newPlot('chart-risk-scatter', [
+            // Faded background points
+            {{
+                x: filteredRisk.filter(r => !top5ids.has(r.sku_id)).map(r => r.ml_fa),
+                y: filteredRisk.filter(r => !top5ids.has(r.sku_id)).map(r => r.risk_score),
+                text: filteredRisk.filter(r => !top5ids.has(r.sku_id)).map(r => r.sku_name),
+                mode: 'markers',
+                type: 'scatter',
+                name: 'Other At-Risk',
+                marker: {{
+                    color: 'rgba(255,193,7,0.25)',
+                    size: 10,
+                    line: {{ color: 'rgba(255,255,255,0.1)', width: 1 }},
+                }},
+                hovertemplate: '%{{text}}<br>FA: %{{x:.1f}}%<br>Risk: %{{y:.0f}}<extra></extra>',
             }},
-        }}], {{
+            // Top 5 highlighted with labels
+            {{
+                x: sortedRisk.slice(0, 5).map(r => r.ml_fa),
+                y: sortedRisk.slice(0, 5).map(r => r.risk_score),
+                text: sortedRisk.slice(0, 5).map(r => r.sku_name),
+                mode: 'markers+text',
+                type: 'scatter',
+                name: 'Top 5 Highest Risk',
+                textposition: 'top center',
+                textfont: {{ size: 11, color: COLORS.text, family: 'Segoe UI, system-ui, sans-serif' }},
+                marker: {{
+                    color: sortedRisk.slice(0, 5).map(r => r.risk_score),
+                    colorscale: [[0, COLORS.amber], [1, COLORS.red]],
+                    size: 16,
+                    line: {{ color: 'rgba(255,255,255,0.3)', width: 2 }},
+                }},
+                hovertemplate: '%{{text}}<br>FA: %{{x:.1f}}%<br>Risk: %{{y:.0f}}<extra></extra>',
+            }}
+        ], {{
             ...plotLayout,
             xaxis: {{ ...plotLayout.xaxis, title: 'ML Forecast Accuracy %' }},
             yaxis: {{ ...plotLayout.yaxis, title: 'Risk Score' }},
@@ -1592,17 +1615,17 @@ function updateSafetyStock() {{
             <div class="sub">${{m.sku_id}} | ${{m.signal_pool}} Pool | ${{m.abc_xyz}}</div>
         </div>
         <div class="kpi-card">
-            <div class="label">Forecast Error Std (Baseline)</div>
+            <div class="label has-tooltip" data-tooltip="Standard deviation of baseline forecast errors — measures how unpredictable the baseline model is. Higher = more safety stock needed.">Forecast Error Std (Baseline)</div>
             <div class="value" style="color:var(--accent-blue)">${{m.baseline_error_std.toFixed(0)}}</div>
             <div class="sub">units</div>
         </div>
         <div class="kpi-card">
-            <div class="label">Forecast Error Std (ML)</div>
+            <div class="label has-tooltip" data-tooltip="Standard deviation of ML model forecast errors — lower means more precise forecasts and less safety stock required.">Forecast Error Std (ML)</div>
             <div class="value green">${{m.ml_error_std.toFixed(0)}}</div>
             <div class="sub">units</div>
         </div>
         <div class="kpi-card">
-            <div class="label">Inventory Cost Saving</div>
+            <div class="label has-tooltip" data-tooltip="Estimated holding cost reduction from using ML-optimized safety stock levels. Based on per-unit cost × stock reduction.">Inventory Cost Saving</div>
             <div class="value green">${{costSavingPct.toFixed(1)}}%</div>
             <div class="sub">&#8377;${{Math.round(costSaving).toLocaleString()}} saved</div>
         </div>
@@ -1679,11 +1702,110 @@ function updateSafetyStock() {{
     }}, {{ responsive: true }});
 }}
 
+// ---- CROSS-FILTERING ----
+function setPoolFilter(pool) {{
+    activePoolFilter = pool;
+    // Update pill UI
+    document.querySelectorAll('.pool-pill').forEach(p => {{
+        p.classList.toggle('active', p.dataset.pool === pool);
+    }});
+    // Re-render affected charts
+    renderOverview();
+    renderRisk();
+}}
+
+function buildPoolFilterBar() {{
+    const bar = document.getElementById('pool-filter-bar');
+    if (!bar) return;
+    const pools = [...new Set(metricsData.map(m => m.signal_pool))];
+    let html = `<span style="font-size:11px;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-right:4px">Filter by Signal:</span>`;
+    html += `<div class="pool-pill active" onclick="setPoolFilter('all')" data-pool="all">All Pools</div>`;
+    pools.forEach(pool => {{
+        html += `<div class="pool-pill" onclick="setPoolFilter('${{pool}}')" data-pool="${{pool}}"><span class="pill-dot" style="background:${{POOL_COLORS[pool] || COLORS.green}}"></span>${{pool}}</div>`;
+    }});
+    bar.innerHTML = html;
+}}
+
+// ---- PROACTIVE AI BRIEFING ----
+function renderAiBriefing() {{
+    const el = document.getElementById('ai-briefing-overview');
+    if (!el) return;
+
+    const atRiskSkus = metricsData.filter(m => m.ml_fa < 70).sort((a, b) => a.ml_fa - b.ml_fa);
+    const avgBFA = metricsData.reduce((s, m) => s + m.baseline_fa, 0) / metricsData.length;
+    const avgMFA = metricsData.reduce((s, m) => s + m.ml_fa, 0) / metricsData.length;
+    const totalBaselineSS = metricsData.reduce((s, m) => s + m.baseline_safety_stock, 0);
+    const totalMlSS = metricsData.reduce((s, m) => s + m.ml_safety_stock, 0);
+    const ssSaving = Math.round(totalBaselineSS - totalMlSS);
+
+    // Build the worst pool insight
+    const poolPerf = {{}};
+    metricsData.forEach(m => {{
+        if (!poolPerf[m.signal_pool]) poolPerf[m.signal_pool] = {{ total: 0, atRisk: 0 }};
+        poolPerf[m.signal_pool].total++;
+        if (m.ml_fa < 70) poolPerf[m.signal_pool].atRisk++;
+    }});
+    const worstPoolEntry = Object.entries(poolPerf).sort((a, b) => (b[1].atRisk/b[1].total) - (a[1].atRisk/a[1].total))[0];
+
+    let insights = [];
+
+    // Insight 1: At-risk summary
+    if (atRiskSkus.length > 0) {{
+        const worst = atRiskSkus[0];
+        insights.push({{
+            icon: '&#9888;',
+            color: COLORS.red,
+            text: `<strong>${{atRiskSkus.length}} SKUs</strong> have forecast accuracy below 70%. Worst: <strong>${{worst.sku_name}}</strong> at ${{worst.ml_fa.toFixed(1)}}% — <a href="#" onclick="navigateToSku('${{worst.sku_id}}');return false" style="color:var(--accent-green)">view details</a>`
+        }});
+    }} else {{
+        insights.push({{
+            icon: '&#10003;',
+            color: COLORS.green,
+            text: `All SKUs are above the 70% forecast accuracy threshold. <strong>No immediate action required.</strong>`
+        }});
+    }}
+
+    // Insight 2: Anomalies
+    if (anomaliesData.length > 0) {{
+        insights.push({{
+            icon: '&#9888;',
+            color: COLORS.amber,
+            text: anomaliesData.map(a => a.message).join('; ')
+        }});
+    }}
+
+    // Insight 3: Worst pool
+    if (worstPoolEntry && worstPoolEntry[1].atRisk > 0) {{
+        const pct = (worstPoolEntry[1].atRisk / worstPoolEntry[1].total * 100).toFixed(0);
+        insights.push({{
+            icon: '&#128269;',
+            color: COLORS.blue,
+            text: `<strong>${{worstPoolEntry[0]}}</strong> pool has the highest risk concentration — ${{pct}}% of its SKUs are below threshold. <a href="#" onclick="setPoolFilter('${{worstPoolEntry[0]}}');return false" style="color:var(--accent-green)">Filter to this pool</a>`
+        }});
+    }}
+
+    // Insight 4: Safety stock opportunity
+    insights.push({{
+        icon: '&#128176;',
+        color: COLORS.green,
+        text: `ML-optimized safety stock saves <strong>${{ssSaving.toLocaleString()}} units</strong> across all SKUs — <a href="#" onclick="switchTab('safety');return false" style="color:var(--accent-green)">explore savings</a>`
+    }});
+
+    el.innerHTML = `
+        <div class="briefing-header">&#9889; PharmaCast Intelligence Briefing</div>
+        <div class="briefing-body">
+            ${{insights.map(i => `<div class="insight-item"><span class="insight-icon" style="color:${{i.color}}">${{i.icon}}</span><span>${{i.text}}</span></div>`).join('')}}
+        </div>
+    `;
+}}
+
 // ---- INIT ----
 function init() {{
     populateSkuDropdowns();
+    buildPoolFilterBar();
     renderOverview();
     renderRisk();
+    renderAiBriefing();
     updateRecommendation();
     updateSafetyStock();
     // Fill overview stock reduction KPI
