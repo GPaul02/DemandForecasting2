@@ -186,8 +186,8 @@ body {{
 }}
 .kpi-card .label {{
     font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
     color: var(--text-secondary);
     margin-bottom: 8px;
 }}
@@ -229,7 +229,7 @@ th {{
     color: var(--text-secondary);
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 11px;
+    font-size: 10px;
     letter-spacing: 0.8px;
     border-bottom: 2px solid var(--card-border);
 }}
@@ -272,8 +272,7 @@ tr:hover td {{ background: rgba(255,255,255,0.02); }}
     font-size: 13px;
     color: var(--text-secondary);
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.2px;
 }}
 select {{
     background: var(--input-bg);
@@ -321,11 +320,139 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     font-size: 14px;
 }}
 .two-col {{ display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }}
+/* Workflow stepper */
+.workflow-bar {{
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 12px 40px;
+    background: var(--navy);
+    border-bottom: 1px solid var(--card-border);
+    font-size: 12px;
+}}
+.workflow-step {{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    opacity: 0.5;
+    transition: all 0.2s;
+}}
+.workflow-step.active {{
+    color: var(--accent-green);
+    opacity: 1;
+    font-weight: 600;
+}}
+.workflow-step.completed {{
+    color: var(--accent-green);
+    opacity: 0.7;
+}}
+.workflow-step .step-num {{
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+}}
+.workflow-step.active .step-num {{
+    background: var(--accent-green);
+    color: var(--navy);
+    border-color: var(--accent-green);
+}}
+.workflow-step.completed .step-num {{
+    background: rgba(0,214,143,0.2);
+    border-color: var(--accent-green);
+}}
+.workflow-arrow {{
+    margin: 0 12px;
+    color: var(--text-secondary);
+    opacity: 0.3;
+    font-size: 14px;
+}}
+/* Urgency-differentiated KPI cards */
+.kpi-card.urgent {{
+    border-color: rgba(255,107,107,0.4);
+    background: linear-gradient(135deg, var(--card-bg), rgba(255,107,107,0.06));
+    animation: urgentPulse 3s ease-in-out infinite;
+}}
+@keyframes urgentPulse {{
+    0%, 100% {{ border-color: rgba(255,107,107,0.4); }}
+    50% {{ border-color: rgba(255,107,107,0.7); }}
+}}
+.kpi-card.healthy {{
+    border-color: rgba(0,214,143,0.2);
+    background: linear-gradient(135deg, var(--card-bg), rgba(0,214,143,0.04));
+}}
+.kpi-card.healthy .value {{ font-size: 28px; }}
+/* Searchable SKU selector */
+.sku-search-wrap {{
+    position: relative;
+    min-width: 350px;
+}}
+.sku-search-wrap input {{
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+}}
+.sku-search-wrap input:focus {{ border-color: var(--accent-green); }}
+.sku-dropdown {{
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 320px;
+    overflow-y: auto;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    z-index: 100;
+}}
+.sku-dropdown.open {{ display: block; }}
+.sku-opt-group {{
+    padding: 4px 12px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-secondary);
+    background: var(--navy-light);
+    font-weight: 600;
+}}
+.sku-opt {{
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.1s;
+}}
+.sku-opt:hover {{ background: rgba(255,255,255,0.04); }}
+.sku-opt .risk-dot {{
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}}
+.sku-opt .risk-dot.red {{ background: var(--accent-red); }}
+.sku-opt .risk-dot.green {{ background: var(--accent-green); }}
+.sku-opt .risk-dot.amber {{ background: var(--accent-amber); }}
 @media (max-width: 900px) {{
     .two-col, .detail-grid {{ grid-template-columns: 1fr; }}
     .header {{ padding: 16px 20px; }}
     .tab-content {{ padding: 20px; }}
     .tab-bar {{ padding: 0 20px; overflow-x: auto; }}
+    .workflow-bar {{ padding: 8px 20px; overflow-x: auto; }}
 }}
 .comparison-row {{
     display: grid;
@@ -345,7 +472,7 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 }}
 .stat-block.baseline {{ background: rgba(77,171,247,0.1); border: 1px solid rgba(77,171,247,0.2); }}
 .stat-block.ml {{ background: var(--accent-green-dim); border: 1px solid rgba(0,214,143,0.2); }}
-.stat-block .stat-label {{ font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }}
+.stat-block .stat-label {{ font-size: 12px; color: var(--text-secondary); font-weight: 600; letter-spacing: 0.2px; }}
 .stat-block .stat-value {{ font-size: 28px; font-weight: 700; margin: 4px 0; }}
 .stat-block.baseline .stat-value {{ color: var(--accent-blue); }}
 .stat-block.ml .stat-value {{ color: var(--accent-green); }}
@@ -358,6 +485,34 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     font-size: 18px;
     font-weight: 700;
     margin-top: 12px;
+}}
+
+/* Loading skeleton */
+.skeleton {{
+    background: linear-gradient(90deg, var(--card-bg) 25%, rgba(255,255,255,0.05) 50%, var(--card-bg) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 8px;
+}}
+@keyframes shimmer {{
+    0% {{ background-position: 200% 0; }}
+    100% {{ background-position: -200% 0; }}
+}}
+.empty-state {{
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+}}
+.empty-state .empty-icon {{
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+}}
+.empty-state h3 {{
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent-green);
+    margin-bottom: 8px;
 }}
 
 /* ---- CHATBOT STYLES ---- */
@@ -620,30 +775,59 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     <button class="tab-btn" onclick="toggleChat()" style="margin-left:auto; background:var(--accent-green); color:var(--navy); font-weight:700; border-radius:20px; padding:8px 18px;">💬 Chat Assistant</button>
 </div>
 
+<!-- WORKFLOW STEPPER -->
+<div class="workflow-bar">
+    <div class="workflow-step active" id="step-overview">
+        <span class="step-num">1</span> Detect
+    </div>
+    <span class="workflow-arrow">&#8594;</span>
+    <div class="workflow-step" id="step-risk">
+        <span class="step-num">2</span> Diagnose
+    </div>
+    <span class="workflow-arrow">&#8594;</span>
+    <div class="workflow-step" id="step-recommend">
+        <span class="step-num">3</span> Decide
+    </div>
+    <span class="workflow-arrow">&#8594;</span>
+    <div class="workflow-step" id="step-safety">
+        <span class="step-num">4</span> Act
+    </div>
+</div>
+
 <!-- TAB 1: OVERVIEW -->
 <div id="tab-overview" class="tab-content active">
-    <div class="kpi-row">
-        <div class="kpi-card">
-            <div class="label">Total SKUs Monitored</div>
-            <div class="value blue">{total_skus}</div>
-            <div class="sub">BZ / CY / CZ Segments</div>
+    <!-- Hero Banner -->
+    <div class="chart-container" style="border-color:rgba(0,214,143,0.3);background:linear-gradient(135deg,var(--card-bg),rgba(0,214,143,0.06));margin-bottom:24px;text-align:center;padding:28px">
+        <div style="font-size:14px;color:var(--text-secondary);margin-bottom:4px">Forecast Accuracy Improvement (ML vs Baseline)</div>
+        <div style="font-size:48px;font-weight:800;color:var(--accent-green)">+{avg_improvement}%</div>
+        <div style="font-size:14px;color:var(--text-secondary);margin-top:4px">{skus_improved} of {total_skus} SKUs improved &mdash; Avg ML Accuracy: {avg_ml_fa}%</div>
+    </div>
+
+    <!-- Action Cards with urgency differentiation -->
+    <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">
+        <div class="kpi-card {'urgent' if num_at_risk > 0 else 'healthy'}" onclick="switchTab('risk')" style="cursor:pointer">
+            <div class="label" style="font-weight:600;letter-spacing:0.3px;font-size:12px;color:{'var(--accent-red)' if num_at_risk > 0 else 'var(--accent-green)'}">{"&#9888; Needs Attention" if num_at_risk > 0 else "&#10003; All Clear"}</div>
+            <div class="value" style="color:{'var(--accent-red)' if num_at_risk > 0 else 'var(--accent-green)'}">{str(num_at_risk) + ' SKUs at Risk' if num_at_risk > 0 else 'No At-Risk SKUs'}</div>
+            <div class="sub">{'Click to review risk flags &#8594;' if num_at_risk > 0 else 'All above 70% FA threshold'}</div>
         </div>
-        <div class="kpi-card">
-            <div class="label">Avg Baseline Accuracy</div>
-            <div class="value" style="color:var(--accent-blue)">{avg_baseline_fa}%</div>
-            <div class="sub">3-Month Moving Average</div>
+        <div class="kpi-card {'urgent' if num_anomalies > 0 else 'healthy'}" style="{'padding:16px' if num_anomalies == 0 else ''}">
+            <div class="label" style="font-size:12px">{"&#9888; Signal Anomalies" if num_anomalies > 0 else "&#10003; Signals Normal"}</div>
+            <div class="value {'amber' if num_anomalies > 0 else ''}" style="{'font-size:28px;color:var(--accent-green)' if num_anomalies == 0 else ''}">{num_anomalies if num_anomalies > 0 else '&#10003;'}</div>
+            <div class="sub">{'Active environmental alerts' if num_anomalies > 0 else 'All indicators in normal range'}</div>
         </div>
-        <div class="kpi-card">
-            <div class="label">Avg ML Accuracy</div>
-            <div class="value green">{avg_ml_fa}%</div>
-            <div class="sub">Gradient Boosting Model</div>
-        </div>
-        <div class="kpi-card">
-            <div class="label">Avg Improvement</div>
-            <div class="value green">+{avg_improvement}%</div>
-            <div class="sub">{skus_improved}/{total_skus} SKUs improved</div>
+        <div class="kpi-card" onclick="switchTab('safety')" style="cursor:pointer;border-color:rgba(0,214,143,0.2)">
+            <div class="label" style="font-size:12px">Safety Stock Optimization</div>
+            <div class="value green" id="overview-stock-reduction">—</div>
+            <div class="sub">Avg reduction via ML &mdash; Click for details \u2192</div>
         </div>
     </div>
+
+    <!-- PROMOTED: SKU scatter (most analytically valuable) -->
+    <div class="chart-container">
+        <div class="chart-title">SKU-Level Forecast Accuracy — Baseline vs ML <span style="font-size:12px;color:var(--text-secondary);font-weight:400;margin-left:8px">Each dot = one SKU. Above diagonal = ML outperforms baseline.</span></div>
+        <div id="chart-sku-scatter"></div>
+    </div>
+
     <div class="two-col">
         <div class="chart-container">
             <div class="chart-title">Baseline vs ML Forecast Accuracy by Signal Pool</div>
@@ -653,10 +837,6 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
             <div class="chart-title">Forecast Accuracy Distribution (All SKUs)</div>
             <div id="chart-fa-distribution"></div>
         </div>
-    </div>
-    <div class="chart-container">
-        <div class="chart-title">SKU-Level Forecast Accuracy — Baseline vs ML</div>
-        <div id="chart-sku-scatter"></div>
     </div>
 </div>
 
@@ -693,8 +873,13 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 <!-- TAB 3: MODEL RECOMMENDATIONS -->
 <div id="tab-recommend" class="tab-content">
     <div class="selector">
-        <label>Select SKU:</label>
-        <select id="sku-selector" onchange="updateRecommendation()"></select>
+        <label style="font-weight:600;letter-spacing:0.3px">Select SKU</label>
+        <div class="sku-search-wrap" id="sku-search-wrap-recommend">
+            <input type="text" id="sku-search-recommend" placeholder="Search by SKU name, ID, or pool..." autocomplete="off"
+                   onfocus="openSkuDropdown('recommend')" oninput="filterSkuDropdown('recommend')">
+            <div class="sku-dropdown" id="sku-dropdown-recommend"></div>
+        </div>
+        <select id="sku-selector" onchange="updateRecommendation()" style="display:none"></select>
     </div>
     <div id="recommendation-content"></div>
 </div>
@@ -702,8 +887,13 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 <!-- TAB 4: SAFETY STOCK -->
 <div id="tab-safety" class="tab-content">
     <div class="selector">
-        <label>Select SKU:</label>
-        <select id="safety-sku-selector" onchange="updateSafetyStock()"></select>
+        <label style="font-weight:600;letter-spacing:0.3px">Select SKU</label>
+        <div class="sku-search-wrap" id="sku-search-wrap-safety">
+            <input type="text" id="sku-search-safety" placeholder="Search by SKU name, ID, or pool..." autocomplete="off"
+                   onfocus="openSkuDropdown('safety')" oninput="filterSkuDropdown('safety')">
+            <div class="sku-dropdown" id="sku-dropdown-safety"></div>
+        </div>
+        <select id="safety-sku-selector" onchange="updateSafetyStock()" style="display:none"></select>
     </div>
     <div id="safety-content"></div>
 </div>
@@ -731,9 +921,9 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
         </div>
     </div>
     <div class="chat-suggestions" id="chatSuggestions">
+        <div class="chat-suggestion" onclick="askSuggestion(this)">Diagnose root causes</div>
         <div class="chat-suggestion" onclick="askSuggestion(this)">Which SKUs are at risk?</div>
         <div class="chat-suggestion" onclick="askSuggestion(this)">Best performing pool?</div>
-        <div class="chat-suggestion" onclick="askSuggestion(this)">Show top improvements</div>
         <div class="chat-suggestion" onclick="askSuggestion(this)">Safety stock savings</div>
     </div>
     <div class="chat-input-row">
@@ -777,9 +967,34 @@ function switchTab(name) {{
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
     document.getElementById('tab-' + name).classList.add('active');
-    event.target.classList.add('active');
+    // Find the correct tab button
+    const btns = document.querySelectorAll('.tab-btn');
+    const tabMap = {{'overview':0, 'risk':1, 'recommend':2, 'safety':3}};
+    if (tabMap[name] !== undefined) btns[tabMap[name]].classList.add('active');
+    // Update workflow stepper
+    updateWorkflowStep(name);
     // Trigger resize for plotly
     window.dispatchEvent(new Event('resize'));
+}}
+
+function navigateToSku(skuId) {{
+    // Set the SKU in the Model Recommendations dropdown and switch tab
+    const selector = document.getElementById('sku-selector');
+    selector.value = skuId;
+    updateRecommendation();
+    switchTab('recommend');
+}}
+
+function updateWorkflowStep(tabName) {{
+    const steps = ['overview', 'risk', 'recommend', 'safety'];
+    steps.forEach((s, i) => {{
+        const el = document.getElementById('step-' + s);
+        if (!el) return;
+        const idx = steps.indexOf(tabName);
+        if (i < idx) el.className = 'workflow-step completed';
+        else if (i === idx) el.className = 'workflow-step active';
+        else el.className = 'workflow-step';
+    }});
 }}
 
 // ---- TAB 1: OVERVIEW ----
@@ -790,16 +1005,16 @@ function renderOverview() {{
         {{
             x: pools, y: poolData.map(p => p.baseline_fa),
             type: 'bar', name: 'Baseline (SMA)',
-            marker: {{ color: COLORS.blue, opacity: 0.8 }},
+            marker: {{ color: '#74c0fc', opacity: 0.9 }},
             text: poolData.map(p => p.baseline_fa.toFixed(1) + '%'),
-            textposition: 'outside', textfont: {{ size: 11 }},
+            textposition: 'outside', textfont: {{ size: 12, color: '#74c0fc' }},
         }},
         {{
             x: pools, y: poolData.map(p => p.ml_fa),
             type: 'bar', name: 'ML (GBR)',
-            marker: {{ color: COLORS.green, opacity: 0.9 }},
+            marker: {{ color: '#63e6be', opacity: 0.95 }},
             text: poolData.map(p => p.ml_fa.toFixed(1) + '%'),
-            textposition: 'outside', textfont: {{ size: 11 }},
+            textposition: 'outside', textfont: {{ size: 12, color: '#63e6be' }},
         }}
     ], {{
         ...plotLayout,
@@ -832,9 +1047,10 @@ function renderOverview() {{
     }}, {{ responsive: true }});
 
     // SKU scatter
+    // Higher-contrast colors that pass WCAG AA on dark backgrounds
     const poolColors = {{
-        'AQI': '#ff6b6b', 'Monsoon': '#4dabf7', 'Temperature': '#ffc107',
-        'Wedding': '#cc5de8', 'GoogleTrends': '#51cf66'
+        'AQI': '#ff8787', 'Monsoon': '#74c0fc', 'Temperature': '#ffe066',
+        'Wedding': '#da77f2', 'GoogleTrends': '#69db7c'
     }};
     const scatterTraces = [];
     const poolNames = [...new Set(metricsData.map(m => m.signal_pool))];
@@ -863,11 +1079,21 @@ function renderOverview() {{
         yaxis: {{ ...plotLayout.yaxis, title: 'ML FA %', range: [0, 105] }},
         legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.15, x: 0.5, xanchor: 'center' }},
         annotations: [{{
-            x: 30, y: 90, text: 'ML Better', showarrow: false,
-            font: {{ color: COLORS.green, size: 12 }},
+            x: 20, y: 92, text: '<b>ML Much Better</b>', showarrow: false,
+            font: {{ color: COLORS.green, size: 14 }},
+            bgcolor: 'rgba(0,214,143,0.12)', borderpad: 4,
         }}, {{
-            x: 90, y: 30, text: 'Baseline Better', showarrow: false,
-            font: {{ color: COLORS.red, size: 12 }},
+            x: 85, y: 92, text: '<b>Both Strong</b>', showarrow: false,
+            font: {{ color: '#74c0fc', size: 14 }},
+            bgcolor: 'rgba(77,171,247,0.12)', borderpad: 4,
+        }}, {{
+            x: 85, y: 20, text: '<b>Baseline Better</b>', showarrow: false,
+            font: {{ color: COLORS.red, size: 14 }},
+            bgcolor: 'rgba(255,107,107,0.12)', borderpad: 4,
+        }}, {{
+            x: 20, y: 20, text: '<b>Both Weak</b>', showarrow: false,
+            font: {{ color: COLORS.amber, size: 14 }},
+            bgcolor: 'rgba(255,193,7,0.12)', borderpad: 4,
         }}],
     }}, {{ responsive: true }});
 }}
@@ -887,20 +1113,23 @@ function renderRisk() {{
     // Risk table
     const tableContainer = document.getElementById('risk-table-container');
     if (riskData.length === 0) {{
-        tableContainer.innerHTML = '<p style="color:var(--accent-green);padding:20px;text-align:center">No SKUs below 70% forecast accuracy — all performing within acceptable range.</p>';
+        tableContainer.innerHTML = '<div class="empty-state"><div class="empty-icon">&#10003;</div><h3>All SKUs Performing Well</h3><p>No SKUs are below the 70% forecast accuracy threshold. All models are within acceptable range.</p></div>';
     }} else {{
-        let html = '<table><thead><tr><th>SKU ID</th><th>SKU Name</th><th>Pool</th><th>Class</th><th>ML FA%</th><th>MAPE Vol.</th><th>Risk Score</th><th>Status</th></tr></thead><tbody>';
+        let html = '<table><thead><tr><th>SKU ID</th><th>SKU Name</th><th>Pool</th><th>Class</th><th>ML FA%</th><th title="MAPE Volatility: Standard deviation of monthly MAPE values — measures how erratic forecast errors are over time. Higher = less predictable.">MAPE Vol. <span style="cursor:help;opacity:0.6;font-size:10px">&#9432;</span></th><th>Risk Score</th><th>Severity</th></tr></thead><tbody>';
         riskData.forEach(r => {{
-            const badge = r.risk_score > 60 ? 'badge-red' : (r.risk_score > 40 ? 'badge-amber' : 'badge-green');
-            const status = r.risk_score > 60 ? 'CRITICAL' : (r.risk_score > 40 ? 'WARNING' : 'WATCH');
-            html += `<tr>
+            // Tiered severity: CRITICAL (FA<30%), HIGH (FA 30-50%), MODERATE (FA 50-70%)
+            let badge, status;
+            if (r.ml_fa < 30) {{ badge = 'badge-red'; status = 'CRITICAL'; }}
+            else if (r.ml_fa < 50) {{ badge = 'badge-red'; status = 'HIGH'; }}
+            else {{ badge = 'badge-amber'; status = 'MODERATE'; }}
+            html += `<tr style="cursor:pointer" onclick="navigateToSku('${{r.sku_id}}')" title="Click to view details in Model Recommendations">
                 <td style="font-weight:600">${{r.sku_id}}</td>
                 <td>${{r.sku_name}}</td>
                 <td>${{r.signal_pool}}</td>
                 <td><span class="badge badge-amber">${{r.abc_xyz}}</span></td>
-                <td style="color:${{r.ml_fa < 50 ? COLORS.red : COLORS.amber}}">${{r.ml_fa.toFixed(1)}}%</td>
-                <td>${{r.mape_volatility.toFixed(1)}}</td>
-                <td style="font-weight:700;color:${{r.risk_score > 60 ? COLORS.red : COLORS.amber}}">${{r.risk_score.toFixed(0)}}</td>
+                <td style="color:${{r.ml_fa < 30 ? COLORS.red : (r.ml_fa < 50 ? COLORS.amber : COLORS.text)}}">${{r.ml_fa.toFixed(1)}}%</td>
+                <td title="Std dev of monthly MAPE values">${{r.mape_volatility.toFixed(1)}}</td>
+                <td style="font-weight:700;color:${{r.ml_fa < 30 ? COLORS.red : (r.ml_fa < 50 ? COLORS.amber : COLORS.text)}}">${{r.risk_score.toFixed(0)}}</td>
                 <td><span class="badge ${{badge}}">${{status}}</span></td>
             </tr>`;
         }});
@@ -942,7 +1171,81 @@ function populateSkuDropdowns() {{
         selector.innerHTML += opt;
         safetySelector.innerHTML += opt;
     }});
+    // Initialize searchable dropdowns with first SKU name
+    if (metricsData.length > 0) {{
+        const first = metricsData[0];
+        document.getElementById('sku-search-recommend').value = first.sku_id + ' — ' + first.sku_name;
+        document.getElementById('sku-search-safety').value = first.sku_id + ' — ' + first.sku_name;
+    }}
 }}
+
+function buildSkuDropdownHtml(filter) {{
+    // Group by pool, show risk indicator
+    const pools = [...new Set(metricsData.map(m => m.signal_pool))];
+    const lf = (filter || '').toLowerCase();
+    let html = '';
+    pools.forEach(pool => {{
+        const skus = metricsData.filter(m => m.signal_pool === pool)
+            .filter(m => !lf || m.sku_id.toLowerCase().includes(lf) || m.sku_name.toLowerCase().includes(lf) || m.signal_pool.toLowerCase().includes(lf));
+        if (skus.length === 0) return;
+        html += `<div class="sku-opt-group">${{pool}} Pool (${{skus.length}} SKUs)</div>`;
+        skus.forEach(m => {{
+            const dotClass = m.ml_fa < 30 ? 'red' : (m.ml_fa < 70 ? 'amber' : 'green');
+            const riskLabel = m.ml_fa < 70 ? ` — ${{m.ml_fa.toFixed(0)}}% FA` : '';
+            html += `<div class="sku-opt" data-sku="${{m.sku_id}}">
+                <span class="risk-dot ${{dotClass}}"></span>
+                <span>${{m.sku_id}} — ${{m.sku_name}}${{riskLabel}}</span>
+            </div>`;
+        }});
+    }});
+    return html || '<div style="padding:12px;color:var(--text-secondary);text-align:center">No matching SKUs</div>';
+}}
+
+function openSkuDropdown(context) {{
+    const dd = document.getElementById('sku-dropdown-' + context);
+    dd.innerHTML = buildSkuDropdownHtml('');
+    dd.classList.add('open');
+    attachSkuClickHandlers(context);
+    // Select all text in input for easy replacement
+    document.getElementById('sku-search-' + context).select();
+}}
+
+function filterSkuDropdown(context) {{
+    const input = document.getElementById('sku-search-' + context);
+    const dd = document.getElementById('sku-dropdown-' + context);
+    dd.innerHTML = buildSkuDropdownHtml(input.value);
+    dd.classList.add('open');
+    attachSkuClickHandlers(context);
+}}
+
+function attachSkuClickHandlers(context) {{
+    const dd = document.getElementById('sku-dropdown-' + context);
+    dd.querySelectorAll('.sku-opt').forEach(opt => {{
+        opt.onclick = () => {{
+            const skuId = opt.dataset.sku;
+            const m = metricsData.find(x => x.sku_id === skuId);
+            const input = document.getElementById('sku-search-' + context);
+            input.value = m.sku_id + ' — ' + m.sku_name;
+            dd.classList.remove('open');
+            if (context === 'recommend') {{
+                document.getElementById('sku-selector').value = skuId;
+                updateRecommendation();
+            }} else {{
+                document.getElementById('safety-sku-selector').value = skuId;
+                updateSafetyStock();
+            }}
+        }};
+    }});
+}}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {{
+    ['recommend', 'safety'].forEach(ctx => {{
+        const wrap = document.getElementById('sku-search-wrap-' + ctx);
+        const dd = document.getElementById('sku-dropdown-' + ctx);
+        if (wrap && dd && !wrap.contains(e.target)) dd.classList.remove('open');
+    }});
+}});
 
 function updateRecommendation() {{
     const skuId = document.getElementById('sku-selector').value;
@@ -981,9 +1284,14 @@ function updateRecommendation() {{
         <div class="chart-container">
             <div class="chart-title">Historical Demand vs Forecasts — ${{m.sku_name}}</div>
             <div id="chart-ts-detail"></div>
+            <div style="margin-top:8px;border-top:1px solid var(--card-border);padding-top:12px">
+                <div class="chart-title" style="font-size:14px;margin-bottom:8px">Forecast Error (Residuals) — ML Model</div>
+                <div id="chart-residuals"></div>
+            </div>
         </div>
         <div class="chart-container">
             <div class="chart-title">Next 3-Month Forecast with Confidence Interval</div>
+            <div id="ci-warning"></div>
             <div id="chart-future-forecast"></div>
         </div>
     </div>`;
@@ -1017,9 +1325,51 @@ function updateRecommendation() {{
         }}, {{ responsive: true }});
     }}
 
+    // Residual plot (forecast error over time)
+    if (ts && ts.ml) {{
+        const residualDates = [];
+        const residuals = [];
+        for (let i = 0; i < ts.dates.length; i++) {{
+            if (ts.ml[i] !== null && ts.actual[i] !== null) {{
+                residualDates.push(ts.dates[i]);
+                residuals.push(ts.actual[i] - ts.ml[i]);
+            }}
+        }}
+        const resColors = residuals.map(r => r >= 0 ? 'rgba(99,230,190,0.7)' : 'rgba(255,135,135,0.7)');
+        Plotly.newPlot('chart-residuals', [{{
+            x: residualDates, y: residuals,
+            type: 'bar', name: 'Residual',
+            marker: {{ color: resColors }},
+            hovertemplate: 'Date: %{{x}}<br>Error: %{{y:.0f}} units<extra></extra>',
+        }}, {{
+            x: [residualDates[0], residualDates[residualDates.length - 1]],
+            y: [0, 0],
+            type: 'scatter', mode: 'lines', name: 'Zero',
+            line: {{ color: COLORS.textSec, width: 1, dash: 'dash' }},
+            showlegend: false,
+        }}], {{
+            ...plotLayout,
+            height: 180,
+            margin: {{ l: 50, r: 30, t: 5, b: 30 }},
+            xaxis: {{ ...plotLayout.xaxis, title: '' }},
+            yaxis: {{ ...plotLayout.yaxis, title: 'Error (units)' }},
+            showlegend: false,
+        }}, {{ responsive: true }});
+    }}
+
     // Future forecast
     if (future.length > 0) {{
         const futureDates = future.map(f => f.date.substring(0, 10));
+        // CI width warning
+        const ciWarning = document.getElementById('ci-warning');
+        const avgForecast = future.reduce((s, f) => s + f.forecast, 0) / future.length;
+        const avgRange = future.reduce((s, f) => s + (f.upper_bound - f.lower_bound), 0) / future.length;
+        const ciPct = avgForecast > 0 ? (avgRange / avgForecast * 100) : 0;
+        if (ciPct > 40) {{
+            ciWarning.innerHTML = '<div style="background:rgba(255,193,7,0.1);border:1px solid rgba(255,193,7,0.3);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--accent-amber)"><strong>&#9888; Wide confidence interval</strong> — CI spans &plusmn;' + (ciPct/2).toFixed(0) + '% of forecast. Consider manual review or additional signal inputs for this SKU.</div>';
+        }} else {{
+            ciWarning.innerHTML = '';
+        }}
         Plotly.newPlot('chart-future-forecast', [
             {{
                 x: futureDates, y: future.map(f => f.upper_bound),
@@ -1110,7 +1460,8 @@ function updateSafetyStock() {{
             </div>
             <div style="margin-top:20px;padding:16px;background:var(--navy);border-radius:8px;font-size:12px;color:var(--text-secondary)">
                 <strong>Formula:</strong> Safety Stock = Z &times; &sigma;<sub>forecast error</sub> &times; &radic;Lead Time<br>
-                <strong>Parameters:</strong> Z = 1.65 (95% SL) | Lead Time = 30 days
+                <strong>Parameters:</strong> Z = 1.65 (95% SL) | Lead Time = 30 days<br>
+                <span style="color:var(--accent-amber);font-size:11px;margin-top:4px;display:inline-block">&#9432; Note: Z and Lead Time shown are system defaults. In production, these would vary per SKU based on individual service level agreements and supplier lead times.</span>
             </div>
         </div>
         <div class="chart-container">
@@ -1121,30 +1472,40 @@ function updateSafetyStock() {{
 
     document.getElementById('safety-content').innerHTML = html;
 
-    // All SKUs safety stock chart
+    // All SKUs safety stock chart — sorted by reduction magnitude
     const sorted = [...metricsData].sort((a, b) => b.safety_stock_reduction - a.safety_stock_reduction);
     const top20 = sorted.slice(0, 20);
+    const labels = top20.map(s => s.sku_id + ' (' + s.sku_name.substring(0, 15) + ')');
+    const reductionAnnotations = top20.map((s, i) => ({{
+        x: Math.max(s.baseline_safety_stock, s.ml_safety_stock) + 20,
+        y: i,
+        text: '-' + s.safety_stock_reduction.toFixed(0) + '%',
+        showarrow: false,
+        font: {{ color: COLORS.green, size: 11, family: 'monospace' }},
+        xanchor: 'left',
+    }}));
     Plotly.newPlot('chart-safety-all', [
         {{
-            y: top20.map(s => s.sku_id),
+            y: labels,
             x: top20.map(s => s.baseline_safety_stock),
             type: 'bar', orientation: 'h', name: 'Baseline',
-            marker: {{ color: COLORS.blue, opacity: 0.7 }},
+            marker: {{ color: '#74c0fc', opacity: 0.8 }},
         }},
         {{
-            y: top20.map(s => s.sku_id),
+            y: labels,
             x: top20.map(s => s.ml_safety_stock),
             type: 'bar', orientation: 'h', name: 'ML Optimized',
-            marker: {{ color: COLORS.green, opacity: 0.8 }},
+            marker: {{ color: '#63e6be', opacity: 0.9 }},
         }},
     ], {{
         ...plotLayout,
         barmode: 'group',
-        height: 500,
-        margin: {{ l: 80, r: 30, t: 10, b: 40 }},
+        height: 560,
+        margin: {{ l: 160, r: 60, t: 10, b: 40 }},
         xaxis: {{ ...plotLayout.xaxis, title: 'Safety Stock (units)' }},
         yaxis: {{ ...plotLayout.yaxis, autorange: 'reversed' }},
         legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.05, x: 0.5, xanchor: 'center' }},
+        annotations: reductionAnnotations,
     }}, {{ responsive: true }});
 }}
 
@@ -1155,6 +1516,9 @@ function init() {{
     renderRisk();
     updateRecommendation();
     updateSafetyStock();
+    // Fill overview stock reduction KPI
+    const avgRed = metricsData.reduce((s, m) => s + m.safety_stock_reduction, 0) / metricsData.length;
+    document.getElementById('overview-stock-reduction').textContent = avgRed.toFixed(1) + '%';
 }}
 
 document.addEventListener('DOMContentLoaded', init);
@@ -1256,6 +1620,10 @@ function generateResponse(query) {{
 
     // ---- Pool-specific queries ----
     if (poolMatch) return poolDetailResponse(poolMatch, q);
+
+    // ---- Cross-tab synthesis ----
+    if (matchesAny(q, ['why', 'reason', 'cause', 'explain why', 'root cause', 'insight', 'synthesize', 'diagnose']))
+        return synthesisResponse(q);
 
     // ---- Risk / at-risk queries ----
     if (matchesAny(q, ['risk', 'at risk', 'flag', 'critical', 'warning', 'danger', 'alert', 'problem']))
@@ -1588,6 +1956,49 @@ function helpResponse() {{
         `&#128300; <strong>Explanations</strong> — "Explain MAPE" or "What is risk score?"<br>` +
         `&#128302; <strong>Forecasts</strong> — "Forecast for Salbutamol" or "Next 3 months"<br><br>` +
         `Just type naturally — I understand SKU names, IDs, pool names, and common supply chain terms!`;
+}}
+
+function synthesisResponse(q) {{
+    // Cross-tab analysis: correlate risk, accuracy, signals, and safety stock
+    const atRiskSkus = metricsData.filter(m => m.ml_fa < 70).sort((a, b) => a.ml_fa - b.ml_fa);
+    const poolPerf = {{}};
+    metricsData.forEach(m => {{
+        if (!poolPerf[m.signal_pool]) poolPerf[m.signal_pool] = {{ total: 0, atRisk: 0, totalImprovement: 0 }};
+        poolPerf[m.signal_pool].total++;
+        poolPerf[m.signal_pool].totalImprovement += m.improvement;
+        if (m.ml_fa < 70) poolPerf[m.signal_pool].atRisk++;
+    }});
+
+    let resp = '<strong>Cross-Tab Diagnosis</strong><br><br>';
+
+    // Find the worst pool
+    const worstPool = Object.entries(poolPerf).sort((a, b) => (b[1].atRisk/b[1].total) - (a[1].atRisk/a[1].total))[0];
+    if (worstPool && worstPool[1].atRisk > 0) {{
+        const pctAtRisk = (worstPool[1].atRisk / worstPool[1].total * 100).toFixed(0);
+        resp += `<strong style="color:#ff8787">Key Finding:</strong> The <strong>${{worstPool[0]}}</strong> pool has the highest concentration of at-risk SKUs (${{pctAtRisk}}% of pool is below 70% FA).<br><br>`;
+
+        // Correlate with anomalies
+        const poolAnomalies = anomaliesData.filter(a => a.pool === worstPool[0]);
+        if (poolAnomalies.length > 0) {{
+            resp += `<strong>Likely cause:</strong> Active signal anomaly detected — ${{poolAnomalies[0].message}}<br>`;
+            resp += `This external signal disruption is likely driving forecast degradation for ${{worstPool[0]}} SKUs.<br><br>`;
+        }} else {{
+            resp += `<strong>Note:</strong> No active signal anomalies for this pool. The low accuracy may indicate structural demand pattern changes that the model hasn't captured.<br><br>`;
+        }}
+    }}
+
+    // Safety stock impact
+    const atRiskSS = atRiskSkus.reduce((s, m) => s + m.baseline_safety_stock, 0);
+    resp += `<strong>Inventory Impact:</strong> At-risk SKUs hold ${{Math.round(atRiskSS).toLocaleString()}} units of baseline safety stock. `;
+    resp += `Consider <em>increasing</em> safety stock for these items until forecast accuracy improves.<br><br>`;
+
+    resp += `<strong>Recommended Actions:</strong><br>`;
+    resp += `1. Review ${{worstPool ? worstPool[0] : 'worst performing'}} pool signal inputs<br>`;
+    resp += `2. Increase safety stock for critical SKUs (FA < 30%)<br>`;
+    resp += `3. Investigate demand pattern shifts with sales team<br>`;
+    resp += `4. Consider manual override forecasts for highest-risk items`;
+
+    return resp;
 }}
 
 function fallbackResponse(q) {{
