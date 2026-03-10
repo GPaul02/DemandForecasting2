@@ -179,10 +179,16 @@ body {{
 }}
 .kpi-card {{
     background: var(--card-bg);
-    border: 1px solid var(--card-border);
+    border: none;
     border-radius: 12px;
     padding: 24px;
     text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.03);
+    transition: transform 0.15s, box-shadow 0.15s;
+}}
+.kpi-card:hover {{
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
 }}
 .kpi-card .label {{
     font-size: 12px;
@@ -203,19 +209,46 @@ body {{
     color: var(--text-secondary);
     margin-top: 4px;
 }}
+/* Tier system: 1=hero decision signals, 2=diagnostic charts, 3=supporting data */
 .chart-container {{
     background: var(--card-bg);
-    border: 1px solid var(--card-border);
+    border: none;
     border-radius: 12px;
-    padding: 20px;
+    padding: 24px;
     margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.03);
+}}
+.chart-container.tier-3 {{
+    background: rgba(15,29,54,0.6);
+    box-shadow: none;
+    padding: 20px;
 }}
 .chart-title {{
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 0;
+    border-bottom: none;
+    color: var(--text-primary);
+}}
+.chart-subtitle {{
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: -12px;
+    margin-bottom: 16px;
+    font-weight: 400;
+}}
+/* Tab section headers — one question per tab */
+.tab-question {{
+    font-size: 24px;
+    font-weight: 300;
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+    letter-spacing: -0.3px;
+}}
+.tab-question strong {{
+    color: var(--text-primary);
+    font-weight: 600;
 }}
 table {{
     width: 100%;
@@ -225,20 +258,20 @@ table {{
 th {{
     text-align: left;
     padding: 12px 16px;
-    background: var(--navy-light);
+    background: transparent;
     color: var(--text-secondary);
     font-weight: 600;
     text-transform: uppercase;
     font-size: 10px;
     letter-spacing: 0.8px;
-    border-bottom: 2px solid var(--card-border);
+    border-bottom: 2px solid rgba(255,255,255,0.06);
 }}
 td {{
     padding: 12px 16px;
-    border-bottom: 1px solid var(--card-border);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
     color: var(--text-primary);
 }}
-tr:hover td {{ background: rgba(255,255,255,0.02); }}
+tr:hover td {{ background: rgba(255,255,255,0.03); }}
 .badge {{
     display: inline-block;
     padding: 3px 10px;
@@ -376,17 +409,17 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 }}
 /* Urgency-differentiated KPI cards */
 .kpi-card.urgent {{
-    border-color: rgba(255,107,107,0.4);
-    background: linear-gradient(135deg, var(--card-bg), rgba(255,107,107,0.06));
+    background: linear-gradient(135deg, var(--card-bg), rgba(255,107,107,0.08));
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,107,107,0.3);
     animation: urgentPulse 3s ease-in-out infinite;
 }}
 @keyframes urgentPulse {{
-    0%, 100% {{ border-color: rgba(255,107,107,0.4); }}
-    50% {{ border-color: rgba(255,107,107,0.7); }}
+    0%, 100% {{ box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,107,107,0.3); }}
+    50% {{ box-shadow: 0 1px 8px rgba(255,107,107,0.15), inset 0 0 0 1px rgba(255,107,107,0.5); }}
 }}
 .kpi-card.healthy {{
-    border-color: rgba(0,214,143,0.2);
     background: linear-gradient(135deg, var(--card-bg), rgba(0,214,143,0.04));
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(0,214,143,0.15);
 }}
 .kpi-card.healthy .value {{ font-size: 28px; }}
 /* Searchable SKU selector */
@@ -448,6 +481,102 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 .sku-opt .risk-dot.red {{ background: var(--accent-red); }}
 .sku-opt .risk-dot.green {{ background: var(--accent-green); }}
 .sku-opt .risk-dot.amber {{ background: var(--accent-amber); }}
+/* Tooltips */
+.has-tooltip {{
+    position: relative;
+    cursor: help;
+    border-bottom: 1px dotted var(--text-secondary);
+}}
+.has-tooltip::after {{
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--navy-mid);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 400;
+    white-space: nowrap;
+    max-width: 280px;
+    white-space: normal;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    line-height: 1.4;
+}}
+.has-tooltip:hover::after {{
+    opacity: 1;
+}}
+/* Cross-filter active pool pill */
+.pool-filter-bar {{
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+}}
+.pool-pill {{
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    transition: all 0.15s;
+}}
+.pool-pill:hover {{ border-color: var(--accent-green); color: var(--text-primary); }}
+.pool-pill.active {{
+    background: var(--accent-green);
+    color: var(--navy);
+    border-color: var(--accent-green);
+}}
+.pool-pill .pill-dot {{
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+}}
+/* Proactive AI briefing banner */
+.ai-briefing {{
+    background: linear-gradient(135deg, rgba(0,214,143,0.08), rgba(77,171,247,0.06));
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    box-shadow: inset 0 0 0 1px rgba(0,214,143,0.15);
+}}
+.ai-briefing .briefing-header {{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent-green);
+}}
+.ai-briefing .briefing-body {{
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-primary);
+}}
+.ai-briefing .briefing-body .insight-item {{
+    display: flex;
+    gap: 8px;
+    margin: 6px 0;
+    align-items: flex-start;
+}}
+.ai-briefing .briefing-body .insight-icon {{
+    flex-shrink: 0;
+    margin-top: 2px;
+}}
 @media (max-width: 900px) {{
     .two-col, .detail-grid {{ grid-template-columns: 1fr; }}
     .header {{ padding: 16px 20px; }}
@@ -797,11 +926,17 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 
 <!-- TAB 1: OVERVIEW -->
 <div id="tab-overview" class="tab-content active">
-    <!-- Hero Banner -->
-    <div class="chart-container" style="border-color:rgba(0,214,143,0.3);background:linear-gradient(135deg,var(--card-bg),rgba(0,214,143,0.06));margin-bottom:24px;text-align:center;padding:28px">
-        <div style="font-size:14px;color:var(--text-secondary);margin-bottom:4px">Forecast Accuracy Improvement (ML vs Baseline)</div>
-        <div style="font-size:48px;font-weight:800;color:var(--accent-green)">+{avg_improvement}%</div>
-        <div style="font-size:14px;color:var(--text-secondary);margin-top:4px">{skus_improved} of {total_skus} SKUs improved &mdash; Avg ML Accuracy: {avg_ml_fa}%</div>
+    <!-- Tab question -->
+    <div class="tab-question">How well are your <strong>forecasts performing</strong>?</div>
+
+    <!-- AI Briefing (proactive co-pilot) -->
+    <div class="ai-briefing" id="ai-briefing-overview"></div>
+
+    <!-- Hero Banner — Tier 1 Decision Signal -->
+    <div style="text-align:center;margin-bottom:32px;padding:8px 0">
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px;letter-spacing:0.5px;text-transform:uppercase;font-weight:600" class="has-tooltip" data-tooltip="Difference between ML model and baseline (3-month SMA) forecast accuracy averaged across all SKUs">Forecast Accuracy Improvement</div>
+        <div style="font-size:56px;font-weight:800;color:var(--accent-green);letter-spacing:-2px;line-height:1">+{avg_improvement}%</div>
+        <div style="font-size:14px;color:var(--text-secondary);margin-top:8px">{skus_improved} of {total_skus} SKUs improved &mdash; Avg ML Forecast Accuracy: {avg_ml_fa}%</div>
     </div>
 
     <!-- Action Cards with urgency differentiation -->
@@ -823,19 +958,28 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
         </div>
     </div>
 
-    <!-- PROMOTED: SKU scatter (most analytically valuable) -->
+    <!-- Cross-filter bar -->
+    <div class="pool-filter-bar" id="pool-filter-bar">
+        <span style="font-size:11px;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-right:4px">Filter by Signal:</span>
+        <div class="pool-pill active" onclick="setPoolFilter('all')" data-pool="all">All Pools</div>
+    </div>
+
+    <!-- PROMOTED: SKU scatter (most analytically valuable) — Tier 2 Diagnostic -->
     <div class="chart-container">
-        <div class="chart-title">SKU-Level Forecast Accuracy — Baseline vs ML <span style="font-size:12px;color:var(--text-secondary);font-weight:400;margin-left:8px">Each dot = one SKU. Above diagonal = ML outperforms baseline.</span></div>
+        <div class="chart-title">SKU-Level Forecast Accuracy — Baseline vs ML</div>
+        <div class="chart-subtitle">Each dot = one SKU. Above the diagonal = ML outperforms baseline.</div>
         <div id="chart-sku-scatter"></div>
     </div>
 
     <div class="two-col">
         <div class="chart-container">
-            <div class="chart-title">Baseline vs ML Forecast Accuracy by Signal Pool</div>
+            <div class="chart-title">Forecast Accuracy by Signal Pool</div>
+            <div class="chart-subtitle">Grouped comparison of Baseline (SMA) vs ML (Gradient Boosting)</div>
             <div id="chart-pool-comparison"></div>
         </div>
         <div class="chart-container">
-            <div class="chart-title">Forecast Accuracy Distribution (All SKUs)</div>
+            <div class="chart-title">Forecast Accuracy Distribution</div>
+            <div class="chart-subtitle">Overlaid histogram — right shift indicates ML improvement</div>
             <div id="chart-fa-distribution"></div>
         </div>
     </div>
@@ -843,19 +987,20 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 
 <!-- TAB 2: RISK FLAGS -->
 <div id="tab-risk" class="tab-content">
+    <div class="tab-question">Which SKUs are <strong>dangerous</strong>?</div>
     <div class="kpi-row">
         <div class="kpi-card">
-            <div class="label">At-Risk SKUs (FA &lt; 70%)</div>
+            <div class="label has-tooltip" data-tooltip="SKUs where ML Forecast Accuracy is below 70% — these need manual review or model retraining">At-Risk SKUs</div>
             <div class="value" style="color:var(--accent-red)">{num_at_risk}</div>
-            <div class="sub">Require immediate attention</div>
+            <div class="sub">Forecast accuracy below 70%</div>
         </div>
         <div class="kpi-card">
-            <div class="label">Signal Anomalies</div>
+            <div class="label has-tooltip" data-tooltip="External signals (AQI, temperature, rainfall, search trends) exceeding normal thresholds that may affect demand">Signal Anomalies</div>
             <div class="value amber">{num_anomalies}</div>
             <div class="sub">Active environmental alerts</div>
         </div>
         <div class="kpi-card">
-            <div class="label">Highest Risk Score</div>
+            <div class="label has-tooltip" data-tooltip="Risk Score = (100 - ML Forecast Accuracy%) + MAPE Volatility. Higher = worse. Combines inaccuracy with unpredictability.">Highest Risk Score</div>
             <div class="value" style="color:var(--accent-red)">{highest_risk}</div>
             <div class="sub">{highest_risk_name}</div>
         </div>
@@ -873,6 +1018,7 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 
 <!-- TAB 3: MODEL RECOMMENDATIONS -->
 <div id="tab-recommend" class="tab-content">
+    <div class="tab-question">What forecasting model should we <strong>use</strong>?</div>
     <div class="selector">
         <label style="font-weight:600;letter-spacing:0.3px">Select SKU</label>
         <div class="sku-search-wrap" id="sku-search-wrap-recommend">
@@ -887,6 +1033,7 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 
 <!-- TAB 4: SAFETY STOCK -->
 <div id="tab-safety" class="tab-content">
+    <div class="tab-question">How much inventory should we <strong>hold</strong>?</div>
     <div class="selector">
         <label style="font-weight:600;letter-spacing:0.3px">Select SKU</label>
         <div class="sku-search-wrap" id="sku-search-wrap-safety">
@@ -954,6 +1101,25 @@ const COLORS = {{
     gridColor: '#1e3258',
 }};
 
+// Consistent signal pool color mapping — used EVERYWHERE
+const POOL_COLORS = {{
+    'AQI': '#ff6b6b',
+    'Temperature': '#ffa94d',
+    'Monsoon': '#4dabf7',
+    'Wedding': '#da77f2',
+    'GoogleTrends': '#69db7c',
+}};
+const POOL_COLORS_DIM = {{
+    'AQI': 'rgba(255,107,107,0.15)',
+    'Temperature': 'rgba(255,169,77,0.15)',
+    'Monsoon': 'rgba(77,171,247,0.15)',
+    'Wedding': 'rgba(218,119,242,0.15)',
+    'GoogleTrends': 'rgba(105,219,124,0.15)',
+}};
+
+// Active cross-filter state
+let activePoolFilter = 'all';
+
 const plotLayout = {{
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
@@ -1005,17 +1171,17 @@ function renderOverview() {{
     Plotly.newPlot('chart-pool-comparison', [
         {{
             x: pools, y: poolData.map(p => p.baseline_fa),
-            type: 'bar', name: 'Baseline (SMA)',
-            marker: {{ color: '#74c0fc', opacity: 0.9 }},
+            type: 'bar', name: 'Baseline (3M SMA)',
+            marker: {{ color: pools.map(p => POOL_COLORS[p] || COLORS.blue), opacity: 0.4 }},
             text: poolData.map(p => p.baseline_fa.toFixed(1) + '%'),
-            textposition: 'outside', textfont: {{ size: 12, color: '#74c0fc' }},
+            textposition: 'outside', textfont: {{ size: 11, color: COLORS.textSec }},
         }},
         {{
             x: pools, y: poolData.map(p => p.ml_fa),
-            type: 'bar', name: 'ML (GBR)',
-            marker: {{ color: '#63e6be', opacity: 0.95 }},
+            type: 'bar', name: 'ML (Gradient Boosting)',
+            marker: {{ color: pools.map(p => POOL_COLORS[p] || COLORS.green), opacity: 0.9 }},
             text: poolData.map(p => p.ml_fa.toFixed(1) + '%'),
-            textposition: 'outside', textfont: {{ size: 12, color: '#63e6be' }},
+            textposition: 'outside', textfont: {{ size: 11, color: COLORS.text }},
         }}
     ], {{
         ...plotLayout,
@@ -1047,16 +1213,21 @@ function renderOverview() {{
         legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.12, x: 0.5, xanchor: 'center' }},
     }}, {{ responsive: true }});
 
-    // SKU scatter
-    // Higher-contrast colors that pass WCAG AA on dark backgrounds
-    const poolColors = {{
-        'AQI': '#ff8787', 'Monsoon': '#74c0fc', 'Temperature': '#ffe066',
-        'Wedding': '#da77f2', 'GoogleTrends': '#69db7c'
-    }};
+    // SKU scatter with quadrant shading
+    const filteredMetrics = activePoolFilter === 'all' ? metricsData : metricsData.filter(m => m.signal_pool === activePoolFilter);
     const scatterTraces = [];
-    const poolNames = [...new Set(metricsData.map(m => m.signal_pool))];
+
+    // Quadrant background shapes (semi-transparent fills)
+    const quadrantShapes = [
+        {{ type: 'rect', x0: 0, x1: 50, y0: 50, y1: 105, fillcolor: 'rgba(0,214,143,0.04)', line: {{ width: 0 }}, layer: 'below' }},  // ML Much Better
+        {{ type: 'rect', x0: 50, x1: 105, y0: 50, y1: 105, fillcolor: 'rgba(77,171,247,0.04)', line: {{ width: 0 }}, layer: 'below' }},  // Both Strong
+        {{ type: 'rect', x0: 50, x1: 105, y0: 0, y1: 50, fillcolor: 'rgba(255,107,107,0.04)', line: {{ width: 0 }}, layer: 'below' }},  // Baseline Better
+        {{ type: 'rect', x0: 0, x1: 50, y0: 0, y1: 50, fillcolor: 'rgba(255,193,7,0.04)', line: {{ width: 0 }}, layer: 'below' }},  // Both Weak
+    ];
+
+    const poolNames = [...new Set(filteredMetrics.map(m => m.signal_pool))];
     poolNames.forEach(pool => {{
-        const items = metricsData.filter(m => m.signal_pool === pool);
+        const items = filteredMetrics.filter(m => m.signal_pool === pool);
         scatterTraces.push({{
             x: items.map(i => i.baseline_fa),
             y: items.map(i => i.ml_fa),
@@ -1064,37 +1235,35 @@ function renderOverview() {{
             mode: 'markers',
             type: 'scatter',
             name: pool,
-            marker: {{ color: poolColors[pool] || COLORS.green, size: 10, opacity: 0.8 }},
+            marker: {{ color: POOL_COLORS[pool] || COLORS.green, size: 11, opacity: 0.85,
+                       line: {{ color: 'rgba(255,255,255,0.2)', width: 1 }} }},
         }});
     }});
-    // Add diagonal reference line
+    // Diagonal reference line
     scatterTraces.push({{
-        x: [0, 100], y: [0, 100],
+        x: [0, 105], y: [0, 105],
         mode: 'lines', name: 'No Change Line',
-        line: {{ color: COLORS.textSec, dash: 'dash', width: 1 }},
+        line: {{ color: 'rgba(255,255,255,0.15)', dash: 'dash', width: 1 }},
         showlegend: false,
     }});
     Plotly.newPlot('chart-sku-scatter', scatterTraces, {{
         ...plotLayout,
-        xaxis: {{ ...plotLayout.xaxis, title: 'Baseline FA %', range: [0, 105] }},
-        yaxis: {{ ...plotLayout.yaxis, title: 'ML FA %', range: [0, 105] }},
+        xaxis: {{ ...plotLayout.xaxis, title: 'Baseline Forecast Accuracy %', range: [0, 105] }},
+        yaxis: {{ ...plotLayout.yaxis, title: 'ML Forecast Accuracy %', range: [0, 105] }},
         legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.15, x: 0.5, xanchor: 'center' }},
+        shapes: quadrantShapes,
         annotations: [{{
-            x: 20, y: 92, text: '<b>ML Much Better</b>', showarrow: false,
-            font: {{ color: COLORS.green, size: 14 }},
-            bgcolor: 'rgba(0,214,143,0.12)', borderpad: 4,
+            x: 15, y: 98, text: '<b>ML Much Better</b>', showarrow: false,
+            font: {{ color: COLORS.green, size: 12 }}, borderpad: 4,
         }}, {{
-            x: 85, y: 92, text: '<b>Both Strong</b>', showarrow: false,
-            font: {{ color: '#74c0fc', size: 14 }},
-            bgcolor: 'rgba(77,171,247,0.12)', borderpad: 4,
+            x: 90, y: 98, text: '<b>Both Strong</b>', showarrow: false,
+            font: {{ color: '#74c0fc', size: 12 }}, borderpad: 4,
         }}, {{
-            x: 85, y: 20, text: '<b>Baseline Better</b>', showarrow: false,
-            font: {{ color: COLORS.red, size: 14 }},
-            bgcolor: 'rgba(255,107,107,0.12)', borderpad: 4,
+            x: 90, y: 5, text: '<b>Baseline Better</b>', showarrow: false,
+            font: {{ color: COLORS.red, size: 12 }}, borderpad: 4,
         }}, {{
-            x: 20, y: 20, text: '<b>Both Weak</b>', showarrow: false,
-            font: {{ color: COLORS.amber, size: 14 }},
-            bgcolor: 'rgba(255,193,7,0.12)', borderpad: 4,
+            x: 15, y: 5, text: '<b>Both Weak</b>', showarrow: false,
+            font: {{ color: COLORS.amber, size: 12 }}, borderpad: 4,
         }}],
     }}, {{ responsive: true }});
 }}
@@ -1263,22 +1432,22 @@ function updateRecommendation() {{
         <div class="kpi-card">
             <div class="label">Recommended Model</div>
             <div class="value green" style="font-size:22px">${{recommended}}</div>
-            <div class="sub">Best performing model for this SKU</div>
+            <div class="sub">Best performing for this SKU</div>
         </div>
         <div class="kpi-card">
-            <div class="label">Current FA%</div>
+            <div class="label has-tooltip" data-tooltip="Forecast Accuracy = 100% - MAPE. Measured on 6-month test period (hold-out validation).">Forecast Accuracy</div>
             <div class="value green">${{recFA.toFixed(1)}}%</div>
-            <div class="sub">On test period (6 months)</div>
+            <div class="sub">6-month test period</div>
         </div>
         <div class="kpi-card">
-            <div class="label">Improvement over Baseline</div>
+            <div class="label has-tooltip" data-tooltip="The percentage point difference between ML model accuracy and baseline (3-month SMA) accuracy. Positive = ML is better.">Improvement vs Baseline</div>
             <div class="value" style="color:${{m.improvement > 0 ? COLORS.green : COLORS.red}}">${{m.improvement > 0 ? '+' : ''}}${{m.improvement.toFixed(1)}}%</div>
-            <div class="sub">ML vs Baseline accuracy delta</div>
+            <div class="sub">Accuracy delta</div>
         </div>
         <div class="kpi-card">
             <div class="label">Avg Monthly Demand</div>
             <div class="value blue">${{Math.round(m.avg_demand)}}</div>
-            <div class="sub">units/month</div>
+            <div class="sub">units / month</div>
         </div>
     </div>
     <div class="two-col">
