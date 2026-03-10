@@ -224,12 +224,13 @@ body {{
     padding: 20px;
 }}
 .chart-title {{
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 600;
     margin-bottom: 16px;
     padding-bottom: 0;
     border-bottom: none;
     color: var(--text-primary);
+    letter-spacing: -0.2px;
 }}
 .chart-subtitle {{
     font-size: 12px;
@@ -934,18 +935,19 @@ body.chat-open {{ margin-right: 380px; transition: margin-right 0.2s; }}
     <div class="ai-briefing" id="ai-briefing-overview"></div>
 
     <!-- Hero Banner — Tier 1 Decision Signal (Stripe-style) -->
-    <div style="text-align:center;margin-bottom:36px;padding:12px 0">
-        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;font-weight:600" class="has-tooltip" data-tooltip="Difference between ML model and baseline (3-month SMA) forecast accuracy averaged across all SKUs">ML vs Baseline Improvement</div>
-        <div style="font-size:72px;font-weight:800;color:var(--accent-green);letter-spacing:-3px;line-height:1">+{avg_improvement}% <span style="font-size:20px;vertical-align:middle;letter-spacing:0">&#9650;</span></div>
-        <div style="font-size:14px;color:var(--text-secondary);margin-top:10px">{skus_improved} of {total_skus} SKUs improved &mdash; Avg ML Forecast Accuracy: {avg_ml_fa}%</div>
+    <div style="text-align:center;margin:16px 0 44px;padding:20px 0">
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;letter-spacing:1.2px;text-transform:uppercase;font-weight:600" class="has-tooltip" data-tooltip="Difference between ML model and baseline (3-month SMA) forecast accuracy averaged across all SKUs">Forecast Accuracy Improvement</div>
+        <div style="font-size:80px;font-weight:800;color:var(--accent-green);letter-spacing:-3px;line-height:1">+{avg_improvement}%</div>
+        <div style="font-size:15px;color:var(--text-secondary);margin-top:12px">{skus_improved} of {total_skus} SKUs improved</div>
+        <div style="display:inline-block;margin-top:14px;padding:6px 18px;border-radius:20px;background:rgba(0,214,143,0.08);font-size:13px;color:var(--accent-green);font-weight:600">Avg Forecast Accuracy: {avg_ml_fa}%</div>
     </div>
 
     <!-- Asymmetric cards: Risk dominates -->
-    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:20px;margin-bottom:32px">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:20px;margin-bottom:36px">
         <div class="kpi-card {'urgent' if num_at_risk > 0 else 'healthy'}" onclick="switchTab('risk')" style="cursor:pointer;padding:28px">
-            <div class="label" style="font-weight:600;letter-spacing:0.3px;font-size:12px;color:{'var(--accent-red)' if num_at_risk > 0 else 'var(--accent-green)'}">{"&#9888; Needs Attention" if num_at_risk > 0 else "&#10003; All Clear"}</div>
+            <div class="label" style="font-weight:600;letter-spacing:0.3px;font-size:12px;color:{'var(--accent-red)' if num_at_risk > 0 else 'var(--accent-green)'}">{"&#9888; Forecast Risk" if num_at_risk > 0 else "&#10003; All Clear"}</div>
             <div class="value" style="font-size:44px;color:{'var(--accent-red)' if num_at_risk > 0 else 'var(--accent-green)'}">{num_at_risk if num_at_risk > 0 else '0'}</div>
-            <div style="font-size:16px;font-weight:600;color:var(--text-primary);margin:-4px 0 4px">{'SKUs at Risk' if num_at_risk > 0 else 'SKUs at Risk'}</div>
+            <div style="font-size:16px;font-weight:600;color:var(--text-primary);margin:-4px 0 4px">SKUs at Risk</div>
             <div class="sub" style="font-size:13px">{'Forecast accuracy below 70% — click to review &#8594;' if num_at_risk > 0 else 'All above 70% threshold'}</div>
         </div>
         <div class="kpi-card {'urgent' if num_anomalies > 0 else 'healthy'}">
@@ -960,28 +962,31 @@ body.chat-open {{ margin-right: 380px; transition: margin-right 0.2s; }}
         </div>
     </div>
 
+    <!-- Top Problem SKUs widget -->
+    <div id="top-problems-widget" style="margin-bottom:32px"></div>
+
     <!-- Cross-filter bar (legend-style) -->
     <div class="pool-filter-bar" id="pool-filter-bar">
-        <span style="font-size:11px;color:var(--text-secondary);font-weight:600;letter-spacing:0.5px;margin-right:4px">Signals</span>
+        <span style="font-size:11px;color:var(--text-secondary);font-weight:600;letter-spacing:0.5px;margin-right:4px">Demand Drivers</span>
         <div class="pool-pill active" onclick="setPoolFilter('all')" data-pool="all">All</div>
     </div>
 
     <!-- PROMOTED: SKU scatter (most analytically valuable) — Tier 2 Diagnostic -->
     <div class="chart-container">
         <div class="chart-title">SKU-Level Forecast Accuracy — Baseline vs ML</div>
-        <div class="chart-subtitle">Each dot = one SKU. Above the diagonal = ML outperforms baseline.</div>
+        <div class="chart-subtitle">Each dot = one SKU. Above the diagonal = ML outperforms baseline. Click a dot to drill in.</div>
         <div id="chart-sku-scatter"></div>
     </div>
 
-    <div class="two-col">
+    <div style="display:grid;grid-template-columns:3fr 2fr;gap:24px">
         <div class="chart-container">
             <div class="chart-title">Forecast Accuracy by Signal Pool</div>
             <div class="chart-subtitle">Grouped comparison of Baseline (SMA) vs ML (Gradient Boosting)</div>
             <div id="chart-pool-comparison"></div>
         </div>
-        <div class="chart-container">
-            <div class="chart-title">Forecast Accuracy Distribution</div>
-            <div class="chart-subtitle">Overlaid histogram — right shift indicates ML improvement</div>
+        <div class="chart-container tier-3">
+            <div class="chart-title">Accuracy Distribution</div>
+            <div class="chart-subtitle">Right shift indicates ML improvement</div>
             <div id="chart-fa-distribution"></div>
         </div>
     </div>
@@ -1253,6 +1258,8 @@ function renderOverview() {{
             x: items.map(i => i.baseline_fa),
             y: items.map(i => i.ml_fa),
             text: items.map(i => i.sku_name + ' (' + i.sku_id + ')'),
+            customdata: items.map(i => [i.signal_pool, (i.ml_fa - i.baseline_fa).toFixed(1), i.sku_id]),
+            hovertemplate: '<b>%{{text}}</b><br>Baseline FA: %{{x:.1f}}%<br>ML FA: %{{y:.1f}}%<br>Signal Pool: %{{customdata[0]}}<br>Improvement: %{{customdata[1]}}%<extra></extra>',
             mode: 'markers',
             type: 'scatter',
             name: pool,
@@ -1845,7 +1852,7 @@ function buildPoolFilterBar() {{
     const bar = document.getElementById('pool-filter-bar');
     if (!bar) return;
     const pools = [...new Set(metricsData.map(m => m.signal_pool))];
-    let html = `<span style="font-size:11px;color:var(--text-secondary);font-weight:600;letter-spacing:0.5px;margin-right:4px">Signals</span>`;
+    let html = `<span style="font-size:11px;color:var(--text-secondary);font-weight:600;letter-spacing:0.5px;margin-right:4px">Demand Drivers</span>`;
     html += `<div class="pool-pill active" onclick="setPoolFilter('all')" data-pool="all">All</div>`;
     pools.forEach(pool => {{
         html += `<div class="pool-pill" onclick="setPoolFilter('${{pool}}')" data-pool="${{pool}}"><span class="pill-dot" style="background:${{POOL_COLORS[pool] || COLORS.green}}"></span>${{pool}}</div>`;
@@ -1859,13 +1866,11 @@ function renderAiBriefing() {{
     if (!el) return;
 
     const atRiskSkus = metricsData.filter(m => m.ml_fa < 70).sort((a, b) => a.ml_fa - b.ml_fa);
-    const avgBFA = metricsData.reduce((s, m) => s + m.baseline_fa, 0) / metricsData.length;
-    const avgMFA = metricsData.reduce((s, m) => s + m.ml_fa, 0) / metricsData.length;
     const totalBaselineSS = metricsData.reduce((s, m) => s + m.baseline_safety_stock, 0);
     const totalMlSS = metricsData.reduce((s, m) => s + m.ml_safety_stock, 0);
     const ssSaving = Math.round(totalBaselineSS - totalMlSS);
 
-    // Build the worst pool insight
+    // Build worst pool insight
     const poolPerf = {{}};
     metricsData.forEach(m => {{
         if (!poolPerf[m.signal_pool]) poolPerf[m.signal_pool] = {{ total: 0, atRisk: 0 }};
@@ -1873,57 +1878,82 @@ function renderAiBriefing() {{
         if (m.ml_fa < 70) poolPerf[m.signal_pool].atRisk++;
     }});
     const worstPoolEntry = Object.entries(poolPerf).sort((a, b) => (b[1].atRisk/b[1].total) - (a[1].atRisk/a[1].total))[0];
+    const worstPool = worstPoolEntry ? worstPoolEntry[0] : null;
+    const worstPoolPct = worstPoolEntry ? (worstPoolEntry[1].atRisk / worstPoolEntry[1].total * 100).toFixed(0) : 0;
 
-    let insights = [];
-
-    // Insight 1: At-risk summary
+    // Build narrative paragraph
+    let narrative = '';
     if (atRiskSkus.length > 0) {{
         const worst = atRiskSkus[0];
-        insights.push({{
-            icon: '&#9888;',
-            color: COLORS.red,
-            text: `<strong>${{atRiskSkus.length}} SKUs</strong> have forecast accuracy below 70%. Worst: <strong>${{worst.sku_name}}</strong> at ${{worst.ml_fa.toFixed(1)}}% — <a href="#" onclick="navigateToSku('${{worst.sku_id}}');return false" style="color:var(--accent-green)">view details</a>`
-        }});
+        narrative += `<strong style="color:${{COLORS.red}}">&#9888; Key Insight:</strong> `;
+        narrative += `<strong>${{atRiskSkus.length}} SKUs</strong> have forecast accuracy below 70%. `;
+        if (worstPool && worstPoolEntry[1].atRisk > 0) {{
+            narrative += `${{worstPoolPct}}% of these belong to the <strong>${{worstPool}}</strong> signal pool, suggesting strong ${{worstPool.toLowerCase()}}-driven demand volatility. `;
+        }}
+        narrative += `The worst performer is <strong>${{worst.sku_name}}</strong> at ${{worst.ml_fa.toFixed(1)}}% accuracy — `;
+        narrative += `<a href="#" onclick="navigateToSku('${{worst.sku_id}}');return false" style="color:var(--accent-green);font-weight:600">investigate &#8594;</a>`;
     }} else {{
-        insights.push({{
-            icon: '&#10003;',
-            color: COLORS.green,
-            text: `All SKUs are above the 70% forecast accuracy threshold. <strong>No immediate action required.</strong>`
-        }});
+        narrative += `<strong style="color:${{COLORS.green}}">&#10003; All clear.</strong> Every SKU is above the 70% forecast accuracy threshold. No immediate action required.`;
     }}
 
-    // Insight 2: Anomalies
+    // Anomalies as sub-insight
+    let anomalyLine = '';
     if (anomaliesData.length > 0) {{
-        insights.push({{
-            icon: '&#9888;',
-            color: COLORS.amber,
-            text: anomaliesData.map(a => a.message).join('; ')
-        }});
+        anomalyLine = `<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)"><strong style="color:${{COLORS.amber}}">&#9888; Active Signals:</strong> ${{anomaliesData.map(a => a.message).join(' | ')}}</div>`;
     }}
 
-    // Insight 3: Worst pool
-    if (worstPoolEntry && worstPoolEntry[1].atRisk > 0) {{
-        const pct = (worstPoolEntry[1].atRisk / worstPoolEntry[1].total * 100).toFixed(0);
-        insights.push({{
-            icon: '&#128269;',
-            color: COLORS.blue,
-            text: `<strong>${{worstPoolEntry[0]}}</strong> pool has the highest risk concentration — ${{pct}}% of its SKUs are below threshold. <a href="#" onclick="setPoolFilter('${{worstPoolEntry[0]}}');return false" style="color:var(--accent-green)">Filter to this pool</a>`
-        }});
+    // Driver insight
+    let driverLine = '';
+    if (worstPool && worstPoolEntry[1].atRisk > 0) {{
+        driverLine = `<div style="margin-top:10px;padding:10px 14px;border-radius:8px;background:rgba(77,171,247,0.06)"><strong>Primary Forecast Driver:</strong> ${{worstPool}} signals explain ${{worstPoolPct}}% of low-accuracy SKUs. <strong>Recommendation:</strong> Use ${{worstPool.toLowerCase()}}-adjusted demand models for affected SKU categories. <a href="#" onclick="setPoolFilter('${{worstPool}}');return false" style="color:var(--accent-green);font-weight:600">Filter to ${{worstPool}} &#8594;</a></div>`;
     }}
 
-    // Insight 4: Safety stock opportunity
-    insights.push({{
-        icon: '&#128176;',
-        color: COLORS.green,
-        text: `ML-optimized safety stock saves <strong>${{ssSaving.toLocaleString()}} units</strong> across all SKUs — <a href="#" onclick="switchTab('safety');return false" style="color:var(--accent-green)">explore savings</a>`
-    }});
+    // Savings line
+    const savingsLine = `<div style="margin-top:10px"><strong style="color:${{COLORS.green}}">&#128176;</strong> ML-optimized safety stock saves <strong>${{ssSaving.toLocaleString()}} units</strong> across all SKUs — <a href="#" onclick="switchTab('safety');return false" style="color:var(--accent-green);font-weight:600">explore savings &#8594;</a></div>`;
 
     el.innerHTML = `
         <div class="briefing-header">&#9889; PharmaCast Intelligence Briefing</div>
         <div class="briefing-body">
-            ${{insights.map(i => `<div class="insight-item"><span class="insight-icon" style="color:${{i.color}}">${{i.icon}}</span><span>${{i.text}}</span></div>`).join('')}}
+            <div>${{narrative}}</div>
+            ${{anomalyLine}}
+            ${{driverLine}}
+            ${{savingsLine}}
         </div>
     `;
+}}
+
+// ---- TOP PROBLEM SKUs WIDGET ----
+function renderTopProblems() {{
+    const el = document.getElementById('top-problems-widget');
+    if (!el) return;
+
+    const worst5 = [...metricsData].sort((a, b) => a.ml_fa - b.ml_fa).slice(0, 5);
+    if (worst5.length === 0 || worst5[0].ml_fa >= 70) {{
+        el.innerHTML = '';
+        return;
+    }}
+
+    let rows = worst5.map((s, i) => {{
+        const barWidth = Math.max(2, s.ml_fa);
+        const barColor = s.ml_fa < 30 ? COLORS.red : (s.ml_fa < 50 ? COLORS.amber : COLORS.blue);
+        return `<div style="display:grid;grid-template-columns:24px 1fr 140px 60px;gap:12px;align-items:center;padding:8px 0;${{i < 4 ? 'border-bottom:1px solid rgba(255,255,255,0.04)' : ''}}">
+            <span style="font-size:13px;font-weight:700;color:var(--text-secondary)">${{i + 1}}</span>
+            <div>
+                <span style="font-weight:600;cursor:pointer;color:var(--text-primary)" onclick="navigateToSku('${{s.sku_id}}')">${{s.sku_name}}</span>
+                <span style="font-size:11px;color:var(--text-secondary);margin-left:8px">${{s.signal_pool}}</span>
+            </div>
+            <div style="height:6px;border-radius:3px;background:var(--navy);overflow:hidden"><div style="height:100%;width:${{barWidth}}%;background:${{barColor}};border-radius:3px"></div></div>
+            <span style="font-weight:700;font-size:13px;text-align:right;color:${{barColor}}">${{s.ml_fa.toFixed(1)}}%</span>
+        </div>`;
+    }}).join('');
+
+    el.innerHTML = `<div class="chart-container tier-3" style="padding:20px 24px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div class="chart-title" style="margin-bottom:0">Top Forecast Risks</div>
+            <a href="#" onclick="switchTab('risk');return false" style="font-size:12px;color:var(--accent-green);font-weight:600;text-decoration:none">View all &#8594;</a>
+        </div>
+        ${{rows}}
+    </div>`;
 }}
 
 // ---- INIT ----
@@ -1933,6 +1963,7 @@ function init() {{
     renderOverview();
     renderRisk();
     renderAiBriefing();
+    renderTopProblems();
     updateRecommendation();
     updateSafetyStock();
     // Fill overview stock reduction KPI
