@@ -1280,20 +1280,18 @@ function updateRecommendation() {{
             <div class="sub">units/month</div>
         </div>
     </div>
-    <div class="two-col">
-        <div class="chart-container">
-            <div class="chart-title">Historical Demand vs Forecasts — ${{m.sku_name}}</div>
-            <div id="chart-ts-detail"></div>
-            <div style="margin-top:8px;border-top:1px solid var(--card-border);padding-top:12px">
-                <div class="chart-title" style="font-size:14px;margin-bottom:8px">Forecast Error (Residuals) — ML Model</div>
-                <div id="chart-residuals"></div>
-            </div>
+    <div class="chart-container">
+        <div class="chart-title">Historical Demand vs Forecasts — ${{m.sku_name}}</div>
+        <div id="chart-ts-detail"></div>
+        <div style="margin-top:8px;border-top:1px solid var(--card-border);padding-top:12px">
+            <div class="chart-title" style="font-size:14px;margin-bottom:8px">Forecast Error (Residuals) — ML Model</div>
+            <div id="chart-residuals"></div>
         </div>
-        <div class="chart-container">
-            <div class="chart-title">Next 3-Month Forecast with Confidence Interval</div>
-            <div id="ci-warning"></div>
-            <div id="chart-future-forecast"></div>
-        </div>
+    </div>
+    <div class="chart-container">
+        <div class="chart-title">Next 3-Month Forecast with Confidence Interval</div>
+        <div id="ci-warning"></div>
+        <div id="chart-future-forecast"></div>
     </div>`;
     document.getElementById('recommendation-content').innerHTML = html;
 
