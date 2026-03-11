@@ -25,14 +25,18 @@ def main():
 
     # Step 2: Run forecasting pipeline
     print("\n[2/3] Running forecasting pipeline...")
-    print("  -> Computing baseline forecasts (3-month SMA)...")
-    print("  -> Training ML models (Gradient Boosting per pool)...")
-    results_df, metrics_df, future_df = run_forecasting_pipeline(sales_df, signals_df)
+    print("  -> Computing baseline forecasts (3-month SMA + Exponential Smoothing)...")
+    print("  -> Training multi-model ML pipeline (GB, RF, Extra Trees, Ridge)...")
+    print("  -> Selecting best model per pool via validation + ensemble...")
+    results_df, metrics_df, future_df, model_log = run_forecasting_pipeline(sales_df, signals_df)
     print(f"  -> Avg Baseline FA: {metrics_df['baseline_fa'].mean():.1f}%")
     print(f"  -> Avg ML FA: {metrics_df['ml_fa'].mean():.1f}%")
     print(f"  -> Avg Improvement: {(metrics_df['ml_fa'].mean() - metrics_df['baseline_fa'].mean()):.1f}%")
     at_risk = metrics_df[metrics_df['ml_fa'] < 70]
     print(f"  -> At-risk SKUs (FA < 70%): {len(at_risk)}")
+    print("  -> Model selection per pool:")
+    for pool, info in model_log.items():
+        print(f"     {pool}: {info.get('chosen', 'N/A')}")
 
     # Step 3: Generate dashboard
     print("\n[3/3] Generating HTML dashboard...")

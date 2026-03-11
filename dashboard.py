@@ -916,13 +916,27 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     <div style="display:grid;grid-template-columns:3fr 2fr;gap:24px">
         <div class="chart-container">
             <div class="chart-title">Forecast Accuracy by Signal Pool</div>
-            <div class="chart-subtitle">Baseline (SMA) vs ML (Gradient Boosting)</div>
+            <div class="chart-subtitle">Baseline (SMA) vs Best ML Model per Pool</div>
             <div id="chart-pool-comparison"></div>
         </div>
         <div class="chart-container tier-3">
             <div class="chart-title">Accuracy Distribution</div>
             <div class="chart-subtitle">Right shift = ML improvement</div>
             <div id="chart-fa-distribution"></div>
+        </div>
+    </div>
+
+    <!-- Row 5: Model selection overview -->
+    <div style="display:grid;grid-template-columns:2fr 3fr;gap:24px;margin-top:24px">
+        <div class="chart-container">
+            <div class="chart-title">Model Selection by Pool</div>
+            <div class="chart-subtitle">Best model chosen per signal pool via validation</div>
+            <div id="chart-model-distribution"></div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-title">All Candidates — Validation Accuracy by Pool</div>
+            <div class="chart-subtitle">Grouped comparison of all evaluated models</div>
+            <div id="chart-model-pool-heatmap"></div>
         </div>
     </div>
 </div>
@@ -1110,7 +1124,7 @@ function renderOverview() {{
         }},
         {{
             x: pools, y: poolData.map(p => p.ml_fa),
-            type: 'bar', name: 'ML (Gradient Boosting)',
+            type: 'bar', name: 'Best ML Model',
             marker: {{ color: pools.map(p => POOL_COLORS[p] || COLORS.green), opacity: 0.9 }},
             text: poolData.map(p => p.ml_fa.toFixed(1) + '%'),
             textposition: 'outside', textfont: {{ size: 11, color: COLORS.text }},
@@ -1232,6 +1246,63 @@ function renderOverview() {{
             }}
         }}
     }});
+
+    // ── Model Selection by Pool (donut chart) ──
+    const modelCounts = {{}};
+    metricsData.forEach(m => {{
+        const name = m.best_model || 'Unknown';
+        // Simplify ensemble names for the legend
+        const short = name.startsWith('Ensemble') ? 'Ensemble' : name;
+        modelCounts[short] = (modelCounts[short] || 0) + 1;
+    }});
+    const modelNames = Object.keys(modelCounts);
+    const modelVals = Object.values(modelCounts);
+    const modelColors = modelNames.map((n, i) => {{
+        const palette = [COLORS.green, COLORS.blue, COLORS.amber, '#a87cc4', COLORS.red];
+        return palette[i % palette.length];
+    }});
+    Plotly.newPlot('chart-model-distribution', [{{
+        labels: modelNames, values: modelVals,
+        type: 'pie', hole: 0.5,
+        marker: {{ colors: modelColors, line: {{ color: COLORS.navy, width: 2 }} }},
+        textinfo: 'label+percent', textfont: {{ size: 12, color: COLORS.text }},
+        hovertemplate: '<b>%{{label}}</b><br>%{{value}} SKUs (%{{percent}})<extra></extra>',
+    }}], {{
+        ...plotLayout,
+        height: 280,
+        margin: {{ l: 20, r: 20, t: 10, b: 10 }},
+        showlegend: true,
+        legend: {{ ...plotLayout.legend, orientation: 'h', y: -0.1, x: 0.5, xanchor: 'center', font: {{ size: 11, color: COLORS.text }} }},
+    }}, {{ responsive: true }});
+
+    // ── All Candidates — Grouped Bar by Pool ──
+    const allPools = [...new Set(metricsData.map(m => m.signal_pool))];
+    const allModelNames = ['Gradient Boosting', 'Random Forest', 'Extra Trees', 'Ridge Regression'];
+    const barTraces = allModelNames.map((modelName, idx) => {{
+        const modelColors2 = [COLORS.green, COLORS.blue, COLORS.amber, '#a87cc4'];
+        const ys = allPools.map(pool => {{
+            const poolSkus = metricsData.filter(m => m.signal_pool === pool);
+            const scores = poolSkus.filter(m => m.model_scores && m.model_scores[modelName] !== undefined);
+            if (scores.length === 0) return null;
+            const avgMape = scores.reduce((s, m) => s + m.model_scores[modelName], 0) / scores.length;
+            return Math.max(0, 100 - avgMape);
+        }});
+        return {{
+            x: allPools, y: ys, name: modelName, type: 'bar',
+            marker: {{ color: modelColors2[idx], opacity: 0.85 }},
+            text: ys.map(v => v !== null ? v.toFixed(1) + '%' : ''),
+            textposition: 'outside', textfont: {{ size: 10, color: COLORS.textSec }},
+            hovertemplate: '<b>' + modelName + '</b><br>Pool: %{{x}}<br>Val Accuracy: %{{y:.1f}}%<extra></extra>',
+        }};
+    }});
+    Plotly.newPlot('chart-model-pool-heatmap', barTraces, {{
+        ...plotLayout,
+        barmode: 'group',
+        height: 280,
+        yaxis: {{ ...plotLayout.yaxis, title: 'Validation Accuracy %', range: [0, 105] }},
+        xaxis: {{ ...plotLayout.xaxis, title: '' }},
+        legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.15, x: 0.5, xanchor: 'center', font: {{ size: 11 }} }},
+    }}, {{ responsive: true }});
 }}
 
 // ---- TAB 2: RISK FLAGS ----
@@ -1411,7 +1482,7 @@ function updateRecommendation() {{
     const m = metricsData.find(x => x.sku_id === skuId);
     if (!m) return;
 
-    const recommended = m.ml_fa > m.baseline_fa ? 'ML (Gradient Boosting)' : 'Baseline (3M SMA)';
+    const recommended = m.ml_fa > m.baseline_fa ? (m.best_model || 'ML Model') : 'Baseline (3M SMA)';
     const recFA = Math.max(m.ml_fa, m.baseline_fa);
     const ts = tsData[skuId];
     const future = futureData.filter(f => f.sku_id === skuId);
@@ -1439,6 +1510,16 @@ function updateRecommendation() {{
             <div class="sub">units / month</div>
         </div>
     </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="chart-container" style="min-width:0;overflow:hidden">
+            <div class="chart-title">Model Comparison — Validation MAPE by Candidate</div>
+            <div id="chart-model-compare"></div>
+        </div>
+        <div class="chart-container" style="min-width:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center">
+            <div class="chart-title">Model Selection Summary</div>
+            <div id="model-selection-summary" style="padding:12px 16px"></div>
+        </div>
+    </div>
     <div class="two-col">
         <div class="chart-container" style="min-width:0;overflow:hidden">
             <div class="chart-title">Historical Demand vs Forecasts — ${{m.sku_name}}</div>
@@ -1455,6 +1536,48 @@ function updateRecommendation() {{
         </div>
     </div>`;
     document.getElementById('recommendation-content').innerHTML = html;
+
+    // Model comparison chart
+    if (m.model_scores && Object.keys(m.model_scores).length > 0) {{
+        const scores = m.model_scores;
+        const names = Object.keys(scores).sort((a, b) => scores[a] - scores[b]);
+        const mapes = names.map(n => scores[n]);
+        const fas = mapes.map(v => Math.max(0, 100 - v));
+        const barColors = names.map(n => {{
+            if (m.best_model && m.best_model.includes(n)) return COLORS.green;
+            return 'rgba(91,159,214,0.6)';
+        }});
+        Plotly.newPlot('chart-model-compare', [{{
+            y: names, x: fas, type: 'bar', orientation: 'h',
+            marker: {{ color: barColors, line: {{ width: 0 }} }},
+            text: fas.map(v => v.toFixed(1) + '%'), textposition: 'outside',
+            textfont: {{ color: COLORS.text, size: 12 }},
+            hovertemplate: '%{{y}}<br>Val Accuracy: %{{x:.1f}}%<br>Val MAPE: %{{customdata:.1f}}%<extra></extra>',
+            customdata: mapes,
+        }}], {{
+            ...plotLayout,
+            height: 200,
+            margin: {{ l: 140, r: 60, t: 10, b: 30 }},
+            xaxis: {{ ...plotLayout.xaxis, title: 'Validation Accuracy (100 - MAPE %)', range: [0, 105] }},
+            yaxis: {{ ...plotLayout.yaxis, title: '', automargin: true }},
+            showlegend: false,
+        }}, {{ responsive: true }});
+
+        // Model selection summary text
+        const bestSingle = names[0];
+        const bestFA = fas[0].toFixed(1);
+        const isEnsemble = m.best_model && m.best_model.startsWith('Ensemble');
+        let summaryHtml = `<div style="font-size:13px;color:var(--text-secondary);line-height:1.7">`;
+        summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Winning model:</span> <span style="color:var(--accent-green);font-weight:700">${{m.best_model}}</span></div>`;
+        summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Candidates evaluated:</span> ${{names.length}} models</div>`;
+        summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Selection method:</span> ${{isEnsemble ? 'Inverse-MAPE weighted ensemble of top 3' : 'Best single model on 6-month validation set'}}</div>`;
+        summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Best single model:</span> ${{bestSingle}} (${{bestFA}}% accuracy)</div>`;
+        const poolSkus = metricsData.filter(x => x.signal_pool === m.signal_pool);
+        const poolAvgFA = (poolSkus.reduce((s, x) => s + x.ml_fa, 0) / poolSkus.length).toFixed(1);
+        summaryHtml += `<div><span style="color:var(--text-primary);font-weight:600">Pool avg accuracy:</span> ${{poolAvgFA}}% across ${{poolSkus.length}} SKUs in ${{m.signal_pool}}</div>`;
+        summaryHtml += `</div>`;
+        document.getElementById('model-selection-summary').innerHTML = summaryHtml;
+    }}
 
     // Time series chart
     if (ts) {{
@@ -2120,7 +2243,7 @@ function findMentionedPool(q) {{
 }}
 
 function skuDetailResponse(m, q) {{
-    const recommended = m.ml_fa > m.baseline_fa ? 'ML (Gradient Boosting)' : 'Baseline (3M SMA)';
+    const recommended = m.ml_fa > m.baseline_fa ? (m.best_model || 'ML Model') : 'Baseline (3M SMA)';
     const bestFA = Math.max(m.ml_fa, m.baseline_fa);
     const riskStatus = m.ml_fa < 70 ? '<span style="color:#ff6b6b">&#9888; AT RISK</span>' : '<span style="color:#00d68f">&#10003; Healthy</span>';
     const unitCost = m.abc_xyz.startsWith('B') ? 45 : 22;
@@ -2288,14 +2411,25 @@ function modelResponse(q) {{
     const mlWins = metricsData.filter(m => m.ml_fa > m.baseline_fa).length;
     const baselineWins = metricsData.length - mlWins;
 
-    let resp = `<strong>Model Comparison</strong><br><br>`;
-    resp += `<strong>Baseline:</strong> 3-Month Simple Moving Average (SMA)<br>`;
-    resp += `<strong>ML Model:</strong> Gradient Boosting Regressor with external signals<br><br>`;
+    // Count model types
+    const modelCounts = {{}};
+    metricsData.forEach(m => {{
+        const name = (m.best_model || 'Unknown');
+        const short = name.startsWith('Ensemble') ? 'Ensemble' : name;
+        modelCounts[short] = (modelCounts[short] || 0) + 1;
+    }});
+
+    let resp = `<strong>Multi-Model Pipeline</strong><br><br>`;
+    resp += `<strong>Baselines:</strong> 3-Month SMA + Exponential Smoothing<br>`;
+    resp += `<strong>ML Candidates:</strong> Gradient Boosting, Random Forest, Extra Trees, Ridge Regression<br>`;
+    resp += `<strong>Selection:</strong> Best model chosen per signal pool via 6-month validation; top 3 ensembled if ensemble beats best single model<br><br>`;
     resp += `<strong>Results:</strong><br>`;
-    resp += `&#8226; ML wins on <strong>${{mlWins}}</strong> SKUs<br>`;
-    resp += `&#8226; Baseline wins on <strong>${{baselineWins}}</strong> SKUs<br><br>`;
-    resp += `The ML model uses baseline forecast + external signals (AQI, temperature, precipitation, wedding season, Google Trends) + lag features and seasonality encodings.<br><br>`;
-    resp += `Check the <strong>Model Recommendations</strong> tab to see per-SKU recommendations.`;
+    resp += `&#8226; ML wins on <strong>${{mlWins}}</strong> / ${{metricsData.length}} SKUs<br>`;
+    Object.entries(modelCounts).sort((a,b) => b[1]-a[1]).forEach(([name, count]) => {{
+        resp += `&#8226; <strong>${{name}}</strong>: ${{count}} SKUs<br>`;
+    }});
+    resp += `<br>All models use baseline forecast + external signals (AQI, temperature, precipitation, wedding season, Google Trends) + lag features and seasonality encodings.<br><br>`;
+    resp += `Check the <strong>Model Recommendations</strong> tab to see per-SKU model comparison charts.`;
     return resp;
 }}
 
@@ -2333,7 +2467,7 @@ function explainResponse(q) {{
     if (matchesAny(q, ['gradient', 'boosting', 'ml model', 'machine learning', 'algorithm']))
         return `<strong>ML Model: Gradient Boosting Regressor</strong><br><br>A tree-based ensemble that learns residual errors iteratively.<br><br><strong>Features used:</strong><br>&#8226; Baseline forecast (3M SMA)<br>&#8226; External signals (AQI, temp, precipitation, wedding, trends)<br>&#8226; Lag-1 and lag-2 demand<br>&#8226; Rolling 3-month demand std<br>&#8226; Seasonal encodings (sin/cos of month)<br><br>Models are trained per signal pool (not globally) to capture pool-specific patterns.`;
 
-    return `I can explain several concepts:<br><br>&#8226; <strong>Forecast Accuracy / MAPE</strong><br>&#8226; <strong>Safety Stock formula</strong><br>&#8226; <strong>Risk Score</strong><br>&#8226; <strong>ABC-XYZ classification</strong><br>&#8226; <strong>ML model (Gradient Boosting)</strong><br><br>Ask me about any of these!`;
+    return `I can explain several concepts:<br><br>&#8226; <strong>Forecast Accuracy / MAPE</strong><br>&#8226; <strong>Safety Stock formula</strong><br>&#8226; <strong>Risk Score</strong><br>&#8226; <strong>ABC-XYZ classification</strong><br>&#8226; <strong>ML models (multi-model pipeline)</strong><br><br>Ask me about any of these!`;
 }}
 
 function forecastResponse(q) {{
