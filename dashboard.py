@@ -76,6 +76,11 @@ def generate_html_dashboard(metrics_df, results_df, future_df, signals_df):
             "actual": sku_results["demand"].tolist(),
             "baseline": sku_results["baseline_forecast"].where(sku_results["baseline_forecast"].notna(), None).tolist(),
             "ml": sku_results["ml_forecast"].where(sku_results["ml_forecast"].notna(), None).tolist(),
+            "aqi": sku_results["aqi"].where(sku_results["aqi"].notna(), None).tolist() if "aqi" in sku_results.columns else [],
+            "temperature": sku_results["temperature"].where(sku_results["temperature"].notna(), None).tolist() if "temperature" in sku_results.columns else [],
+            "precipitation": sku_results["precipitation"].where(sku_results["precipitation"].notna(), None).tolist() if "precipitation" in sku_results.columns else [],
+            "wedding_flag": sku_results["wedding_flag"].tolist() if "wedding_flag" in sku_results.columns else [],
+            "google_trends": sku_results["google_trends"].where(sku_results["google_trends"].notna(), None).tolist() if "google_trends" in sku_results.columns else [],
         }
     ts_json = json.dumps(ts_data, default=str)
 
@@ -1520,6 +1525,14 @@ function updateRecommendation() {{
             <div id="model-selection-summary" style="padding:12px 16px"></div>
         </div>
     </div>
+    <div class="chart-container" style="margin-bottom:16px">
+        <div class="chart-title">External Signals Used — AQI, Temperature, Precipitation, Wedding Flag, Google Trends</div>
+        <div id="chart-signals-detail"></div>
+    </div>
+    <div class="chart-container" style="margin-bottom:16px;padding:16px 20px">
+        <div class="chart-title">Why This Model Was Selected</div>
+        <div id="model-explanation" style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-top:8px"></div>
+    </div>
     <div class="two-col">
         <div class="chart-container" style="min-width:0;overflow:hidden">
             <div class="chart-title">Historical Demand vs Forecasts — ${{m.sku_name}}</div>
@@ -1533,6 +1546,10 @@ function updateRecommendation() {{
             <div class="chart-title">Next 3-Month Forecast with Confidence Interval</div>
             <div id="ci-warning"></div>
             <div id="chart-future-forecast"></div>
+            <div style="margin-top:12px;border-top:1px solid var(--card-border);padding-top:12px">
+                <div class="chart-title" style="font-size:14px;margin-bottom:8px">3-Month Forecast Summary</div>
+                <div id="forecast-table"></div>
+            </div>
         </div>
     </div>`;
     document.getElementById('recommendation-content').innerHTML = html;
@@ -1577,6 +1594,83 @@ function updateRecommendation() {{
         summaryHtml += `<div><span style="color:var(--text-primary);font-weight:600">Pool avg accuracy:</span> ${{poolAvgFA}}% across ${{poolSkus.length}} SKUs in ${{m.signal_pool}}</div>`;
         summaryHtml += `</div>`;
         document.getElementById('model-selection-summary').innerHTML = summaryHtml;
+    }}
+
+    // External signals chart (dual y-axis)
+    if (ts && ts.aqi && ts.aqi.length > 0) {{
+        const sigTraces = [
+            {{ x: ts.dates, y: ts.aqi, name: 'AQI', type: 'scatter', mode: 'lines',
+               line: {{ color: '#ff6b6b', width: 2 }}, yaxis: 'y' }},
+            {{ x: ts.dates, y: ts.temperature, name: 'Temperature (°C)', type: 'scatter', mode: 'lines',
+               line: {{ color: '#ffc107', width: 2 }}, yaxis: 'y' }},
+            {{ x: ts.dates, y: ts.precipitation, name: 'Precipitation (mm)', type: 'scatter', mode: 'lines',
+               line: {{ color: '#4dabf7', width: 2 }}, yaxis: 'y2' }},
+            {{ x: ts.dates, y: ts.google_trends, name: 'Google Trends', type: 'scatter', mode: 'lines',
+               line: {{ color: '#a87cc4', width: 2, dash: 'dot' }}, yaxis: 'y' }},
+        ];
+        // Wedding flag as shaded regions
+        const weddingX = []; const weddingY = [];
+        ts.dates.forEach((d, i) => {{
+            if (ts.wedding_flag && ts.wedding_flag[i] === 1) {{
+                weddingX.push(d); weddingY.push(1);
+            }} else {{
+                weddingX.push(d); weddingY.push(0);
+            }}
+        }});
+        sigTraces.push({{
+            x: weddingX, y: weddingY.map(v => v ? 300 : 0),
+            type: 'bar', name: 'Wedding Season', yaxis: 'y2',
+            marker: {{ color: 'rgba(255,193,7,0.15)' }},
+            width: 20 * 86400000,
+        }});
+        Plotly.newPlot('chart-signals-detail', sigTraces, {{
+            ...plotLayout,
+            height: 220,
+            margin: {{ l: 50, r: 60, t: 10, b: 30 }},
+            xaxis: {{ ...plotLayout.xaxis, title: '' }},
+            yaxis: {{ ...plotLayout.yaxis, title: 'AQI / Temp / Trends', side: 'left' }},
+            yaxis2: {{ ...plotLayout.yaxis, title: 'Precip (mm)', side: 'right', overlaying: 'y', showgrid: false }},
+            legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.2, x: 0.5, xanchor: 'center', font: {{ size: 10, color: COLORS.text }} }},
+            barmode: 'overlay',
+        }}, {{ responsive: true }});
+    }}
+
+    // Model selection explanation
+    if (m.model_scores && Object.keys(m.model_scores).length > 0) {{
+        const scores = m.model_scores;
+        const sortedNames = Object.keys(scores).sort((a, b) => scores[a] - scores[b]);
+        const bestName = sortedNames[0];
+        const bestMape = scores[bestName];
+        const worstName = sortedNames[sortedNames.length - 1];
+        const worstMape = scores[worstName];
+        const isEns = m.best_model && m.best_model.startsWith('Ensemble');
+        const poolName = m.signal_pool;
+
+        // Build the signal relevance note
+        const signalMap = {{
+            'AQI': 'AQI (air quality index) — correlates with respiratory and antihistamine demand',
+            'Monsoon': 'Precipitation — monsoon rainfall drives anti-malarial and ORS demand',
+            'Temperature': 'Temperature — heat extremes drive electrolyte and dermatological demand',
+            'Wedding': 'Wedding Season flag — seasonal peaks drive vitamin and supplement demand',
+            'GoogleTrends': 'Google Trends (symptom search volume) — search spikes predict symptom-linked SKU demand',
+        }};
+        const signalNote = signalMap[poolName] || 'External signals';
+
+        let expl = '';
+        expl += `<div style="margin-bottom:6px"><strong style="color:var(--text-primary)">1. Pool assignment:</strong> This SKU belongs to the <strong style="color:var(--accent-green)">${{poolName}}</strong> signal pool. Primary signal: ${{signalNote}}.</div>`;
+        expl += `<div style="margin-bottom:6px"><strong style="color:var(--text-primary)">2. Candidate training:</strong> Four ML models were trained on the ${{poolName}} pool's data — ${{sortedNames.join(', ')}} — using 24 months of training data.</div>`;
+        expl += `<div style="margin-bottom:6px"><strong style="color:var(--text-primary)">3. Validation:</strong> Each model was evaluated on a held-out 6-month validation window (months 25–30). Validation MAPE scores: `;
+        expl += sortedNames.map(n => `<strong>${{n}}</strong>: ${{scores[n].toFixed(1)}}%`).join(' · ') + `.</div>`;
+        expl += `<div style="margin-bottom:6px"><strong style="color:var(--text-primary)">4. Winner:</strong> `;
+        if (isEns) {{
+            const ensModels = m.best_model.replace('Ensemble (', '').replace(')', '').split(', ');
+            expl += `An <strong style="color:var(--accent-green)">Ensemble</strong> of the top 3 models (${{ensModels.join(', ')}}) was selected because its inverse-MAPE-weighted combination achieved a lower validation MAPE than the best single model (${{bestName}} at ${{bestMape.toFixed(1)}}%).`;
+        }} else {{
+            expl += `<strong style="color:var(--accent-green)">${{bestName}}</strong> was selected as the best single model with the lowest validation MAPE of ${{bestMape.toFixed(1)}}%. The ensemble of top 3 did not improve upon it, so the single model is used.`;
+        }}
+        expl += `</div>`;
+        expl += `<div><strong style="color:var(--text-primary)">5. Final training:</strong> The winning model was retrained on all 30 training months (train + validation) before generating the final test-period and future forecasts.</div>`;
+        document.getElementById('model-explanation').innerHTML = expl;
     }}
 
     // Time series chart
@@ -1676,6 +1770,40 @@ function updateRecommendation() {{
             yaxis: {{ ...plotLayout.yaxis, title: 'Forecasted Demand' }},
             legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.12, x: 0.5, xanchor: 'center' }},
         }}, {{ responsive: true }});
+    }}
+
+    // Forecast table
+    if (future.length > 0) {{
+        let tbl = `<table style="width:100%;font-size:12px">
+            <thead><tr>
+                <th style="text-align:left;padding:6px 10px">Month</th>
+                <th style="text-align:right;padding:6px 10px">Point Forecast</th>
+                <th style="text-align:right;padding:6px 10px">Lower Bound (95%)</th>
+                <th style="text-align:right;padding:6px 10px">Upper Bound (95%)</th>
+                <th style="text-align:right;padding:6px 10px">CI Width</th>
+            </tr></thead><tbody>`;
+        future.forEach(f => {{
+            const dt = f.date.substring(0, 10);
+            const ciWidth = Math.round(f.upper_bound - f.lower_bound);
+            tbl += `<tr>
+                <td style="padding:5px 10px;font-weight:600">${{dt}}</td>
+                <td style="padding:5px 10px;text-align:right;color:var(--accent-green);font-weight:700">${{Math.round(f.forecast).toLocaleString()}}</td>
+                <td style="padding:5px 10px;text-align:right">${{Math.round(f.lower_bound).toLocaleString()}}</td>
+                <td style="padding:5px 10px;text-align:right">${{Math.round(f.upper_bound).toLocaleString()}}</td>
+                <td style="padding:5px 10px;text-align:right;color:var(--text-secondary)">&#177; ${{Math.round(ciWidth / 2).toLocaleString()}}</td>
+            </tr>`;
+        }});
+        const avgFc = Math.round(future.reduce((s, f) => s + f.forecast, 0) / future.length);
+        const totalFc = Math.round(future.reduce((s, f) => s + f.forecast, 0));
+        tbl += `<tr style="border-top:2px solid var(--card-border);font-weight:700">
+            <td style="padding:5px 10px">Total / Avg</td>
+            <td style="padding:5px 10px;text-align:right;color:var(--accent-green)">${{totalFc.toLocaleString()}} / ${{avgFc.toLocaleString()}}</td>
+            <td style="padding:5px 10px;text-align:right">${{Math.round(future.reduce((s, f) => s + f.lower_bound, 0)).toLocaleString()}}</td>
+            <td style="padding:5px 10px;text-align:right">${{Math.round(future.reduce((s, f) => s + f.upper_bound, 0)).toLocaleString()}}</td>
+            <td style="padding:5px 10px;text-align:right;color:var(--text-secondary)">—</td>
+        </tr>`;
+        tbl += `</tbody></table>`;
+        document.getElementById('forecast-table').innerHTML = tbl;
     }}
 }}
 
