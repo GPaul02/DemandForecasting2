@@ -99,28 +99,29 @@ def generate_html_dashboard(metrics_df, results_df, future_df, signals_df):
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
 :root {{
-    --navy: #0a1628;
-    --navy-light: #132042;
-    --navy-mid: #1a2d5a;
-    --accent-green: #00d68f;
-    --accent-green-dim: rgba(0,214,143,0.15);
-    --accent-red: #ff6b6b;
-    --accent-red-dim: rgba(255,107,107,0.12);
-    --accent-amber: #ffc107;
-    --accent-amber-dim: rgba(255,193,7,0.12);
-    --accent-blue: #4dabf7;
-    --text-primary: #e8edf5;
-    --text-secondary: #8899b4;
-    --card-bg: #0f1d36;
-    --card-border: #1e3258;
-    --input-bg: #132042;
+    --navy: #141a24;
+    --navy-light: #1b2230;
+    --navy-mid: #242d3d;
+    --accent-green: #34c88a;
+    --accent-green-dim: rgba(52,200,138,0.12);
+    --accent-red: #e5706a;
+    --accent-red-dim: rgba(229,112,106,0.10);
+    --accent-amber: #e8b84a;
+    --accent-amber-dim: rgba(232,184,74,0.10);
+    --accent-blue: #5b9fd6;
+    --text-primary: #dce1ea;
+    --text-secondary: #7c8aa0;
+    --card-bg: #1b2230;
+    --card-border: #2a3348;
+    --input-bg: #1f2836;
 }}
 * {{ margin:0; padding:0; box-sizing:border-box; }}
 body {{
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: Inter, 'Segoe UI', system-ui, -apple-system, sans-serif;
     background: var(--navy);
     color: var(--text-primary);
     min-height: 100vh;
+    line-height: 1.5;
 }}
 .header {{
     background: linear-gradient(135deg, var(--navy-light), var(--navy-mid));
@@ -355,72 +356,14 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 }}
 .two-col {{ display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }}
 .two-col > * {{ min-width: 0; overflow: hidden; }}
-/* Workflow stepper */
-.workflow-bar {{
-    display: flex;
-    align-items: center;
-    gap: 0;
-    padding: 12px 40px;
-    background: var(--navy);
-    border-bottom: 1px solid var(--card-border);
-    font-size: 12px;
-}}
-.workflow-step {{
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--text-secondary);
-    opacity: 0.5;
-    transition: all 0.2s;
-}}
-.workflow-step.active {{
-    color: var(--accent-green);
-    opacity: 1;
-    font-weight: 600;
-}}
-.workflow-step.completed {{
-    color: var(--accent-green);
-    opacity: 0.7;
-}}
-.workflow-step .step-num {{
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    border: 2px solid currentColor;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-}}
-.workflow-step.active .step-num {{
-    background: var(--accent-green);
-    color: var(--navy);
-    border-color: var(--accent-green);
-}}
-.workflow-step.completed .step-num {{
-    background: rgba(0,214,143,0.2);
-    border-color: var(--accent-green);
-}}
-.workflow-arrow {{
-    margin: 0 12px;
-    color: var(--text-secondary);
-    opacity: 0.3;
-    font-size: 14px;
-}}
-/* Urgency-differentiated KPI cards */
+/* Urgency-differentiated KPI cards — higher contrast for WCAG AA */
 .kpi-card.urgent {{
-    background: linear-gradient(135deg, var(--card-bg), rgba(255,107,107,0.08));
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,107,107,0.3);
-    animation: urgentPulse 3s ease-in-out infinite;
-}}
-@keyframes urgentPulse {{
-    0%, 100% {{ box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,107,107,0.3); }}
-    50% {{ box-shadow: 0 1px 8px rgba(255,107,107,0.15), inset 0 0 0 1px rgba(255,107,107,0.5); }}
+    background: linear-gradient(135deg, #221c1c, rgba(229,112,106,0.10));
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(229,112,106,0.35);
 }}
 .kpi-card.healthy {{
-    background: linear-gradient(135deg, var(--card-bg), rgba(0,214,143,0.04));
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(0,214,143,0.15);
+    background: linear-gradient(135deg, var(--card-bg), rgba(52,200,138,0.05));
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(52,200,138,0.15);
 }}
 .kpi-card.healthy .value {{ font-size: 28px; }}
 /* Searchable SKU selector */
@@ -882,8 +825,18 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 @media (max-width: 500px) {{
     .chat-panel {{ width: 100vw; }}
 }}
-/* Push main content when chat is docked */
-body.chat-open {{ margin-right: 380px; transition: margin-right 0.2s; }}
+/* Chat scrim overlay */
+.chat-scrim {{
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 9997;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    cursor: pointer;
+}}
+.chat-scrim.open {{ display: block; }}
 </style>
 </head>
 <body>
@@ -901,29 +854,10 @@ body.chat-open {{ margin-right: 380px; transition: margin-right 0.2s; }}
 
 <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
-    <button class="tab-btn" onclick="switchTab('risk')">Forecast Risk Flags</button>
+    <button class="tab-btn" onclick="switchTab('risk')">Risk Flags</button>
     <button class="tab-btn" onclick="switchTab('recommend')">Model Recommendations</button>
-    <button class="tab-btn" onclick="switchTab('safety')">Safety Stock Optimizer</button>
-    <button class="tab-btn" onclick="toggleChat()" style="margin-left:auto; background:var(--accent-green); color:var(--navy); font-weight:700; border-radius:20px; padding:8px 18px;">💬 Chat Assistant</button>
-</div>
-
-<!-- WORKFLOW STEPPER -->
-<div class="workflow-bar">
-    <div class="workflow-step active" id="step-overview">
-        <span class="step-num">1</span> Detect
-    </div>
-    <span class="workflow-arrow">&#8594;</span>
-    <div class="workflow-step" id="step-risk">
-        <span class="step-num">2</span> Diagnose
-    </div>
-    <span class="workflow-arrow">&#8594;</span>
-    <div class="workflow-step" id="step-recommend">
-        <span class="step-num">3</span> Decide
-    </div>
-    <span class="workflow-arrow">&#8594;</span>
-    <div class="workflow-step" id="step-safety">
-        <span class="step-num">4</span> Act
-    </div>
+    <button class="tab-btn" onclick="switchTab('safety')">Safety Stock</button>
+    <button class="tab-btn" onclick="toggleChat()" style="margin-left:auto; background:var(--accent-green); color:var(--navy); font-weight:700; border-radius:20px; padding:8px 18px;">Chat Assistant</button>
 </div>
 
 <!-- TAB 1: OVERVIEW -->
@@ -1054,6 +988,9 @@ body.chat-open {{ margin-right: 380px; transition: margin-right 0.2s; }}
     <div id="safety-content"></div>
 </div>
 
+<!-- CHAT SCRIM -->
+<div class="chat-scrim" id="chatScrim" onclick="toggleChat()"></div>
+
 <!-- CHATBOT WIDGET -->
 <div class="chat-fab-label" id="chatLabel">Ask PharmaCast Assistant</div>
 <button class="chat-fab" id="chatFab" onclick="toggleChat()" title="Ask PharmaCast Assistant">
@@ -1098,31 +1035,31 @@ const futureData = {future_json};
 const tsData = {ts_json};
 
 const COLORS = {{
-    navy: '#0a1628',
-    navyLight: '#132042',
-    green: '#00d68f',
-    blue: '#4dabf7',
-    red: '#ff6b6b',
-    amber: '#ffc107',
-    text: '#e8edf5',
-    textSec: '#8899b4',
-    gridColor: '#1e3258',
+    navy: '#141a24',
+    navyLight: '#1b2230',
+    green: '#34c88a',
+    blue: '#5b9fd6',
+    red: '#e5706a',
+    amber: '#e8b84a',
+    text: '#dce1ea',
+    textSec: '#7c8aa0',
+    gridColor: '#2a3348',
 }};
 
-// Consistent signal pool color mapping — used EVERYWHERE
+// Consistent signal pool color mapping — muted palette for data, semantic colors for alerts
 const POOL_COLORS = {{
-    'AQI': '#ff6b6b',
-    'Temperature': '#ffa94d',
-    'Monsoon': '#4dabf7',
-    'Wedding': '#da77f2',
-    'GoogleTrends': '#69db7c',
+    'AQI': '#c27070',
+    'Temperature': '#c9935a',
+    'Monsoon': '#5b9fd6',
+    'Wedding': '#a87cc4',
+    'GoogleTrends': '#5db87a',
 }};
 const POOL_COLORS_DIM = {{
-    'AQI': 'rgba(255,107,107,0.15)',
-    'Temperature': 'rgba(255,169,77,0.15)',
-    'Monsoon': 'rgba(77,171,247,0.15)',
-    'Wedding': 'rgba(218,119,242,0.15)',
-    'GoogleTrends': 'rgba(105,219,124,0.15)',
+    'AQI': 'rgba(194,112,112,0.12)',
+    'Temperature': 'rgba(201,147,90,0.12)',
+    'Monsoon': 'rgba(91,159,214,0.12)',
+    'Wedding': 'rgba(168,124,196,0.12)',
+    'GoogleTrends': 'rgba(93,184,122,0.12)',
 }};
 
 // Active cross-filter state
@@ -1131,11 +1068,11 @@ let activePoolFilter = 'all';
 const plotLayout = {{
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
-    font: {{ family: 'Segoe UI, system-ui, sans-serif', color: COLORS.text, size: 12 }},
-    margin: {{ l: 50, r: 30, t: 20, b: 50 }},
-    xaxis: {{ gridcolor: COLORS.gridColor, zerolinecolor: COLORS.gridColor }},
-    yaxis: {{ gridcolor: COLORS.gridColor, zerolinecolor: COLORS.gridColor }},
-    legend: {{ bgcolor: 'rgba(0,0,0,0)', font: {{ size: 11 }} }},
+    font: {{ family: 'Inter, Segoe UI, system-ui, sans-serif', color: COLORS.text, size: 13 }},
+    margin: {{ l: 56, r: 24, t: 24, b: 52 }},
+    xaxis: {{ gridcolor: 'rgba(255,255,255,0.04)', zerolinecolor: 'rgba(255,255,255,0.06)', tickfont: {{ size: 12 }} }},
+    yaxis: {{ gridcolor: 'rgba(255,255,255,0.04)', zerolinecolor: 'rgba(255,255,255,0.06)', tickfont: {{ size: 12 }} }},
+    legend: {{ bgcolor: 'rgba(0,0,0,0)', font: {{ size: 12 }} }},
 }};
 
 function switchTab(name) {{
@@ -1146,8 +1083,6 @@ function switchTab(name) {{
     const btns = document.querySelectorAll('.tab-btn');
     const tabMap = {{'overview':0, 'risk':1, 'recommend':2, 'safety':3}};
     if (tabMap[name] !== undefined) btns[tabMap[name]].classList.add('active');
-    // Update workflow stepper
-    updateWorkflowStep(name);
     // Trigger resize for plotly
     window.dispatchEvent(new Event('resize'));
 }}
@@ -1160,17 +1095,6 @@ function navigateToSku(skuId) {{
     switchTab('recommend');
 }}
 
-function updateWorkflowStep(tabName) {{
-    const steps = ['overview', 'risk', 'recommend', 'safety'];
-    steps.forEach((s, i) => {{
-        const el = document.getElementById('step-' + s);
-        if (!el) return;
-        const idx = steps.indexOf(tabName);
-        if (i < idx) el.className = 'workflow-step completed';
-        else if (i === idx) el.className = 'workflow-step active';
-        else el.className = 'workflow-step';
-    }});
-}}
 
 // ---- TAB 1: OVERVIEW ----
 function renderOverview() {{
@@ -1264,8 +1188,8 @@ function renderOverview() {{
             mode: 'markers',
             type: 'scatter',
             name: pool,
-            marker: {{ color: POOL_COLORS[pool] || COLORS.green, size: 11, opacity: 0.85,
-                       line: {{ color: 'rgba(255,255,255,0.2)', width: 1 }} }},
+            marker: {{ color: POOL_COLORS[pool] || COLORS.green, size: 14, opacity: 0.85,
+                       line: {{ color: 'rgba(255,255,255,0.15)', width: 1.5 }} }},
         }});
     }});
     // Diagonal reference line
@@ -1536,13 +1460,13 @@ function updateRecommendation() {{
     if (ts) {{
         const traces = [
             {{ x: ts.dates, y: ts.actual, name: 'Actual', type: 'scatter', mode: 'lines+markers',
-               line: {{ color: COLORS.text, width: 2 }}, marker: {{ size: 4 }} }},
+               line: {{ color: COLORS.text, width: 2.5 }}, marker: {{ size: 5 }} }},
             {{ x: ts.dates, y: ts.baseline, name: 'Baseline (SMA)', type: 'scatter', mode: 'lines',
-               line: {{ color: COLORS.blue, width: 2, dash: 'dot' }} }},
+               line: {{ color: COLORS.blue, width: 2.5, dash: 'dot' }} }},
         ];
         if (ts.ml) {{
             traces.push({{ x: ts.dates, y: ts.ml, name: 'ML Model', type: 'scatter', mode: 'lines',
-               line: {{ color: COLORS.green, width: 2 }} }});
+               line: {{ color: COLORS.green, width: 2.5 }} }});
         }}
         // Add train/test split line
         const splitIdx = Math.min(29, ts.dates.length - 1);
@@ -1730,7 +1654,7 @@ function updateSafetyStock() {{
         </div>
     </div>
     <div class="chart-container" style="margin-top:0">
-        <div class="chart-title">Safety Stock — All SKUs (Top 20 by Reduction)</div>
+        <div class="chart-title">Safety Stock — Top 10 by Reduction</div>
         <div id="chart-safety-all"></div>
     </div>`;
 
@@ -1738,9 +1662,9 @@ function updateSafetyStock() {{
 
     // All SKUs safety stock chart — sorted by reduction magnitude
     const sorted = [...metricsData].sort((a, b) => b.safety_stock_reduction - a.safety_stock_reduction);
-    const top20 = sorted.slice(0, 20);
-    const labels = top20.map(s => s.sku_id + ' (' + s.sku_name.substring(0, 15) + ')');
-    const reductionAnnotations = top20.map((s, i) => ({{
+    const top10 = sorted.slice(0, 10);
+    const labels = top10.map(s => s.sku_name.substring(0, 20));
+    const reductionAnnotations = top10.map((s, i) => ({{
         x: Math.max(s.baseline_safety_stock, s.ml_safety_stock) + 20,
         y: i,
         text: '-' + s.safety_stock_reduction.toFixed(0) + '%',
@@ -1751,21 +1675,21 @@ function updateSafetyStock() {{
     Plotly.newPlot('chart-safety-all', [
         {{
             y: labels,
-            x: top20.map(s => s.baseline_safety_stock),
+            x: top10.map(s => s.baseline_safety_stock),
             type: 'bar', orientation: 'h', name: 'Baseline',
             marker: {{ color: '#74c0fc', opacity: 0.8 }},
         }},
         {{
             y: labels,
-            x: top20.map(s => s.ml_safety_stock),
+            x: top10.map(s => s.ml_safety_stock),
             type: 'bar', orientation: 'h', name: 'ML Optimized',
             marker: {{ color: '#63e6be', opacity: 0.9 }},
         }},
     ], {{
         ...plotLayout,
         barmode: 'group',
-        height: 560,
-        margin: {{ l: 160, r: 60, t: 10, b: 40 }},
+        height: 380,
+        margin: {{ l: 150, r: 60, t: 10, b: 40 }},
         xaxis: {{ ...plotLayout.xaxis, title: 'Safety Stock (units)' }},
         yaxis: {{ ...plotLayout.yaxis, autorange: 'reversed' }},
         legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.05, x: 0.5, xanchor: 'center' }},
@@ -2010,15 +1934,14 @@ function toggleBriefing() {{
 
 function toggleChat() {{
     const panel = document.getElementById('chatPanel');
+    const scrim = document.getElementById('chatScrim');
     panel.classList.toggle('open');
-    document.body.classList.toggle('chat-open', panel.classList.contains('open'));
+    scrim.classList.toggle('open', panel.classList.contains('open'));
     const label = document.getElementById('chatLabel');
     if (label) label.style.display = 'none';
     if (panel.classList.contains('open')) {{
         document.getElementById('chatInput').focus();
     }}
-    // Resize charts after body margin change
-    setTimeout(() => window.dispatchEvent(new Event('resize')), 250);
 }}
 
 function askSuggestion(el) {{
