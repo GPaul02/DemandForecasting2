@@ -1456,56 +1456,115 @@ function updateRecommendation() {
         <div class="chart-title">Why This Model Was Selected</div>
         <div id="model-explanation" style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-top:8px"></div>
     </div>
-    <div class="chart-container" style="margin-bottom:16px;padding:16px 20px">
-        <div class="chart-title" style="cursor:pointer" onclick="document.getElementById('methodology-body').style.display = document.getElementById('methodology-body').style.display === 'none' ? 'block' : 'none'">
-            Methodology & Formulas <span style="font-size:11px;color:var(--text-muted);margin-left:8px">(click to expand/collapse)</span>
+    <div class="chart-container" style="margin-bottom:16px;padding:0;overflow:hidden">
+        <div style="padding:16px 20px 12px;cursor:pointer;display:flex;align-items:center;justify-content:space-between" onclick="const b=document.getElementById('methodology-body');const a=document.getElementById('method-arrow');if(b.style.maxHeight==='0px'){b.style.maxHeight='2000px';a.style.transform='rotate(180deg)'}else{b.style.maxHeight='0px';a.style.transform='rotate(0deg)'}">
+            <div class="chart-title" style="margin:0">Methodology & Transparency</div>
+            <svg id="method-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" style="transition:transform 0.3s;transform:rotate(0deg)"><path d="M4 6l4 4 4-4" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <div id="methodology-body" style="font-size:13px;color:var(--text-secondary);line-height:1.9;margin-top:12px">
-            <table style="width:100%;border-collapse:collapse;font-size:13px">
-                <tr style="border-bottom:1px solid var(--card-border)">
-                    <td style="padding:8px 12px;color:var(--text-primary);font-weight:600;white-space:nowrap;vertical-align:top;width:200px">Forecast Accuracy (FA)</td>
-                    <td style="padding:8px 12px">
-                        <code style="background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:3px">FA = 100% − MAPE</code><br>
-                        where <strong>MAPE</strong> (Mean Absolute Percentage Error) = mean( |Actual − Forecast| / Actual ) × 100.<br>
-                        Computed on the <strong>6-month hold-out test period</strong> (months 31–36) for each individual SKU.
-                    </td>
-                </tr>
-                <tr style="border-bottom:1px solid var(--card-border)">
-                    <td style="padding:8px 12px;color:var(--text-primary);font-weight:600;white-space:nowrap;vertical-align:top">Improvement vs Baseline</td>
-                    <td style="padding:8px 12px">
-                        <code style="background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:3px">Δ = ML_FA − Baseline_FA</code> (percentage points).<br>
-                        Positive means ML outperforms the 3-month Simple Moving Average; negative means baseline wins.
-                    </td>
-                </tr>
-                <tr style="border-bottom:1px solid var(--card-border)">
-                    <td style="padding:8px 12px;color:var(--text-primary);font-weight:600;white-space:nowrap;vertical-align:top">Model Selection</td>
-                    <td style="padding:8px 12px">
-                        <strong>Step 1 — Pool training:</strong> All SKUs sharing the same external signal are grouped into a pool. Four ML models (Gradient Boosting, Random Forest, Extra Trees, Ridge Regression) are trained on the pool's first 24 months.<br>
-                        <strong>Step 2 — Validation:</strong> Models are ranked by MAPE on months 25–30. The top 3 are ensembled using inverse-MAPE weights; if ensemble beats the best single model, it is selected.<br>
-                        <strong>Step 3 — Retraining:</strong> All models are retrained on the full 30-month training set (months 1–30) for final predictions.<br>
-                        <strong>Step 4 — Recommendation:</strong> Per SKU, if Baseline FA ≥ Best ML FA on the 6-month test period, Baseline is recommended; otherwise the ML model wins. <em>No weighting or subjective scoring</em> — the comparison is strictly accuracy on held-out data.
-                    </td>
-                </tr>
-                <tr style="border-bottom:1px solid var(--card-border)">
-                    <td style="padding:8px 12px;color:var(--text-primary);font-weight:600;white-space:nowrap;vertical-align:top">Baseline (3M SMA)</td>
-                    <td style="padding:8px 12px">
-                        <code style="background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:3px">Forecast(t) = mean(Actual(t−1), Actual(t−2), Actual(t−3))</code><br>
-                        A simple 3-month trailing average. Serves as the performance floor that ML must beat.
-                    </td>
-                </tr>
-                <tr style="border-bottom:1px solid var(--card-border)">
-                    <td style="padding:8px 12px;color:var(--text-primary);font-weight:600;white-space:nowrap;vertical-align:top">Chart Bars</td>
-                    <td style="padding:8px 12px">
-                        Every bar shows <strong>test-period accuracy</strong> (100 − MAPE) for this specific SKU. All models — including Baseline — are evaluated on the same 6-month test window, ensuring an apples-to-apples comparison.
-                    </td>
-                </tr>
-                <tr>
-                    <td style="padding:8px 12px;color:var(--text-primary);font-weight:600;white-space:nowrap;vertical-align:top">Data Split</td>
-                    <td style="padding:8px 12px">
-                        36 months total → <strong>24 months training</strong> (model fitting) + <strong>6 months validation</strong> (model selection) + <strong>6 months test</strong> (final accuracy reported in dashboard).
-                    </td>
-                </tr>
-            </table>
+        <div id="methodology-body" style="max-height:0px;overflow:hidden;transition:max-height 0.4s ease">
+            <div style="padding:0 20px 20px">
+
+                <!-- Pipeline Overview -->
+                <div style="display:flex;gap:2px;margin-bottom:20px;padding:16px 0">
+                    <div style="flex:1;text-align:center;padding:10px 6px;background:linear-gradient(135deg,rgba(91,159,214,0.12),rgba(91,159,214,0.04));border-radius:8px 0 0 8px">
+                        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px">Step 1</div>
+                        <div style="font-size:12px;font-weight:600;color:var(--text-primary)">Pool & Train</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">24 months</div>
+                    </div>
+                    <div style="flex:1;text-align:center;padding:10px 6px;background:linear-gradient(135deg,rgba(255,193,7,0.12),rgba(255,193,7,0.04))">
+                        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px">Step 2</div>
+                        <div style="font-size:12px;font-weight:600;color:var(--text-primary)">Validate</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">6 months</div>
+                    </div>
+                    <div style="flex:1;text-align:center;padding:10px 6px;background:linear-gradient(135deg,rgba(46,204,113,0.12),rgba(46,204,113,0.04))">
+                        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px">Step 3</div>
+                        <div style="font-size:12px;font-weight:600;color:var(--text-primary)">Retrain</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">30 months</div>
+                    </div>
+                    <div style="flex:1;text-align:center;padding:10px 6px;background:linear-gradient(135deg,rgba(168,124,196,0.12),rgba(168,124,196,0.04));border-radius:0 8px 8px 0">
+                        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px">Step 4</div>
+                        <div style="font-size:12px;font-weight:600;color:var(--text-primary)">Test & Rank</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">6 months</div>
+                    </div>
+                </div>
+
+                <!-- Why These Models -->
+                <div style="margin-bottom:20px">
+                    <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+                        <span style="width:3px;height:14px;background:var(--accent-green);border-radius:2px;display:inline-block"></span>
+                        Why These 4 Models?
+                    </div>
+                    <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:14px;padding-left:11px">
+                        Pharmaceutical demand is influenced by non-linear external signals (weather, seasonality, search trends). We use four complementary tree-based and linear regressors that each capture different patterns. No single model dominates across all signal pools, which is why we evaluate all four per SKU.
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                        <div style="background:rgba(46,204,113,0.06);border:1px solid rgba(46,204,113,0.15);border-radius:8px;padding:12px 14px">
+                            <div style="font-size:12px;font-weight:600;color:var(--accent-green);margin-bottom:4px">Gradient Boosting</div>
+                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5">Builds trees sequentially, each correcting the previous one's errors. Excels at capturing complex non-linear relationships between external signals and demand. Often the top performer for weather-driven pools.</div>
+                        </div>
+                        <div style="background:rgba(91,159,214,0.06);border:1px solid rgba(91,159,214,0.15);border-radius:8px;padding:12px 14px">
+                            <div style="font-size:12px;font-weight:600;color:#5b9fd6;margin-bottom:4px">Random Forest</div>
+                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5">Trains many independent decision trees in parallel and averages their predictions. Robust to outliers and noisy data. Provides stable forecasts when demand patterns are irregular.</div>
+                        </div>
+                        <div style="background:rgba(255,193,7,0.06);border:1px solid rgba(255,193,7,0.15);border-radius:8px;padding:12px 14px">
+                            <div style="font-size:12px;font-weight:600;color:#ffc107;margin-bottom:4px">Extra Trees</div>
+                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5">Similar to Random Forest but uses random split thresholds instead of optimized ones. Faster training and sometimes better generalization. Strong on seasonal pools like Wedding.</div>
+                        </div>
+                        <div style="background:rgba(168,124,196,0.06);border:1px solid rgba(168,124,196,0.15);border-radius:8px;padding:12px 14px">
+                            <div style="font-size:12px;font-weight:600;color:#a87cc4;margin-bottom:4px">Ridge Regression</div>
+                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5">A regularized linear model that captures proportional trends between signals and demand. Serves as a simpler counterpoint — if a linear relationship exists, Ridge finds it with less overfitting risk.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Metrics -->
+                <div style="margin-bottom:20px">
+                    <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+                        <span style="width:3px;height:14px;background:var(--accent-green);border-radius:2px;display:inline-block"></span>
+                        How Numbers Are Computed
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px">
+                            <div style="font-size:11px;font-weight:600;color:var(--accent-green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Forecast Accuracy</div>
+                            <div style="font-size:12px;color:var(--text-primary);font-family:monospace;margin-bottom:6px">FA = 100% &minus; MAPE</div>
+                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5">MAPE = mean( |Actual &minus; Forecast| / Actual ) &times; 100. Measured on the 6-month hold-out test period for this specific SKU.</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px">
+                            <div style="font-size:11px;font-weight:600;color:var(--accent-green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Improvement vs Baseline</div>
+                            <div style="font-size:12px;color:var(--text-primary);font-family:monospace;margin-bottom:6px">&Delta; = Best_ML_FA &minus; Baseline_FA</div>
+                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5">Percentage-point difference. Positive means the best ML model outperforms the 3-month Simple Moving Average on held-out data.</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px">
+                            <div style="font-size:11px;font-weight:600;color:var(--accent-green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Baseline (3M SMA)</div>
+                            <div style="font-size:12px;color:var(--text-primary);font-family:monospace;margin-bottom:6px">F(t) = avg(A(t-1..t-3))</div>
+                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5">Average of last 3 months' actual demand. The simplest forecasting method — ML must beat this to be recommended.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selection Logic -->
+                <div style="margin-bottom:8px">
+                    <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+                        <span style="width:3px;height:14px;background:var(--accent-green);border-radius:2px;display:inline-block"></span>
+                        Selection Logic
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px">
+                            <div style="font-size:11px;font-weight:600;color:var(--text-primary);margin-bottom:6px">Per-SKU Winner Selection</div>
+                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
+                                All 4 ML models are retrained on 30 months of data and evaluated on each SKU's 6-month test period individually. The model with the lowest MAPE <em>for that specific SKU</em> is the best ML candidate. If Baseline &ge; Best ML accuracy, Baseline wins. <strong>No subjective weighting</strong> &mdash; purely accuracy on held-out data.
+                            </div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px">
+                            <div style="font-size:11px;font-weight:600;color:var(--text-primary);margin-bottom:6px">Data Split &amp; Evaluation</div>
+                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
+                                36 months total &rarr; <span style="color:var(--accent-blue)">24 months training</span> (model fitting) + <span style="color:#ffc107">6 months validation</span> (ensemble selection) + <span style="color:var(--accent-green)">6 months test</span> (final accuracy shown in all dashboard metrics).
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
     <div class="two-col">
