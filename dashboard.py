@@ -104,78 +104,96 @@ def generate_html_dashboard(metrics_df, results_df, future_df, signals_df):
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
 :root {{
-    --navy: #141a24;
-    --navy-light: #1b2230;
-    --navy-mid: #242d3d;
-    --accent-green: #34c88a;
-    --accent-green-dim: rgba(52,200,138,0.12);
-    --accent-red: #e5706a;
-    --accent-red-dim: rgba(229,112,106,0.10);
-    --accent-amber: #e8b84a;
-    --accent-amber-dim: rgba(232,184,74,0.10);
-    --accent-blue: #5b9fd6;
-    --text-primary: #dce1ea;
-    --text-secondary: #7c8aa0;
-    --card-bg: #1b2230;
-    --card-border: #2a3348;
-    --input-bg: #1f2836;
+    --navy: #f5f5f7;
+    --navy-light: #ffffff;
+    --navy-mid: #f5f5f7;
+    --accent-green: #34a853;
+    --accent-green-dim: rgba(52,168,83,0.08);
+    --accent-red: #d93025;
+    --accent-red-dim: rgba(217,48,37,0.06);
+    --accent-amber: #e37400;
+    --accent-amber-dim: rgba(227,116,0,0.06);
+    --accent-blue: #1a73e8;
+    --text-primary: #1d1d1f;
+    --text-secondary: #86868b;
+    --text-muted: #aeaeb2;
+    --card-bg: #ffffff;
+    --card-border: rgba(0,0,0,0.06);
+    --input-bg: #f5f5f7;
+    --hover-bg: rgba(0,0,0,0.02);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.04);
+    --shadow-md: 0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+    --shadow-lg: 0 4px 20px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+    --radius: 14px;
 }}
 * {{ margin:0; padding:0; box-sizing:border-box; }}
 body {{
-    font-family: Inter, 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background: var(--navy);
     color: var(--text-primary);
     min-height: 100vh;
     line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }}
 .header {{
-    background: linear-gradient(135deg, var(--navy-light), var(--navy-mid));
-    border-bottom: 1px solid var(--card-border);
-    padding: 20px 40px;
+    background: rgba(255,255,255,0.72);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    padding: 18px 48px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
 }}
 .header h1 {{
-    font-size: 22px;
+    font-size: 21px;
     font-weight: 600;
-    letter-spacing: 0.5px;
+    letter-spacing: -0.3px;
+    color: var(--text-primary);
 }}
 .header h1 span {{ color: var(--accent-green); }}
 .header .subtitle {{
     color: var(--text-secondary);
     font-size: 13px;
-    margin-top: 2px;
+    margin-top: 1px;
+    font-weight: 400;
 }}
 .header-right {{
     text-align: right;
     color: var(--text-secondary);
     font-size: 12px;
+    font-weight: 400;
 }}
 .tab-bar {{
     display: flex;
     gap: 0;
     background: var(--navy-light);
-    border-bottom: 2px solid var(--card-border);
-    padding: 0 40px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    padding: 0 48px;
 }}
 .tab-btn {{
-    padding: 14px 28px;
+    padding: 14px 24px;
     border: none;
     background: none;
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    border-bottom: 3px solid transparent;
+    border-bottom: 2px solid transparent;
     transition: all 0.2s;
+    letter-spacing: -0.1px;
 }}
 .tab-btn:hover {{ color: var(--text-primary); }}
 .tab-btn.active {{
-    color: var(--accent-green);
-    border-bottom-color: var(--accent-green);
+    color: var(--text-primary);
+    border-bottom-color: var(--text-primary);
+    font-weight: 600;
 }}
-.tab-content {{ display: none; padding: 30px 40px; }}
+.tab-content {{ display: none; padding: 32px 48px; max-width: 1400px; margin: 0 auto; }}
 .tab-content.active {{ display: block; }}
 .kpi-row {{
     display: grid;
@@ -186,26 +204,28 @@ body {{
 .kpi-card {{
     background: var(--card-bg);
     border: none;
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 24px;
     text-align: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.03);
-    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease;
 }}
 .kpi-card:hover {{
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+    box-shadow: var(--shadow-md);
 }}
 .kpi-card .label {{
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
     color: var(--text-secondary);
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }}
 .kpi-card .value {{
-    font-size: 36px;
-    font-weight: 700;
+    font-size: 34px;
+    font-weight: 600;
+    letter-spacing: -1px;
+    color: var(--text-primary);
 }}
 .kpi-card .value.green {{ color: var(--accent-green); }}
 .kpi-card .value.blue {{ color: var(--accent-blue); }}
@@ -213,30 +233,31 @@ body {{
 .kpi-card .sub {{
     font-size: 12px;
     color: var(--text-secondary);
-    margin-top: 4px;
+    margin-top: 6px;
+    font-weight: 400;
 }}
 /* Tier system: 1=hero decision signals, 2=diagnostic charts, 3=supporting data */
 .chart-container {{
     background: var(--card-bg);
     border: none;
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.03);
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
 }}
 .chart-container.tier-3 {{
-    background: rgba(15,29,54,0.6);
-    box-shadow: none;
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm);
     padding: 20px;
 }}
 .chart-title {{
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 600;
     margin-bottom: 16px;
     padding-bottom: 0;
     border-bottom: none;
     color: var(--text-primary);
-    letter-spacing: -0.2px;
+    letter-spacing: -0.3px;
 }}
 .chart-subtitle {{
     font-size: 12px;
@@ -247,11 +268,12 @@ body {{
 }}
 /* Tab section headers — one question per tab */
 .tab-question {{
-    font-size: 24px;
-    font-weight: 300;
-    color: var(--text-secondary);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
     margin-bottom: 28px;
-    letter-spacing: -0.3px;
+    letter-spacing: -0.8px;
+    line-height: 1.2;
 }}
 .tab-question strong {{
     color: var(--text-primary);
@@ -264,36 +286,35 @@ table {{
 }}
 th {{
     text-align: left;
-    padding: 12px 16px;
+    padding: 10px 16px;
     background: transparent;
     color: var(--text-secondary);
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 10px;
-    letter-spacing: 0.8px;
-    border-bottom: 2px solid rgba(255,255,255,0.06);
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
 }}
 td {{
-    padding: 12px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
     color: var(--text-primary);
 }}
-tr:hover td {{ background: rgba(255,255,255,0.03); }}
+tr:hover td {{ background: var(--hover-bg); }}
 .badge {{
     display: inline-block;
-    padding: 3px 10px;
-    border-radius: 20px;
+    padding: 4px 10px;
+    border-radius: 6px;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 500;
 }}
 .badge-red {{ background: var(--accent-red-dim); color: var(--accent-red); }}
 .badge-amber {{ background: var(--accent-amber-dim); color: var(--accent-amber); }}
 .badge-green {{ background: var(--accent-green-dim); color: var(--accent-green); }}
 .alert-box {{
     background: var(--accent-red-dim);
-    border: 1px solid rgba(255,107,107,0.3);
-    border-radius: 10px;
-    padding: 16px 20px;
+    border: 1px solid rgba(217,48,37,0.12);
+    border-radius: 12px;
+    padding: 14px 18px;
     margin-bottom: 16px;
     display: flex;
     align-items: center;
@@ -316,15 +337,17 @@ tr:hover td {{ background: rgba(255,255,255,0.03); }}
 }}
 select {{
     background: var(--input-bg);
-    border: 1px solid var(--card-border);
+    border: 1px solid rgba(0,0,0,0.1);
     color: var(--text-primary);
     padding: 10px 16px;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 14px;
     min-width: 280px;
     cursor: pointer;
+    font-family: inherit;
+    -webkit-appearance: none;
 }}
-select:focus {{ outline: none; border-color: var(--accent-green); }}
+select:focus {{ outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(26,115,232,0.12); }}
 .detail-grid {{
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -338,9 +361,9 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 }}
 .metric-bar .bar-bg {{
     flex: 1;
-    height: 8px;
-    background: var(--navy);
-    border-radius: 4px;
+    height: 6px;
+    background: rgba(0,0,0,0.06);
+    border-radius: 3px;
     overflow: hidden;
 }}
 .metric-bar .bar-fill {{
@@ -361,14 +384,14 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 }}
 .two-col {{ display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }}
 .two-col > * {{ min-width: 0; overflow: hidden; }}
-/* Urgency-differentiated KPI cards — higher contrast for WCAG AA */
+/* Urgency-differentiated KPI cards */
 .kpi-card.urgent {{
-    background: linear-gradient(135deg, #221c1c, rgba(229,112,106,0.10));
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(229,112,106,0.35);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(217,48,37,0.15);
 }}
 .kpi-card.healthy {{
-    background: linear-gradient(135deg, var(--card-bg), rgba(52,200,138,0.05));
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(52,200,138,0.15);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(52,168,83,0.15);
 }}
 .kpi-card.healthy .value {{ font-size: 28px; }}
 /* Searchable SKU selector */
@@ -379,14 +402,15 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 .sku-search-wrap input {{
     width: 100%;
     background: var(--input-bg);
-    border: 1px solid var(--card-border);
+    border: 1px solid rgba(0,0,0,0.1);
     color: var(--text-primary);
     padding: 10px 16px;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 14px;
     outline: none;
+    font-family: inherit;
 }}
-.sku-search-wrap input:focus {{ border-color: var(--accent-green); }}
+.sku-search-wrap input:focus {{ border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(26,115,232,0.12); }}
 .sku-dropdown {{
     display: none;
     position: absolute;
@@ -403,12 +427,12 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 }}
 .sku-dropdown.open {{ display: block; }}
 .sku-opt-group {{
-    padding: 4px 12px;
-    font-size: 10px;
+    padding: 6px 12px;
+    font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.3px;
     color: var(--text-secondary);
-    background: var(--navy-light);
+    background: var(--input-bg);
     font-weight: 600;
 }}
 .sku-opt {{
@@ -420,7 +444,7 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     gap: 8px;
     transition: background 0.1s;
 }}
-.sku-opt:hover {{ background: rgba(255,255,255,0.04); }}
+.sku-opt:hover {{ background: var(--hover-bg); }}
 .sku-opt .risk-dot {{
     width: 8px;
     height: 8px;
@@ -442,8 +466,8 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     bottom: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%);
-    background: var(--navy-mid);
-    color: var(--text-primary);
+    background: #1d1d1f;
+    color: #fff;
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 11px;
@@ -455,7 +479,7 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     pointer-events: none;
     transition: opacity 0.2s;
     z-index: 100;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
     line-height: 1.4;
 }}
 .has-tooltip:hover::after {{
@@ -473,18 +497,18 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     padding: 6px 16px;
     border-radius: 20px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
-    border: 1px solid var(--card-border);
+    border: 1px solid rgba(0,0,0,0.1);
     background: var(--card-bg);
     color: var(--text-secondary);
     transition: all 0.15s;
 }}
-.pool-pill:hover {{ border-color: var(--accent-green); color: var(--text-primary); }}
+.pool-pill:hover {{ border-color: rgba(0,0,0,0.2); color: var(--text-primary); }}
 .pool-pill.active {{
-    background: var(--accent-green);
-    color: var(--navy);
-    border-color: var(--accent-green);
+    background: var(--text-primary);
+    color: #fff;
+    border-color: var(--text-primary);
 }}
 .pool-pill .pill-dot {{
     display: inline-block;
@@ -496,11 +520,11 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 }}
 /* Proactive AI briefing banner */
 .ai-briefing {{
-    background: linear-gradient(135deg, rgba(0,214,143,0.08), rgba(77,171,247,0.06));
-    border-radius: 12px;
+    background: var(--card-bg);
+    border-radius: var(--radius);
     padding: 20px 24px;
-    margin-bottom: 24px;
-    box-shadow: inset 0 0 0 1px rgba(0,214,143,0.15);
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(52,168,83,0.12);
 }}
 .ai-briefing .briefing-header {{
     display: flex;
@@ -549,8 +573,8 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     border-radius: 8px;
     text-align: center;
 }}
-.stat-block.baseline {{ background: rgba(77,171,247,0.1); border: 1px solid rgba(77,171,247,0.2); }}
-.stat-block.ml {{ background: var(--accent-green-dim); border: 1px solid rgba(0,214,143,0.2); }}
+.stat-block.baseline {{ background: rgba(26,115,232,0.04); border: 1px solid rgba(26,115,232,0.12); }}
+.stat-block.ml {{ background: var(--accent-green-dim); border: 1px solid rgba(52,168,83,0.12); }}
 .stat-block .stat-label {{ font-size: 12px; color: var(--text-secondary); font-weight: 600; letter-spacing: 0.2px; }}
 .stat-block .stat-value {{ font-size: 28px; font-weight: 700; margin: 4px 0; }}
 .stat-block.baseline .stat-value {{ color: var(--accent-blue); }}
@@ -568,7 +592,7 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 
 /* Loading skeleton */
 .skeleton {{
-    background: linear-gradient(90deg, var(--card-bg) 25%, rgba(255,255,255,0.05) 50%, var(--card-bg) 75%);
+    background: linear-gradient(90deg, var(--input-bg) 25%, rgba(0,0,0,0.02) 50%, var(--input-bg) 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
     border-radius: 8px;
@@ -599,41 +623,42 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     position: fixed;
     bottom: 28px;
     right: 28px;
-    width: 62px;
-    height: 62px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-green), #00b377);
+    background: #1d1d1f;
     border: none;
     cursor: pointer;
-    box-shadow: 0 4px 20px rgba(0,214,143,0.4);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 9999;
     transition: transform 0.2s, box-shadow 0.2s;
-    animation: fabPulse 2s ease-in-out infinite;
+    animation: fabPulse 3s ease-in-out infinite;
 }}
-.chat-fab:hover {{ transform: scale(1.1); box-shadow: 0 6px 28px rgba(0,214,143,0.6); animation: none; }}
-.chat-fab svg {{ width: 28px; height: 28px; fill: var(--navy); }}
+.chat-fab:hover {{ transform: scale(1.06); box-shadow: 0 6px 24px rgba(0,0,0,0.3); animation: none; }}
+.chat-fab svg {{ width: 24px; height: 24px; fill: #fff; }}
 @keyframes fabPulse {{
-    0%, 100% {{ box-shadow: 0 4px 20px rgba(0,214,143,0.4); }}
-    50% {{ box-shadow: 0 4px 32px rgba(0,214,143,0.7), 0 0 0 8px rgba(0,214,143,0.12); }}
+    0%, 100% {{ box-shadow: 0 4px 16px rgba(0,0,0,0.2); }}
+    50% {{ box-shadow: 0 4px 24px rgba(0,0,0,0.3), 0 0 0 6px rgba(0,0,0,0.04); }}
 }}
 .chat-fab-label {{
     position: fixed;
-    bottom: 98px;
+    bottom: 92px;
     right: 22px;
-    background: var(--card-bg);
-    border: 1px solid var(--accent-green);
-    color: var(--accent-green);
+    background: #1d1d1f;
+    border: none;
+    color: #fff;
     padding: 8px 14px;
     border-radius: 8px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     z-index: 9999;
     white-space: nowrap;
     animation: labelFade 8s ease-in-out forwards;
     pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }}
 .chat-fab-label::after {{
     content: '';
@@ -642,9 +667,9 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     right: 20px;
     width: 10px;
     height: 10px;
-    background: var(--card-bg);
-    border-right: 1px solid var(--accent-green);
-    border-bottom: 1px solid var(--accent-green);
+    background: #1d1d1f;
+    border-right: none;
+    border-bottom: none;
     transform: rotate(45deg);
 }}
 @keyframes labelFade {{
@@ -661,9 +686,9 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     width: 380px;
     height: 100vh;
     background: var(--card-bg);
-    border-left: 1px solid var(--card-border);
+    border-left: 1px solid rgba(0,0,0,0.08);
     border-radius: 0;
-    box-shadow: -4px 0 24px rgba(0,0,0,0.3);
+    box-shadow: -4px 0 24px rgba(0,0,0,0.08);
     z-index: 9998;
     display: none;
     flex-direction: column;
@@ -673,8 +698,8 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 
 .chat-header {{
     padding: 16px 20px;
-    background: linear-gradient(135deg, var(--navy-mid), var(--navy-light));
-    border-bottom: 1px solid var(--card-border);
+    background: var(--card-bg);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
     display: flex;
     align-items: center;
     gap: 12px;
@@ -683,13 +708,13 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: var(--accent-green);
+    background: #1d1d1f;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 14px;
-    color: var(--navy);
+    color: #fff;
 }}
 .chat-header .chat-title {{
     flex: 1;
@@ -733,14 +758,14 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
 }}
 .chat-msg.bot {{
     align-self: flex-start;
-    background: var(--navy-light);
-    border: 1px solid var(--card-border);
+    background: var(--input-bg);
+    border: none;
     color: var(--text-primary);
 }}
 .chat-msg.user {{
     align-self: flex-end;
-    background: var(--accent-green);
-    color: var(--navy);
+    background: #1d1d1f;
+    color: #fff;
     font-weight: 500;
 }}
 .chat-msg .msg-label {{
@@ -751,13 +776,13 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     opacity: 0.7;
 }}
 .chat-msg code {{
-    background: rgba(0,0,0,0.2);
+    background: rgba(0,0,0,0.06);
     padding: 1px 5px;
     border-radius: 4px;
     font-size: 12px;
 }}
 .chat-msg strong {{ color: var(--accent-green); }}
-.chat-msg.user strong {{ color: var(--navy); }}
+.chat-msg.user strong {{ color: #fff; }}
 
 .chat-suggestions {{
     display: flex;
@@ -766,8 +791,8 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     padding: 0 16px 12px;
 }}
 .chat-suggestion {{
-    background: var(--navy);
-    border: 1px solid var(--card-border);
+    background: var(--input-bg);
+    border: 1px solid rgba(0,0,0,0.08);
     color: var(--text-secondary);
     padding: 6px 12px;
     border-radius: 20px;
@@ -776,42 +801,43 @@ select:focus {{ outline: none; border-color: var(--accent-green); }}
     transition: all 0.15s;
 }}
 .chat-suggestion:hover {{
-    border-color: var(--accent-green);
-    color: var(--accent-green);
+    border-color: rgba(0,0,0,0.2);
+    color: var(--text-primary);
 }}
 
 .chat-input-row {{
     display: flex;
     gap: 8px;
     padding: 12px 16px;
-    border-top: 1px solid var(--card-border);
-    background: var(--navy-light);
+    border-top: 1px solid rgba(0,0,0,0.08);
+    background: var(--card-bg);
 }}
 .chat-input-row input {{
     flex: 1;
     background: var(--input-bg);
-    border: 1px solid var(--card-border);
+    border: 1px solid rgba(0,0,0,0.08);
     color: var(--text-primary);
     padding: 10px 14px;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 13px;
     outline: none;
+    font-family: inherit;
 }}
 .chat-input-row input::placeholder {{ color: var(--text-secondary); opacity: 0.6; }}
-.chat-input-row input:focus {{ border-color: var(--accent-green); }}
+.chat-input-row input:focus {{ border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(26,115,232,0.12); }}
 .chat-send {{
-    background: var(--accent-green);
+    background: #1d1d1f;
     border: none;
-    color: var(--navy);
+    color: #fff;
     width: 38px;
     height: 38px;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 600;
     transition: background 0.15s;
 }}
 .chat-send:hover {{ background: #00c480; }}
@@ -1054,31 +1080,31 @@ const futureData = {future_json};
 const tsData = {ts_json};
 
 const COLORS = {{
-    navy: '#141a24',
-    navyLight: '#1b2230',
-    green: '#34c88a',
-    blue: '#5b9fd6',
-    red: '#e5706a',
-    amber: '#e8b84a',
-    text: '#dce1ea',
-    textSec: '#7c8aa0',
-    gridColor: '#2a3348',
+    navy: '#f5f5f7',
+    navyLight: '#ffffff',
+    green: '#34a853',
+    blue: '#1a73e8',
+    red: '#d93025',
+    amber: '#e37400',
+    text: '#1d1d1f',
+    textSec: '#86868b',
+    gridColor: 'rgba(0,0,0,0.06)',
 }};
 
-// Consistent signal pool color mapping — muted palette for data, semantic colors for alerts
+// Consistent signal pool color mapping — refined palette for light theme
 const POOL_COLORS = {{
-    'AQI': '#c27070',
-    'Temperature': '#c9935a',
-    'Monsoon': '#5b9fd6',
-    'Wedding': '#a87cc4',
-    'GoogleTrends': '#5db87a',
+    'AQI': '#c5221f',
+    'Temperature': '#e37400',
+    'Monsoon': '#1a73e8',
+    'Wedding': '#9334e6',
+    'GoogleTrends': '#34a853',
 }};
 const POOL_COLORS_DIM = {{
-    'AQI': 'rgba(194,112,112,0.12)',
-    'Temperature': 'rgba(201,147,90,0.12)',
-    'Monsoon': 'rgba(91,159,214,0.12)',
-    'Wedding': 'rgba(168,124,196,0.12)',
-    'GoogleTrends': 'rgba(93,184,122,0.12)',
+    'AQI': 'rgba(197,34,31,0.08)',
+    'Temperature': 'rgba(227,116,0,0.08)',
+    'Monsoon': 'rgba(26,115,232,0.08)',
+    'Wedding': 'rgba(147,52,230,0.08)',
+    'GoogleTrends': 'rgba(52,168,83,0.08)',
 }};
 
 // Active cross-filter state
@@ -1087,11 +1113,11 @@ let activePoolFilter = 'all';
 const plotLayout = {{
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
-    font: {{ family: 'Inter, Segoe UI, system-ui, sans-serif', color: COLORS.text, size: 13 }},
+    font: {{ family: '-apple-system, SF Pro Display, Helvetica Neue, Arial, sans-serif', color: COLORS.text, size: 13 }},
     margin: {{ l: 56, r: 24, t: 24, b: 52 }},
-    xaxis: {{ gridcolor: 'rgba(255,255,255,0.04)', zerolinecolor: 'rgba(255,255,255,0.06)', tickfont: {{ size: 12 }} }},
-    yaxis: {{ gridcolor: 'rgba(255,255,255,0.04)', zerolinecolor: 'rgba(255,255,255,0.06)', tickfont: {{ size: 12 }} }},
-    legend: {{ bgcolor: 'rgba(0,0,0,0)', font: {{ size: 12 }} }},
+    xaxis: {{ gridcolor: 'rgba(0,0,0,0.04)', zerolinecolor: 'rgba(0,0,0,0.06)', tickfont: {{ size: 12, color: '#86868b' }} }},
+    yaxis: {{ gridcolor: 'rgba(0,0,0,0.04)', zerolinecolor: 'rgba(0,0,0,0.06)', tickfont: {{ size: 12, color: '#86868b' }} }},
+    legend: {{ bgcolor: 'rgba(0,0,0,0)', font: {{ size: 12, color: '#86868b' }} }},
 }};
 
 function switchTab(name) {{
@@ -1213,14 +1239,14 @@ function renderOverview() {{
             type: 'scatter',
             name: pool,
             marker: {{ color: POOL_COLORS[pool] || COLORS.green, size: 14, opacity: 0.85,
-                       line: {{ color: 'rgba(255,255,255,0.15)', width: 1.5 }} }},
+                       line: {{ color: 'rgba(0,0,0,0.08)', width: 1.5 }} }},
         }});
     }});
     // Diagonal reference line
     scatterTraces.push({{
         x: [0, 105], y: [0, 105],
         mode: 'lines', name: 'No Change Line',
-        line: {{ color: 'rgba(255,255,255,0.15)', dash: 'dash', width: 1 }},
+        line: {{ color: 'rgba(0,0,0,0.1)', dash: 'dash', width: 1 }},
         showlegend: false,
     }});
     Plotly.newPlot('chart-sku-scatter', scatterTraces, {{
@@ -1268,13 +1294,13 @@ function renderOverview() {{
     const modelNames = Object.keys(modelCounts);
     const modelVals = Object.values(modelCounts);
     const modelColors = modelNames.map((n, i) => {{
-        const palette = [COLORS.green, COLORS.blue, COLORS.amber, '#a87cc4', COLORS.red];
+        const palette = [COLORS.green, COLORS.blue, COLORS.amber, '#9334e6', COLORS.red];
         return palette[i % palette.length];
     }});
     Plotly.newPlot('chart-model-distribution', [{{
         labels: modelNames, values: modelVals,
         type: 'pie', hole: 0.5,
-        marker: {{ colors: modelColors, line: {{ color: COLORS.navy, width: 2 }} }},
+        marker: {{ colors: modelColors, line: {{ color: '#ffffff', width: 2 }} }},
         textinfo: 'label+percent', textfont: {{ size: 12, color: COLORS.text }},
         hovertemplate: '<b>%{{label}}</b><br>%{{value}} SKUs (%{{percent}})<extra></extra>',
     }}], {{
@@ -1289,7 +1315,7 @@ function renderOverview() {{
     const allPools = [...new Set(metricsData.map(m => m.signal_pool))];
     const allModelNames = ['Gradient Boosting', 'Random Forest', 'Extra Trees', 'Ridge Regression'];
     const barTraces = allModelNames.map((modelName, idx) => {{
-        const modelColors2 = [COLORS.green, COLORS.blue, COLORS.amber, '#a87cc4'];
+        const modelColors2 = [COLORS.green, COLORS.blue, COLORS.amber, '#9334e6'];
         const ys = allPools.map(pool => {{
             const poolSkus = metricsData.filter(m => m.signal_pool === pool);
             const scores = poolSkus.filter(m => m.model_scores && m.model_scores[modelName] !== undefined);
@@ -1369,9 +1395,9 @@ function renderRisk() {{
                 type: 'scatter',
                 name: 'Other At-Risk',
                 marker: {{
-                    color: 'rgba(255,193,7,0.25)',
+                    color: 'rgba(227,116,0,0.2)',
                     size: 10,
-                    line: {{ color: 'rgba(255,255,255,0.1)', width: 1 }},
+                    line: {{ color: 'rgba(0,0,0,0.06)', width: 1 }},
                 }},
                 hovertemplate: '%{{text}}<br>FA: %{{x:.1f}}%<br>Risk: %{{y:.0f}}<extra></extra>',
             }},
@@ -1389,7 +1415,7 @@ function renderRisk() {{
                     color: sortedRisk.slice(0, 5).map(r => r.risk_score),
                     colorscale: [[0, COLORS.amber], [1, COLORS.red]],
                     size: 16,
-                    line: {{ color: 'rgba(255,255,255,0.3)', width: 2 }},
+                    line: {{ color: 'rgba(0,0,0,0.15)', width: 2 }},
                 }},
                 hovertemplate: '%{{text}}<br>FA: %{{x:.1f}}%<br>Risk: %{{y:.0f}}<extra></extra>',
             }}
@@ -1563,37 +1589,37 @@ function updateRecommendation() {{
 
                 <!-- Pipeline Overview — 7 Steps -->
                 <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:20px;padding:16px 0">
-                    <div style="text-align:center;padding:10px 4px;background:linear-gradient(135deg,rgba(91,159,214,0.12),rgba(91,159,214,0.04));border-radius:8px 0 0 8px">
+                    <div style="text-align:center;padding:10px 4px;background:var(--input-bg);border-radius:10px 0 0 10px">
                         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 1</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Split Data</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">24 / 6 / 6 mo</div>
                     </div>
-                    <div style="text-align:center;padding:10px 4px;background:linear-gradient(135deg,rgba(91,159,214,0.10),rgba(46,204,113,0.06))">
+                    <div style="text-align:center;padding:10px 4px;background:var(--input-bg)">
                         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 2</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Features</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">12 inputs</div>
                     </div>
-                    <div style="text-align:center;padding:10px 4px;background:linear-gradient(135deg,rgba(46,204,113,0.08),rgba(46,204,113,0.04))">
+                    <div style="text-align:center;padding:10px 4px;background:var(--input-bg)">
                         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 3</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Train</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">4 models</div>
                     </div>
-                    <div style="text-align:center;padding:10px 4px;background:linear-gradient(135deg,rgba(255,193,7,0.12),rgba(255,193,7,0.04))">
+                    <div style="text-align:center;padding:10px 4px;background:var(--input-bg)">
                         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 4</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Validate</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">Rank &amp; ensemble</div>
                     </div>
-                    <div style="text-align:center;padding:10px 4px;background:linear-gradient(135deg,rgba(46,204,113,0.12),rgba(46,204,113,0.04))">
+                    <div style="text-align:center;padding:10px 4px;background:var(--input-bg)">
                         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 5</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Retrain</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">30 months</div>
                     </div>
-                    <div style="text-align:center;padding:10px 4px;background:linear-gradient(135deg,rgba(168,124,196,0.12),rgba(168,124,196,0.04))">
+                    <div style="text-align:center;padding:10px 4px;background:var(--input-bg)">
                         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 6</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Test &amp; Score</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">FA per model</div>
                     </div>
-                    <div style="text-align:center;padding:10px 4px;background:linear-gradient(135deg,rgba(168,124,196,0.10),rgba(91,159,214,0.06));border-radius:0 8px 8px 0">
+                    <div style="text-align:center;padding:10px 4px;background:var(--input-bg);border-radius:0 10px 10px 0">
                         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 7</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Recommend</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">Best wins</div>
@@ -1610,29 +1636,29 @@ function updateRecommendation() {{
                         Pharmaceutical demand is influenced by non-linear external signals (weather, seasonality, search trends). We use four complementary tree-based and linear regressors that each capture different patterns. No single model dominates across all signal pools, which is why we evaluate all four per SKU.
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                        <div style="background:rgba(46,204,113,0.06);border:1px solid rgba(46,204,113,0.15);border-radius:8px;padding:14px 16px">
+                        <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:12px;padding:14px 16px">
                             <div style="font-size:12px;font-weight:600;color:var(--accent-green);margin-bottom:8px">Gradient Boosting</div>
                             <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
                                 <strong style="color:var(--text-primary)">How it works:</strong> Starts with a simple prediction (e.g., average demand), then builds a sequence of small decision trees where each new tree focuses specifically on the errors the previous trees got wrong. Each tree's contribution is scaled by a learning rate to prevent overcorrection. The final prediction is the sum of all trees' outputs.<br>
                                 <strong style="color:var(--text-primary)">Why for pharma:</strong> Excels at capturing complex, non-linear interactions — e.g., "demand spikes when AQI &gt; 200 AND temperature &gt; 35&deg;C" — patterns that linear models miss. Often the top performer for weather-driven pools.
                             </div>
                         </div>
-                        <div style="background:rgba(91,159,214,0.06);border:1px solid rgba(91,159,214,0.15);border-radius:8px;padding:14px 16px">
-                            <div style="font-size:12px;font-weight:600;color:#5b9fd6;margin-bottom:8px">Random Forest</div>
+                        <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:12px;padding:14px 16px">
+                            <div style="font-size:12px;font-weight:600;color:var(--accent-blue);margin-bottom:8px">Random Forest</div>
                             <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
                                 <strong style="color:var(--text-primary)">How it works:</strong> Trains hundreds of decision trees independently, each on a random subset of the training data and a random subset of features. Each tree makes its own prediction, and the final output is the average across all trees. This "wisdom of crowds" approach reduces the risk of any single tree overfitting to noise.<br>
                                 <strong style="color:var(--text-primary)">Why for pharma:</strong> Robust to outliers and noisy demand spikes (e.g., one-time bulk orders). Delivers stable, reliable forecasts even when demand patterns are irregular across months.
                             </div>
                         </div>
-                        <div style="background:rgba(255,193,7,0.06);border:1px solid rgba(255,193,7,0.15);border-radius:8px;padding:14px 16px">
-                            <div style="font-size:12px;font-weight:600;color:#ffc107;margin-bottom:8px">Extra Trees <span style="font-weight:400;color:var(--text-muted);font-size:10px">(Extremely Randomized Trees)</span></div>
+                        <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:12px;padding:14px 16px">
+                            <div style="font-size:12px;font-weight:600;color:var(--accent-amber);margin-bottom:8px">Extra Trees <span style="font-weight:400;color:var(--text-muted);font-size:10px">(Extremely Randomized Trees)</span></div>
                             <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
                                 <strong style="color:var(--text-primary)">How it works:</strong> Like Random Forest, it trains many trees in parallel — but instead of searching for the optimal split point at each node, it picks split thresholds completely at random. This adds extra randomization: each individual tree is less precise, but the ensemble averages out noise more aggressively, reducing variance.<br>
                                 <strong style="color:var(--text-primary)">Why for pharma:</strong> The additional randomness helps avoid overfitting on small signal pools. Trains faster than Random Forest and often generalizes better on sharp seasonal patterns like wedding-season demand surges.
                             </div>
                         </div>
-                        <div style="background:rgba(168,124,196,0.06);border:1px solid rgba(168,124,196,0.15);border-radius:8px;padding:14px 16px">
-                            <div style="font-size:12px;font-weight:600;color:#a87cc4;margin-bottom:8px">Ridge Regression <span style="font-weight:400;color:var(--text-muted);font-size:10px">(L2-Regularized Linear Model)</span></div>
+                        <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:12px;padding:14px 16px">
+                            <div style="font-size:12px;font-weight:600;color:#9334e6;margin-bottom:8px">Ridge Regression <span style="font-weight:400;color:var(--text-muted);font-size:10px">(L2-Regularized Linear Model)</span></div>
                             <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
                                 <strong style="color:var(--text-primary)">How it works:</strong> Finds the best straight-line relationship between each input signal and demand (e.g., "for every 10&deg;C rise, demand increases by X units"). Unlike ordinary linear regression, Ridge adds a penalty term (L2) that shrinks large coefficients toward zero, preventing any single signal from dominating the prediction and reducing overfitting.<br>
                                 <strong style="color:var(--text-primary)">Why for pharma:</strong> Acts as a simpler counterpoint to tree models. When the relationship between a signal and demand is genuinely proportional (e.g., Google Trends search volume &rarr; demand), Ridge captures it cleanly with lower overfitting risk than complex models.
@@ -1649,7 +1675,7 @@ function updateRecommendation() {{
                     </div>
 
                     <!-- Step 1 -->
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 1 &mdash; Chronological Data Split</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             36 months per SKU, split in time order (no shuffling):
@@ -1665,7 +1691,7 @@ function updateRecommendation() {{
                     </div>
 
                     <!-- Step 2 -->
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 2 &mdash; Feature Engineering (12 Inputs)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             Every model receives the same 12 features per month. No future data leaks — lags and rolling windows use only past values.
@@ -1681,7 +1707,7 @@ function updateRecommendation() {{
                     </div>
 
                     <!-- Step 3 -->
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 3 &mdash; Train 4 Models (Months 1–24)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             Fixed hyperparameters — no tuning on test data. <code style="font-size:10px;color:var(--text-primary)">random_state=42</code> ensures full reproducibility.
@@ -1707,15 +1733,15 @@ function updateRecommendation() {{
                     </div>
 
                     <!-- Step 4 -->
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 4 &mdash; Validate &amp; Rank (Months 25–30)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             Each model predicts months 25–30 (never seen during training). Validation MAPE is computed:
-                            <div style="background:rgba(255,255,255,0.04);border-radius:4px;padding:6px 10px;margin:6px 0;font-size:11px;color:var(--text-primary)">
+                            <div style="background:var(--input-bg);border-radius:8px;padding:6px 10px;margin:6px 0;font-size:11px;color:var(--text-primary)">
                                 Val_MAPE = (1/n) &times; &sum; |Actual &minus; Predicted| / Actual &times; 100
                             </div>
                             Models ranked by Val_MAPE (lowest = best). Top 3 form a weighted ensemble:
-                            <div style="background:rgba(255,255,255,0.04);border-radius:4px;padding:6px 10px;margin:6px 0;font-size:11px;color:var(--text-primary)">
+                            <div style="background:var(--input-bg);border-radius:8px;padding:6px 10px;margin:6px 0;font-size:11px;color:var(--text-primary)">
                                 w<sub>i</sub> = (1 / MAPE<sub>i</sub>) / &sum;(1 / MAPE<sub>j</sub>)<br>
                                 Ensemble = &sum; w<sub>i</sub> &times; Prediction<sub>i</sub>
                             </div>
@@ -1724,7 +1750,7 @@ function updateRecommendation() {{
                     </div>
 
                     <!-- Step 5 -->
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 5 &mdash; Retrain on Months 1–30</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             After the winner is chosen, all models are retrained on the full 30 months (train + validation combined) to maximize learning before the final test. Predictions on months 31–36 are floored at 0 and rounded to whole units.
@@ -1732,11 +1758,11 @@ function updateRecommendation() {{
                     </div>
 
                     <!-- Step 6 -->
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 6 &mdash; Compute FA per Model (Months 31–36)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             For <strong>each model independently</strong> (GB, RF, ET, Ridge, and Baseline), on the held-out test period:
-                            <div style="background:rgba(255,255,255,0.04);border-radius:4px;padding:8px 10px;margin:6px 0;font-size:11px;color:var(--text-primary);line-height:2">
+                            <div style="background:var(--input-bg);border-radius:8px;padding:8px 10px;margin:6px 0;font-size:11px;color:var(--text-primary);line-height:2">
                                 MAPE<sub>model</sub> = (1/n) &times; &sum; |Actual(t) &minus; Forecast<sub>model</sub>(t)| / max(Actual(t), 1) &times; 100<br>
                                 FA<sub>model</sub> = max(0, 100 &minus; MAPE<sub>model</sub>)<br>
                                 <strong>Best_ML_FA</strong> = max(FA<sub>GB</sub>, FA<sub>RF</sub>, FA<sub>ET</sub>, FA<sub>Ridge</sub>)<br>
@@ -1748,10 +1774,10 @@ function updateRecommendation() {{
                     </div>
 
                     <!-- Step 7 -->
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 7 &mdash; Recommendation (Purely Algorithmic)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
-                            <div style="background:rgba(255,255,255,0.04);border-radius:4px;padding:6px 10px;margin:4px 0;font-size:11px;color:var(--text-primary)">
+                            <div style="background:var(--input-bg);border-radius:8px;padding:6px 10px;margin:4px 0;font-size:11px;color:var(--text-primary)">
                                 IF Best_ML_FA &gt; Baseline_FA &rarr; Recommend best ML model<br>
                                 ELSE &rarr; Recommend Baseline (3-month SMA)
                             </div>
@@ -1800,7 +1826,7 @@ function updateRecommendation() {{
         const fas = mapes.map(v => Math.max(0, 100 - v));
         const barColors = names.map(n => {{
             if (n === recommended || (recommended.includes(n))) return COLORS.green;
-            return 'rgba(91,159,214,0.6)';
+            return 'rgba(26,115,232,0.5)';
         }});
         Plotly.newPlot('chart-model-compare', [{{
             y: names, x: fas, type: 'bar', orientation: 'h',
@@ -1848,7 +1874,7 @@ function updateRecommendation() {{
             {{ x: ts.dates, y: ts.precipitation, name: 'Precipitation (mm)', type: 'scatter', mode: 'lines',
                line: {{ color: '#4dabf7', width: 2 }}, yaxis: 'y2' }},
             {{ x: ts.dates, y: ts.google_trends, name: 'Google Trends', type: 'scatter', mode: 'lines',
-               line: {{ color: '#a87cc4', width: 2, dash: 'dot' }}, yaxis: 'y' }},
+               line: {{ color: '#9334e6', width: 2, dash: 'dot' }}, yaxis: 'y' }},
         ];
         // Wedding flag as shaded regions
         const weddingX = []; const weddingY = [];
@@ -1862,7 +1888,7 @@ function updateRecommendation() {{
         sigTraces.push({{
             x: weddingX, y: weddingY.map(v => v ? 300 : 0),
             type: 'bar', name: 'Wedding Season', yaxis: 'y2',
-            marker: {{ color: 'rgba(255,193,7,0.15)' }},
+            marker: {{ color: 'rgba(227,116,0,0.1)' }},
             width: 20 * 86400000,
         }});
         Plotly.newPlot('chart-signals-detail', sigTraces, {{
@@ -1984,7 +2010,7 @@ function updateRecommendation() {{
         const avgRange = future.reduce((s, f) => s + (f.upper_bound - f.lower_bound), 0) / future.length;
         const ciPct = avgForecast > 0 ? (avgRange / avgForecast * 100) : 0;
         if (ciPct > 40) {{
-            ciWarning.innerHTML = '<div style="background:rgba(255,193,7,0.1);border:1px solid rgba(255,193,7,0.3);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--accent-amber)"><strong>&#9888; Wide confidence interval</strong> — CI spans &plusmn;' + (ciPct/2).toFixed(0) + '% of forecast. Consider manual review or additional signal inputs for this SKU.</div>';
+            ciWarning.innerHTML = '<div style="background:rgba(227,116,0,0.06);border:1px solid rgba(227,116,0,0.15);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--accent-amber)"><strong>&#9888; Wide confidence interval</strong> — CI spans &plusmn;' + (ciPct/2).toFixed(0) + '% of forecast. Consider manual review or additional signal inputs for this SKU.</div>';
         }} else {{
             ciWarning.innerHTML = '';
         }}
@@ -2325,7 +2351,7 @@ function renderAiBriefing() {{
     // Anomalies
     let anomalyLine = '';
     if (anomaliesData.length > 0) {{
-        anomalyLine = `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06)"><strong style="color:${{COLORS.amber}}">&#9888; Active Signals:</strong> ${{anomaliesData.map(a => a.message).join(' | ')}}</div>`;
+        anomalyLine = `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,0.06)"><strong style="color:${{COLORS.amber}}">&#9888; Active Signals:</strong> ${{anomaliesData.map(a => a.message).join(' | ')}}</div>`;
     }}
 
     // Recommended Actions (new: "What should I do?")
@@ -2335,7 +2361,7 @@ function renderAiBriefing() {{
         if (worstPool) actions.push(`Review <strong>${{worstPool}}</strong> pool SKUs — <a href="#" onclick="setPoolFilter('${{worstPool}}');return false" style="color:var(--accent-green)">filter now</a>`);
         actions.push(`Increase safety stock for critical SKUs (FA < 30%) — <a href="#" onclick="switchTab('safety');return false" style="color:var(--accent-green)">optimizer</a>`);
         actions.push(`Investigate demand pattern shifts with sales team`);
-        actionsHtml = `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06)">
+        actionsHtml = `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,0.06)">
             <strong>Recommended Actions:</strong>
             <div style="margin-top:4px">${{actions.map((a, i) => `<span style="color:var(--text-secondary);font-size:11px;margin-right:4px">${{i+1}}.</span> ${{a}}`).join('<span style="margin:0 8px;color:var(--card-border)">|</span>')}}</div>
         </div>`;
@@ -2373,7 +2399,7 @@ function renderTopProblems() {{
     let rows = worst5.map((s, i) => {{
         const barWidth = Math.max(2, s.ml_fa);
         const barColor = s.ml_fa < 30 ? COLORS.red : (s.ml_fa < 50 ? COLORS.amber : COLORS.blue);
-        return `<div style="display:grid;grid-template-columns:20px 1fr 80px 48px;gap:8px;align-items:center;padding:7px 0;${{i < 4 ? 'border-bottom:1px solid rgba(255,255,255,0.04)' : ''}}">
+        return `<div style="display:grid;grid-template-columns:20px 1fr 80px 48px;gap:8px;align-items:center;padding:7px 0;${{i < 4 ? 'border-bottom:1px solid rgba(0,0,0,0.04)' : ''}}">
             <span style="font-size:12px;font-weight:700;color:var(--text-secondary)">${{i + 1}}</span>
             <div style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
                 <span style="font-weight:600;cursor:pointer;color:var(--text-primary);font-size:13px" onclick="navigateToSku('${{s.sku_id}}')">${{s.sku_name}}</span>

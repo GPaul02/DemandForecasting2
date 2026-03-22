@@ -7,78 +7,96 @@
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
 :root {
-    --navy: #141a24;
-    --navy-light: #1b2230;
-    --navy-mid: #242d3d;
-    --accent-green: #34c88a;
-    --accent-green-dim: rgba(52,200,138,0.12);
-    --accent-red: #e5706a;
-    --accent-red-dim: rgba(229,112,106,0.10);
-    --accent-amber: #e8b84a;
-    --accent-amber-dim: rgba(232,184,74,0.10);
-    --accent-blue: #5b9fd6;
-    --text-primary: #dce1ea;
-    --text-secondary: #7c8aa0;
-    --card-bg: #1b2230;
-    --card-border: #2a3348;
-    --input-bg: #1f2836;
+    --navy: #f5f5f7;
+    --navy-light: #ffffff;
+    --navy-mid: #f5f5f7;
+    --accent-green: #34a853;
+    --accent-green-dim: rgba(52,168,83,0.08);
+    --accent-red: #d93025;
+    --accent-red-dim: rgba(217,48,37,0.06);
+    --accent-amber: #e37400;
+    --accent-amber-dim: rgba(227,116,0,0.06);
+    --accent-blue: #1a73e8;
+    --text-primary: #1d1d1f;
+    --text-secondary: #86868b;
+    --text-muted: #aeaeb2;
+    --card-bg: #ffffff;
+    --card-border: rgba(0,0,0,0.06);
+    --input-bg: #f5f5f7;
+    --hover-bg: rgba(0,0,0,0.02);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.04);
+    --shadow-md: 0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+    --shadow-lg: 0 4px 20px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+    --radius: 14px;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
-    font-family: Inter, 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background: var(--navy);
     color: var(--text-primary);
     min-height: 100vh;
     line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 .header {
-    background: linear-gradient(135deg, var(--navy-light), var(--navy-mid));
-    border-bottom: 1px solid var(--card-border);
-    padding: 20px 40px;
+    background: rgba(255,255,255,0.72);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    padding: 18px 48px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
 }
 .header h1 {
-    font-size: 22px;
+    font-size: 21px;
     font-weight: 600;
-    letter-spacing: 0.5px;
+    letter-spacing: -0.3px;
+    color: var(--text-primary);
 }
 .header h1 span { color: var(--accent-green); }
 .header .subtitle {
     color: var(--text-secondary);
     font-size: 13px;
-    margin-top: 2px;
+    margin-top: 1px;
+    font-weight: 400;
 }
 .header-right {
     text-align: right;
     color: var(--text-secondary);
     font-size: 12px;
+    font-weight: 400;
 }
 .tab-bar {
     display: flex;
     gap: 0;
     background: var(--navy-light);
-    border-bottom: 2px solid var(--card-border);
-    padding: 0 40px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    padding: 0 48px;
 }
 .tab-btn {
-    padding: 14px 28px;
+    padding: 14px 24px;
     border: none;
     background: none;
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    border-bottom: 3px solid transparent;
+    border-bottom: 2px solid transparent;
     transition: all 0.2s;
+    letter-spacing: -0.1px;
 }
 .tab-btn:hover { color: var(--text-primary); }
 .tab-btn.active {
-    color: var(--accent-green);
-    border-bottom-color: var(--accent-green);
+    color: var(--text-primary);
+    border-bottom-color: var(--text-primary);
+    font-weight: 600;
 }
-.tab-content { display: none; padding: 30px 40px; }
+.tab-content { display: none; padding: 32px 48px; max-width: 1400px; margin: 0 auto; }
 .tab-content.active { display: block; }
 .kpi-row {
     display: grid;
@@ -89,26 +107,28 @@ body {
 .kpi-card {
     background: var(--card-bg);
     border: none;
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 24px;
     text-align: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.03);
-    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease;
 }
 .kpi-card:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+    box-shadow: var(--shadow-md);
 }
 .kpi-card .label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
     color: var(--text-secondary);
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 .kpi-card .value {
-    font-size: 36px;
-    font-weight: 700;
+    font-size: 34px;
+    font-weight: 600;
+    letter-spacing: -1px;
+    color: var(--text-primary);
 }
 .kpi-card .value.green { color: var(--accent-green); }
 .kpi-card .value.blue { color: var(--accent-blue); }
@@ -116,30 +136,31 @@ body {
 .kpi-card .sub {
     font-size: 12px;
     color: var(--text-secondary);
-    margin-top: 4px;
+    margin-top: 6px;
+    font-weight: 400;
 }
 /* Tier system: 1=hero decision signals, 2=diagnostic charts, 3=supporting data */
 .chart-container {
     background: var(--card-bg);
     border: none;
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.03);
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
 }
 .chart-container.tier-3 {
-    background: rgba(15,29,54,0.6);
-    box-shadow: none;
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm);
     padding: 20px;
 }
 .chart-title {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 600;
     margin-bottom: 16px;
     padding-bottom: 0;
     border-bottom: none;
     color: var(--text-primary);
-    letter-spacing: -0.2px;
+    letter-spacing: -0.3px;
 }
 .chart-subtitle {
     font-size: 12px;
@@ -150,11 +171,12 @@ body {
 }
 /* Tab section headers — one question per tab */
 .tab-question {
-    font-size: 24px;
-    font-weight: 300;
-    color: var(--text-secondary);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
     margin-bottom: 28px;
-    letter-spacing: -0.3px;
+    letter-spacing: -0.8px;
+    line-height: 1.2;
 }
 .tab-question strong {
     color: var(--text-primary);
@@ -167,36 +189,35 @@ table {
 }
 th {
     text-align: left;
-    padding: 12px 16px;
+    padding: 10px 16px;
     background: transparent;
     color: var(--text-secondary);
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 10px;
-    letter-spacing: 0.8px;
-    border-bottom: 2px solid rgba(255,255,255,0.06);
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
 }
 td {
-    padding: 12px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
     color: var(--text-primary);
 }
-tr:hover td { background: rgba(255,255,255,0.03); }
+tr:hover td { background: var(--hover-bg); }
 .badge {
     display: inline-block;
-    padding: 3px 10px;
-    border-radius: 20px;
+    padding: 4px 10px;
+    border-radius: 6px;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 500;
 }
 .badge-red { background: var(--accent-red-dim); color: var(--accent-red); }
 .badge-amber { background: var(--accent-amber-dim); color: var(--accent-amber); }
 .badge-green { background: var(--accent-green-dim); color: var(--accent-green); }
 .alert-box {
     background: var(--accent-red-dim);
-    border: 1px solid rgba(255,107,107,0.3);
-    border-radius: 10px;
-    padding: 16px 20px;
+    border: 1px solid rgba(217,48,37,0.12);
+    border-radius: 12px;
+    padding: 14px 18px;
     margin-bottom: 16px;
     display: flex;
     align-items: center;
@@ -219,15 +240,17 @@ tr:hover td { background: rgba(255,255,255,0.03); }
 }
 select {
     background: var(--input-bg);
-    border: 1px solid var(--card-border);
+    border: 1px solid rgba(0,0,0,0.1);
     color: var(--text-primary);
     padding: 10px 16px;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 14px;
     min-width: 280px;
     cursor: pointer;
+    font-family: inherit;
+    -webkit-appearance: none;
 }
-select:focus { outline: none; border-color: var(--accent-green); }
+select:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(26,115,232,0.12); }
 .detail-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -241,9 +264,9 @@ select:focus { outline: none; border-color: var(--accent-green); }
 }
 .metric-bar .bar-bg {
     flex: 1;
-    height: 8px;
-    background: var(--navy);
-    border-radius: 4px;
+    height: 6px;
+    background: rgba(0,0,0,0.06);
+    border-radius: 3px;
     overflow: hidden;
 }
 .metric-bar .bar-fill {
@@ -264,14 +287,14 @@ select:focus { outline: none; border-color: var(--accent-green); }
 }
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .two-col > * { min-width: 0; overflow: hidden; }
-/* Urgency-differentiated KPI cards — higher contrast for WCAG AA */
+/* Urgency-differentiated KPI cards */
 .kpi-card.urgent {
-    background: linear-gradient(135deg, #221c1c, rgba(229,112,106,0.10));
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(229,112,106,0.35);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(217,48,37,0.15);
 }
 .kpi-card.healthy {
-    background: linear-gradient(135deg, var(--card-bg), rgba(52,200,138,0.05));
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(52,200,138,0.15);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(52,168,83,0.15);
 }
 .kpi-card.healthy .value { font-size: 28px; }
 /* Searchable SKU selector */
@@ -282,14 +305,15 @@ select:focus { outline: none; border-color: var(--accent-green); }
 .sku-search-wrap input {
     width: 100%;
     background: var(--input-bg);
-    border: 1px solid var(--card-border);
+    border: 1px solid rgba(0,0,0,0.1);
     color: var(--text-primary);
     padding: 10px 16px;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 14px;
     outline: none;
+    font-family: inherit;
 }
-.sku-search-wrap input:focus { border-color: var(--accent-green); }
+.sku-search-wrap input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(26,115,232,0.12); }
 .sku-dropdown {
     display: none;
     position: absolute;
@@ -306,12 +330,12 @@ select:focus { outline: none; border-color: var(--accent-green); }
 }
 .sku-dropdown.open { display: block; }
 .sku-opt-group {
-    padding: 4px 12px;
-    font-size: 10px;
+    padding: 6px 12px;
+    font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.3px;
     color: var(--text-secondary);
-    background: var(--navy-light);
+    background: var(--input-bg);
     font-weight: 600;
 }
 .sku-opt {
@@ -323,7 +347,7 @@ select:focus { outline: none; border-color: var(--accent-green); }
     gap: 8px;
     transition: background 0.1s;
 }
-.sku-opt:hover { background: rgba(255,255,255,0.04); }
+.sku-opt:hover { background: var(--hover-bg); }
 .sku-opt .risk-dot {
     width: 8px;
     height: 8px;
@@ -345,8 +369,8 @@ select:focus { outline: none; border-color: var(--accent-green); }
     bottom: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%);
-    background: var(--navy-mid);
-    color: var(--text-primary);
+    background: #1d1d1f;
+    color: #fff;
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 11px;
@@ -358,7 +382,7 @@ select:focus { outline: none; border-color: var(--accent-green); }
     pointer-events: none;
     transition: opacity 0.2s;
     z-index: 100;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
     line-height: 1.4;
 }
 .has-tooltip:hover::after {
@@ -376,18 +400,18 @@ select:focus { outline: none; border-color: var(--accent-green); }
     padding: 6px 16px;
     border-radius: 20px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
-    border: 1px solid var(--card-border);
+    border: 1px solid rgba(0,0,0,0.1);
     background: var(--card-bg);
     color: var(--text-secondary);
     transition: all 0.15s;
 }
-.pool-pill:hover { border-color: var(--accent-green); color: var(--text-primary); }
+.pool-pill:hover { border-color: rgba(0,0,0,0.2); color: var(--text-primary); }
 .pool-pill.active {
-    background: var(--accent-green);
-    color: var(--navy);
-    border-color: var(--accent-green);
+    background: var(--text-primary);
+    color: #fff;
+    border-color: var(--text-primary);
 }
 .pool-pill .pill-dot {
     display: inline-block;
@@ -399,11 +423,11 @@ select:focus { outline: none; border-color: var(--accent-green); }
 }
 /* Proactive AI briefing banner */
 .ai-briefing {
-    background: linear-gradient(135deg, rgba(0,214,143,0.08), rgba(77,171,247,0.06));
-    border-radius: 12px;
+    background: var(--card-bg);
+    border-radius: var(--radius);
     padding: 20px 24px;
-    margin-bottom: 24px;
-    box-shadow: inset 0 0 0 1px rgba(0,214,143,0.15);
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(52,168,83,0.12);
 }
 .ai-briefing .briefing-header {
     display: flex;
@@ -452,8 +476,8 @@ select:focus { outline: none; border-color: var(--accent-green); }
     border-radius: 8px;
     text-align: center;
 }
-.stat-block.baseline { background: rgba(77,171,247,0.1); border: 1px solid rgba(77,171,247,0.2); }
-.stat-block.ml { background: var(--accent-green-dim); border: 1px solid rgba(0,214,143,0.2); }
+.stat-block.baseline { background: rgba(26,115,232,0.04); border: 1px solid rgba(26,115,232,0.12); }
+.stat-block.ml { background: var(--accent-green-dim); border: 1px solid rgba(52,168,83,0.12); }
 .stat-block .stat-label { font-size: 12px; color: var(--text-secondary); font-weight: 600; letter-spacing: 0.2px; }
 .stat-block .stat-value { font-size: 28px; font-weight: 700; margin: 4px 0; }
 .stat-block.baseline .stat-value { color: var(--accent-blue); }
@@ -471,7 +495,7 @@ select:focus { outline: none; border-color: var(--accent-green); }
 
 /* Loading skeleton */
 .skeleton {
-    background: linear-gradient(90deg, var(--card-bg) 25%, rgba(255,255,255,0.05) 50%, var(--card-bg) 75%);
+    background: linear-gradient(90deg, var(--input-bg) 25%, rgba(0,0,0,0.02) 50%, var(--input-bg) 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
     border-radius: 8px;
@@ -502,41 +526,42 @@ select:focus { outline: none; border-color: var(--accent-green); }
     position: fixed;
     bottom: 28px;
     right: 28px;
-    width: 62px;
-    height: 62px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-green), #00b377);
+    background: #1d1d1f;
     border: none;
     cursor: pointer;
-    box-shadow: 0 4px 20px rgba(0,214,143,0.4);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 9999;
     transition: transform 0.2s, box-shadow 0.2s;
-    animation: fabPulse 2s ease-in-out infinite;
+    animation: fabPulse 3s ease-in-out infinite;
 }
-.chat-fab:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(0,214,143,0.6); animation: none; }
-.chat-fab svg { width: 28px; height: 28px; fill: var(--navy); }
+.chat-fab:hover { transform: scale(1.06); box-shadow: 0 6px 24px rgba(0,0,0,0.3); animation: none; }
+.chat-fab svg { width: 24px; height: 24px; fill: #fff; }
 @keyframes fabPulse {
-    0%, 100% { box-shadow: 0 4px 20px rgba(0,214,143,0.4); }
-    50% { box-shadow: 0 4px 32px rgba(0,214,143,0.7), 0 0 0 8px rgba(0,214,143,0.12); }
+    0%, 100% { box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    50% { box-shadow: 0 4px 24px rgba(0,0,0,0.3), 0 0 0 6px rgba(0,0,0,0.04); }
 }
 .chat-fab-label {
     position: fixed;
-    bottom: 98px;
+    bottom: 92px;
     right: 22px;
-    background: var(--card-bg);
-    border: 1px solid var(--accent-green);
-    color: var(--accent-green);
+    background: #1d1d1f;
+    border: none;
+    color: #fff;
     padding: 8px 14px;
     border-radius: 8px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     z-index: 9999;
     white-space: nowrap;
     animation: labelFade 8s ease-in-out forwards;
     pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 .chat-fab-label::after {
     content: '';
@@ -545,9 +570,9 @@ select:focus { outline: none; border-color: var(--accent-green); }
     right: 20px;
     width: 10px;
     height: 10px;
-    background: var(--card-bg);
-    border-right: 1px solid var(--accent-green);
-    border-bottom: 1px solid var(--accent-green);
+    background: #1d1d1f;
+    border-right: none;
+    border-bottom: none;
     transform: rotate(45deg);
 }
 @keyframes labelFade {
@@ -564,9 +589,9 @@ select:focus { outline: none; border-color: var(--accent-green); }
     width: 380px;
     height: 100vh;
     background: var(--card-bg);
-    border-left: 1px solid var(--card-border);
+    border-left: 1px solid rgba(0,0,0,0.08);
     border-radius: 0;
-    box-shadow: -4px 0 24px rgba(0,0,0,0.3);
+    box-shadow: -4px 0 24px rgba(0,0,0,0.08);
     z-index: 9998;
     display: none;
     flex-direction: column;
@@ -576,8 +601,8 @@ select:focus { outline: none; border-color: var(--accent-green); }
 
 .chat-header {
     padding: 16px 20px;
-    background: linear-gradient(135deg, var(--navy-mid), var(--navy-light));
-    border-bottom: 1px solid var(--card-border);
+    background: var(--card-bg);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
     display: flex;
     align-items: center;
     gap: 12px;
@@ -586,13 +611,13 @@ select:focus { outline: none; border-color: var(--accent-green); }
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: var(--accent-green);
+    background: #1d1d1f;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 14px;
-    color: var(--navy);
+    color: #fff;
 }
 .chat-header .chat-title {
     flex: 1;
@@ -636,14 +661,14 @@ select:focus { outline: none; border-color: var(--accent-green); }
 }
 .chat-msg.bot {
     align-self: flex-start;
-    background: var(--navy-light);
-    border: 1px solid var(--card-border);
+    background: var(--input-bg);
+    border: none;
     color: var(--text-primary);
 }
 .chat-msg.user {
     align-self: flex-end;
-    background: var(--accent-green);
-    color: var(--navy);
+    background: #1d1d1f;
+    color: #fff;
     font-weight: 500;
 }
 .chat-msg .msg-label {
@@ -654,13 +679,13 @@ select:focus { outline: none; border-color: var(--accent-green); }
     opacity: 0.7;
 }
 .chat-msg code {
-    background: rgba(0,0,0,0.2);
+    background: rgba(0,0,0,0.06);
     padding: 1px 5px;
     border-radius: 4px;
     font-size: 12px;
 }
 .chat-msg strong { color: var(--accent-green); }
-.chat-msg.user strong { color: var(--navy); }
+.chat-msg.user strong { color: #fff; }
 
 .chat-suggestions {
     display: flex;
@@ -669,8 +694,8 @@ select:focus { outline: none; border-color: var(--accent-green); }
     padding: 0 16px 12px;
 }
 .chat-suggestion {
-    background: var(--navy);
-    border: 1px solid var(--card-border);
+    background: var(--input-bg);
+    border: 1px solid rgba(0,0,0,0.08);
     color: var(--text-secondary);
     padding: 6px 12px;
     border-radius: 20px;
@@ -679,42 +704,43 @@ select:focus { outline: none; border-color: var(--accent-green); }
     transition: all 0.15s;
 }
 .chat-suggestion:hover {
-    border-color: var(--accent-green);
-    color: var(--accent-green);
+    border-color: rgba(0,0,0,0.2);
+    color: var(--text-primary);
 }
 
 .chat-input-row {
     display: flex;
     gap: 8px;
     padding: 12px 16px;
-    border-top: 1px solid var(--card-border);
-    background: var(--navy-light);
+    border-top: 1px solid rgba(0,0,0,0.08);
+    background: var(--card-bg);
 }
 .chat-input-row input {
     flex: 1;
     background: var(--input-bg);
-    border: 1px solid var(--card-border);
+    border: 1px solid rgba(0,0,0,0.08);
     color: var(--text-primary);
     padding: 10px 14px;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 13px;
     outline: none;
+    font-family: inherit;
 }
 .chat-input-row input::placeholder { color: var(--text-secondary); opacity: 0.6; }
-.chat-input-row input:focus { border-color: var(--accent-green); }
+.chat-input-row input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(26,115,232,0.12); }
 .chat-send {
-    background: var(--accent-green);
+    background: #1d1d1f;
     border: none;
-    color: var(--navy);
+    color: #fff;
     width: 38px;
     height: 38px;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 600;
     transition: background 0.15s;
 }
 .chat-send:hover { background: #00c480; }
@@ -957,31 +983,31 @@ const futureData = [{"sku_id":"AQI-001","sku_name":"Salbutamol Inhaler","signal_
 const tsData = {"AQI-001": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [785, 655, 698, 352, 709, 781, 819, 870, 728, 631, 181, 894, 232, 791, 570, 844, 301, 922, 722, 902, 787, 713, 807, 914, 187, 752, 831, 909, 745, 741, 990, 949, 982], "baseline": [611.3333333333334, 646.0, 690.0, 712.6666666666666, 568.3333333333334, 586.3333333333334, 614.0, 769.6666666666666, 823.3333333333334, 805.6666666666666, 743.0, 513.3333333333334, 568.6666666666666, 435.6666666666667, 639.0, 531.0, 735.0, 571.6666666666666, 689.0, 648.3333333333334, 848.6666666666666, 803.6666666666666, 800.6666666666666, 769.0, 811.3333333333334, 636.0, 617.6666666666666, 590.0, 830.6666666666666, 828.3333333333334, 798.3333333333334, 825.3333333333334, 893.3333333333334], "ml": [763.0, 662.0, 706.0, 364.0, 701.0, 778.0, 813.0, 866.0, 735.0, 635.0, 194.0, 885.0, 242.0, 789.0, 573.0, 832.0, 304.0, 929.0, 716.0, 895.0, 775.0, 716.0, 805.0, 900.0, 190.0, 750.0, 824.0, 713.0, 782.0, 843.0, 782.0, 779.0, 789.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "AQI-002": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [80, 136, 109, 82, 76, 114, 72, 98, 123, 139, 122, 24, 98, 97, 103, 158, 45, 94, 129, 72, 154, 112, 121, 78, 118, 128, 106, 123, 115, 84, 106, 113, 128], "baseline": [68.33333333333333, 76.33333333333333, 92.33333333333333, 108.33333333333333, 109.0, 89.0, 90.66666666666667, 87.33333333333333, 94.66666666666667, 97.66666666666667, 120.0, 128.0, 95.0, 81.33333333333333, 73.0, 99.33333333333333, 119.33333333333333, 102.0, 99.0, 89.33333333333333, 98.33333333333333, 118.33333333333333, 112.66666666666667, 129.0, 103.66666666666667, 105.66666666666667, 108.0, 117.33333333333333, 119.0, 114.66666666666667, 107.33333333333333, 101.66666666666667, 101.0], "ml": [85.0, 128.0, 109.0, 94.0, 85.0, 108.0, 80.0, 99.0, 120.0, 131.0, 118.0, 35.0, 107.0, 99.0, 107.0, 142.0, 49.0, 99.0, 127.0, 82.0, 147.0, 114.0, 121.0, 82.0, 114.0, 114.0, 105.0, 115.0, 98.0, 95.0, 103.0, 115.0, 119.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "AQI-003": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [225, 244, 286, 387, 527, 531, 532, 406, 403, 278, 195, 180, 185, 200, 289, 456, 439, 491, 467, 435, 391, 280, 165, 205, 210, 223, 355, 395, 527, 513, 492, 397, 415], "baseline": [212.66666666666666, 200.0, 217.33333333333334, 251.66666666666666, 305.6666666666667, 400.0, 481.6666666666667, 530.0, 489.6666666666667, 447.0, 362.3333333333333, 292.0, 217.66666666666666, 186.66666666666666, 188.33333333333334, 224.66666666666666, 315.0, 394.6666666666667, 462.0, 465.6666666666667, 464.3333333333333, 431.0, 368.6666666666667, 278.6666666666667, 216.66666666666666, 193.33333333333334, 212.66666666666666, 262.6666666666667, 324.3333333333333, 425.6666666666667, 478.3333333333333, 510.6666666666667, 467.3333333333333], "ml": [224.0, 244.0, 280.0, 370.0, 514.0, 526.0, 522.0, 422.0, 400.0, 287.0, 191.0, 179.0, 181.0, 209.0, 275.0, 454.0, 434.0, 482.0, 465.0, 435.0, 395.0, 290.0, 170.0, 187.0, 208.0, 234.0, 352.0, 442.0, 355.0, 414.0, 440.0, 505.0, 401.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "AQI-004": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [232, 304, 247, 263, 410, 394, 280, 321, 402, 387, 370, 270, 363, 234, 221, 146, 284, 435, 400, 397, 416, 334, 328, 54, 284, 245, 285, 359, 363, 339, 366, 302, 366], "baseline": [210.0, 194.0, 214.0, 261.0, 271.3333333333333, 306.6666666666667, 355.6666666666667, 361.3333333333333, 331.6666666666667, 334.3333333333333, 370.0, 386.3333333333333, 342.3333333333333, 334.3333333333333, 289.0, 272.6666666666667, 200.33333333333334, 217.0, 288.3333333333333, 373.0, 410.6666666666667, 404.3333333333333, 382.3333333333333, 359.3333333333333, 238.66666666666666, 222.0, 194.33333333333334, 271.3333333333333, 296.3333333333333, 335.6666666666667, 353.6666666666667, 356.0, 335.6666666666667], "ml": [243.0, 305.0, 257.0, 272.0, 414.0, 398.0, 290.0, 320.0, 379.0, 367.0, 360.0, 270.0, 348.0, 233.0, 231.0, 170.0, 294.0, 436.0, 405.0, 408.0, 412.0, 333.0, 319.0, 64.0, 294.0, 251.0, 283.0, 320.0, 310.0, 360.0, 342.0, 373.0, 346.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "AQI-005": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [140, 148, 108, 187, 98, 156, 260, 172, 217, 145, 167, 128, 115, 96, 143, 112, 177, 200, 168, 154, 167, 124, 169, 53, 113, 46, 73, 217, 184, 121, 87, 35, 136], "baseline": [128.33333333333334, 122.33333333333333, 136.33333333333334, 132.0, 147.66666666666666, 131.0, 147.0, 171.33333333333334, 196.0, 216.33333333333334, 178.0, 176.33333333333334, 146.66666666666666, 136.66666666666666, 113.0, 118.0, 117.0, 144.0, 163.0, 181.66666666666666, 174.0, 163.0, 148.33333333333334, 153.33333333333334, 115.33333333333333, 111.66666666666667, 70.66666666666667, 77.33333333333333, 112.0, 158.0, 174.0, 130.66666666666666, 81.0], "ml": [127.0, 135.0, 125.0, 175.0, 117.0, 165.0, 252.0, 176.0, 204.0, 156.0, 173.0, 126.0, 121.0, 103.0, 138.0, 124.0, 166.0, 183.0, 175.0, 154.0, 160.0, 134.0, 159.0, 58.0, 111.0, 55.0, 78.0, 209.0, 255.0, 164.0, 147.0, 122.0, 132.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "AQI-006": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [220, 223, 316, 360, 443, 528, 446, 431, 421, 321, 234, 204, 214, 221, 302, 423, 430, 558, 488, 477, 330, 243, 227, 156, 175, 234, 336, 474, 481, 453, 458, 511, 408], "baseline": [226.66666666666666, 197.33333333333334, 214.33333333333334, 253.0, 299.6666666666667, 373.0, 443.6666666666667, 472.3333333333333, 468.3333333333333, 432.6666666666667, 391.0, 325.3333333333333, 253.0, 217.33333333333334, 213.0, 245.66666666666666, 315.3333333333333, 385.0, 470.3333333333333, 492.0, 507.6666666666667, 431.6666666666667, 350.0, 266.6666666666667, 208.66666666666666, 186.0, 188.33333333333334, 248.33333333333334, 348.0, 430.3333333333333, 469.3333333333333, 464.0, 474.0], "ml": [223.0, 232.0, 302.0, 348.0, 426.0, 520.0, 437.0, 437.0, 432.0, 316.0, 251.0, 217.0, 212.0, 216.0, 293.0, 403.0, 421.0, 535.0, 474.0, 480.0, 335.0, 241.0, 241.0, 170.0, 177.0, 227.0, 341.0, 481.0, 393.0, 432.0, 424.0, 442.0, 438.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "AQI-007": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [700, 135, 151, 194, 691, 688, 286, 703, 574, 211, 691, 539, 613, 190, 664, 293, 307, 204, 687, 815, 341, 713, 557, 467, 591, 163, 181, 606, 772, 325, 660, 622, 802], "baseline": [616.0, 673.0, 520.6666666666666, 328.6666666666667, 160.0, 345.3333333333333, 524.3333333333334, 555.0, 559.0, 521.0, 496.0, 492.0, 480.3333333333333, 614.3333333333334, 447.3333333333333, 489.0, 382.3333333333333, 421.3333333333333, 268.0, 399.3333333333333, 568.6666666666666, 614.3333333333334, 623.0, 537.0, 579.0, 538.3333333333334, 407.0, 311.6666666666667, 316.6666666666667, 519.6666666666666, 567.6666666666666, 585.6666666666666, 535.6666666666666], "ml": [710.0, 132.0, 156.0, 187.0, 690.0, 686.0, 300.0, 690.0, 574.0, 216.0, 680.0, 523.0, 605.0, 207.0, 661.0, 305.0, 303.0, 236.0, 683.0, 805.0, 341.0, 701.0, 546.0, 486.0, 584.0, 165.0, 192.0, 500.0, 681.0, 401.0, 641.0, 619.0, 468.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "AQI-008": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [291, 197, 376, 253, 304, 342, 255, 375, 273, 254, 409, 177, 41, 405, 476, 269, 138, 289, 287, 324, 207, 332, 311, 139, 321, 444, 294, 297, 287, 363, 159, 344, 292], "baseline": [233.33333333333334, 255.66666666666666, 274.0, 288.0, 275.3333333333333, 311.0, 299.6666666666667, 300.3333333333333, 324.0, 301.0, 300.6666666666667, 312.0, 280.0, 209.0, 207.66666666666666, 307.3333333333333, 383.3333333333333, 294.3333333333333, 232.0, 238.0, 300.0, 272.6666666666667, 287.6666666666667, 283.3333333333333, 260.6666666666667, 257.0, 301.3333333333333, 353.0, 345.0, 292.6666666666667, 315.6666666666667, 269.6666666666667, 288.6666666666667], "ml": [292.0, 216.0, 363.0, 267.0, 308.0, 336.0, 266.0, 363.0, 287.0, 251.0, 385.0, 192.0, 52.0, 394.0, 471.0, 279.0, 157.0, 296.0, 301.0, 315.0, 230.0, 323.0, 315.0, 136.0, 321.0, 426.0, 302.0, 318.0, 288.0, 274.0, 347.0, 302.0, 320.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "MON-001": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [646, 335, 509, 136, 666, 615, 601, 493, 490, 142, 753, 630, 786, 728, 216, 601, 597, 188, 430, 125, 497, 550, 627, 563, 555, 571, 519, 413, 665, 587, 520, 639, 499], "baseline": [547.6666666666666, 617.6666666666666, 556.0, 496.6666666666667, 326.6666666666667, 437.0, 472.3333333333333, 627.3333333333334, 569.6666666666666, 528.0, 375.0, 461.6666666666667, 508.3333333333333, 723.0, 714.6666666666666, 576.6666666666666, 515.0, 471.3333333333333, 462.0, 405.0, 247.66666666666666, 350.6666666666667, 390.6666666666667, 558.0, 580.0, 581.6666666666666, 563.0, 548.3333333333334, 501.0, 532.3333333333334, 555.0, 590.6666666666666, 582.0], "ml": [645.0, 343.0, 506.0, 145.0, 664.0, 621.0, 600.0, 492.0, 493.0, 145.0, 749.0, 621.0, 776.0, 724.0, 215.0, 597.0, 594.0, 192.0, 432.0, 134.0, 489.0, 549.0, 632.0, 566.0, 559.0, 567.0, 516.0, 402.0, 400.0, 449.0, 561.0, 489.0, 605.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "MON-002": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [268, 212, 203, 106, 104, 181, 165, 191, 160, 177, 205, 228, 230, 106, 47, 220, 220, 114, 68, 172, 211, 253, 224, 177, 153, 191, 144, 108, 267, 259, 221, 117, 207], "baseline": [101.33333333333333, 175.33333333333334, 207.66666666666666, 227.66666666666666, 173.66666666666666, 137.66666666666666, 130.33333333333334, 150.0, 179.0, 172.0, 176.0, 180.66666666666666, 203.33333333333334, 221.0, 188.0, 127.66666666666667, 124.33333333333333, 162.33333333333334, 184.66666666666666, 134.0, 118.0, 150.33333333333334, 212.0, 229.33333333333334, 218.0, 184.66666666666666, 173.66666666666666, 162.66666666666666, 147.66666666666666, 173.0, 211.33333333333334, 249.0, 199.0], "ml": [268.0, 219.0, 191.0, 115.0, 110.0, 175.0, 172.0, 183.0, 167.0, 181.0, 191.0, 228.0, 229.0, 121.0, 56.0, 214.0, 215.0, 118.0, 73.0, 168.0, 209.0, 252.0, 233.0, 185.0, 154.0, 190.0, 155.0, 177.0, 182.0, 175.0, 229.0, 202.0, 106.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "MON-003": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [411, 397, 334, 247, 201, 192, 180, 201, 228, 323, 417, 392, 410, 457, 308, 301, 260, 161, 142, 221, 238, 255, 453, 494, 472, 453, 316, 242, 238, 186, 181, 205, 196], "baseline": [354.3333333333333, 405.0, 408.3333333333333, 380.6666666666667, 326.0, 260.6666666666667, 213.33333333333334, 191.0, 191.0, 203.0, 250.66666666666666, 322.6666666666667, 377.3333333333333, 406.3333333333333, 419.6666666666667, 391.6666666666667, 355.3333333333333, 289.6666666666667, 240.66666666666666, 187.66666666666666, 174.66666666666666, 200.33333333333334, 238.0, 315.3333333333333, 400.6666666666667, 473.0, 473.0, 413.6666666666667, 337.0, 265.3333333333333, 222.0, 201.66666666666666, 190.66666666666666], "ml": [418.0, 396.0, 337.0, 260.0, 215.0, 192.0, 194.0, 207.0, 222.0, 308.0, 401.0, 399.0, 417.0, 447.0, 316.0, 301.0, 267.0, 171.0, 144.0, 219.0, 238.0, 257.0, 444.0, 483.0, 464.0, 467.0, 320.0, 329.0, 317.0, 311.0, 205.0, 224.0, 257.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "MON-004": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [795, 815, 186, 469, 610, 477, 172, 510, 161, 719, 264, 775, 269, 772, 687, 518, 252, 502, 680, 769, 683, 176, 772, 703, 866, 619, 566, 498, 568, 173, 693, 154, 522], "baseline": [712.6666666666666, 739.0, 762.6666666666666, 598.6666666666666, 490.0, 421.6666666666667, 518.6666666666666, 419.6666666666667, 386.3333333333333, 281.0, 463.3333333333333, 381.3333333333333, 586.0, 436.0, 605.3333333333334, 576.0, 659.0, 485.6666666666667, 424.0, 478.0, 650.3333333333334, 710.6666666666666, 542.6666666666666, 543.6666666666666, 550.3333333333334, 780.3333333333334, 729.3333333333334, 683.6666666666666, 561.0, 544.0, 413.0, 478.0, 340.0], "ml": [798.0, 808.0, 188.0, 471.0, 609.0, 477.0, 168.0, 501.0, 165.0, 724.0, 272.0, 778.0, 272.0, 770.0, 686.0, 528.0, 247.0, 493.0, 672.0, 759.0, 682.0, 177.0, 778.0, 701.0, 866.0, 628.0, 560.0, 484.0, 456.0, 362.0, 647.0, 348.0, 691.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "MON-005": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [306, 266, 92, 86, 211, 195, 207, 214, 239, 278, 186, 172, 179, 267, 294, 195, 47, 106, 158, 183, 190, 218, 242, 328, 216, 194, 242, 108, 243, 231, 207, 321, 175], "baseline": [221.0, 253.33333333333334, 252.0, 221.33333333333334, 148.0, 129.66666666666666, 164.0, 204.33333333333334, 205.33333333333334, 220.0, 243.66666666666666, 234.33333333333334, 212.0, 179.0, 206.0, 246.66666666666666, 252.0, 178.66666666666666, 116.0, 103.66666666666667, 149.0, 177.0, 197.0, 216.66666666666666, 262.6666666666667, 262.0, 246.0, 217.33333333333334, 181.33333333333334, 197.66666666666666, 194.0, 227.0, 253.0], "ml": [293.0, 263.0, 100.0, 79.0, 204.0, 195.0, 201.0, 216.0, 237.0, 276.0, 199.0, 178.0, 186.0, 261.0, 287.0, 196.0, 54.0, 115.0, 156.0, 183.0, 183.0, 212.0, 239.0, 313.0, 225.0, 187.0, 228.0, 199.0, 87.0, 179.0, 231.0, 250.0, 256.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "MON-006": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [118, 123, 130, 147, 141, 156, 146, 123, 87, 71, 82, 83, 96, 141, 146, 166, 154, 150, 132, 114, 86, 63, 81, 103, 110, 143, 116, 149, 142, 142, 114, 97, 99], "baseline": [79.0, 92.33333333333333, 108.33333333333333, 123.66666666666667, 133.33333333333334, 139.33333333333334, 148.0, 147.66666666666666, 141.66666666666666, 118.66666666666667, 93.66666666666667, 80.0, 78.66666666666667, 87.0, 106.66666666666667, 127.66666666666667, 151.0, 155.33333333333334, 156.66666666666666, 145.33333333333334, 132.0, 110.66666666666667, 87.66666666666667, 76.66666666666667, 82.33333333333333, 98.0, 118.66666666666667, 123.0, 136.0, 135.66666666666666, 144.33333333333334, 132.66666666666666, 117.66666666666667], "ml": [114.0, 124.0, 126.0, 138.0, 146.0, 151.0, 143.0, 132.0, 95.0, 76.0, 85.0, 88.0, 94.0, 142.0, 147.0, 162.0, 153.0, 148.0, 135.0, 120.0, 91.0, 73.0, 82.0, 103.0, 111.0, 137.0, 126.0, 117.0, 147.0, 134.0, 136.0, 112.0, 97.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "MON-007": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [554, 666, 374, 542, 523, 394, 139, 359, 138, 462, 485, 519, 199, 530, 487, 594, 392, 559, 456, 195, 158, 427, 229, 540, 618, 641, 495, 440, 389, 530, 513, 432, 539], "baseline": [395.6666666666667, 432.6666666666667, 496.0, 531.3333333333334, 527.3333333333334, 479.6666666666667, 486.3333333333333, 352.0, 297.3333333333333, 212.0, 319.6666666666667, 361.6666666666667, 488.6666666666667, 401.0, 416.0, 405.3333333333333, 537.0, 491.0, 515.0, 469.0, 403.3333333333333, 269.6666666666667, 260.0, 271.3333333333333, 398.6666666666667, 462.3333333333333, 599.6666666666666, 584.6666666666666, 525.3333333333334, 441.3333333333333, 453.0, 477.3333333333333, 491.6666666666667], "ml": [550.0, 661.0, 387.0, 535.0, 512.0, 401.0, 152.0, 361.0, 136.0, 456.0, 476.0, 509.0, 204.0, 527.0, 478.0, 585.0, 401.0, 546.0, 454.0, 195.0, 169.0, 423.0, 236.0, 535.0, 626.0, 639.0, 494.0, 421.0, 377.0, 405.0, 458.0, 497.0, 532.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "MON-008": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [339, 339, 366, 337, 330, 335, 361, 108, 283, 100, 371, 352, 453, 461, 318, 270, 346, 260, 302, 404, 255, 380, 434, 276, 460, 421, 306, 226, 226, 267, 358, 215, 347], "baseline": [274.0, 319.6666666666667, 346.0, 348.0, 347.3333333333333, 344.3333333333333, 334.0, 342.0, 268.0, 250.66666666666666, 163.66666666666666, 251.33333333333334, 274.3333333333333, 392.0, 422.0, 410.6666666666667, 349.6666666666667, 311.3333333333333, 292.0, 302.6666666666667, 322.0, 320.3333333333333, 346.3333333333333, 356.3333333333333, 363.3333333333333, 390.0, 385.6666666666667, 395.6666666666667, 317.6666666666667, 252.66666666666666, 239.66666666666666, 283.6666666666667, 280.0], "ml": [342.0, 344.0, 361.0, 329.0, 330.0, 334.0, 346.0, 121.0, 281.0, 109.0, 376.0, 354.0, 441.0, 455.0, 318.0, 283.0, 329.0, 268.0, 308.0, 394.0, 249.0, 372.0, 438.0, 294.0, 456.0, 416.0, 299.0, 284.0, 294.0, 317.0, 168.0, 314.0, 308.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "TMP-001": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [880, 775, 969, 610, 836, 551, 502, 798, 515, 727, 358, 676, 773, 379, 939, 754, 715, 714, 291, 453, 810, 616, 571, 745, 961, 840, 937, 779, 177, 138, 633, 427, 577], "baseline": [661.3333333333334, 734.3333333333334, 785.3333333333334, 874.6666666666666, 784.6666666666666, 805.0, 665.6666666666666, 629.6666666666666, 617.0, 605.0, 680.0, 533.3333333333334, 587.0, 602.3333333333334, 609.3333333333334, 697.0, 690.6666666666666, 802.6666666666666, 727.6666666666666, 573.3333333333334, 486.0, 518.0, 626.3333333333334, 665.6666666666666, 644.0, 759.0, 848.6666666666666, 912.6666666666666, 852.0, 631.0, 364.6666666666667, 316.0, 399.3333333333333], "ml": [859.0, 782.0, 956.0, 609.0, 819.0, 572.0, 509.0, 778.0, 522.0, 721.0, 368.0, 671.0, 783.0, 394.0, 930.0, 754.0, 707.0, 721.0, 309.0, 457.0, 811.0, 607.0, 570.0, 745.0, 952.0, 842.0, 931.0, 772.0, 582.0, 682.0, 527.0, 400.0, 454.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "TMP-002": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [343, 338, 168, 241, 279, 215, 377, 242, 369, 286, 303, 321, 351, 486, 140, 147, 246, 272, 330, 280, 231, 344, 385, 343, 434, 383, 304, 382, 304, 282, 380, 21, 120], "baseline": [331.6666666666667, 360.3333333333333, 384.0, 283.0, 249.0, 229.33333333333334, 245.0, 290.3333333333333, 278.0, 329.3333333333333, 299.0, 319.3333333333333, 303.3333333333333, 325.0, 386.0, 325.6666666666667, 257.6666666666667, 177.66666666666666, 221.66666666666666, 282.6666666666667, 294.0, 280.3333333333333, 285.0, 320.0, 357.3333333333333, 387.3333333333333, 386.6666666666667, 373.6666666666667, 356.3333333333333, 330.0, 322.6666666666667, 322.0, 227.66666666666666], "ml": [338.0, 344.0, 186.0, 243.0, 279.0, 215.0, 354.0, 242.0, 365.0, 294.0, 309.0, 320.0, 344.0, 466.0, 148.0, 161.0, 231.0, 260.0, 323.0, 271.0, 234.0, 334.0, 369.0, 344.0, 429.0, 365.0, 319.0, 260.0, 331.0, 292.0, 311.0, 222.0, 210.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "TMP-003": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [144, 187, 208, 176, 175, 187, 151, 114, 93, 94, 97, 112, 138, 153, 194, 193, 201, 189, 136, 94, 90, 86, 91, 101, 154, 172, 197, 228, 172, 169, 154, 100, 95], "baseline": [91.33333333333333, 113.66666666666667, 146.0, 179.66666666666666, 190.33333333333334, 186.33333333333334, 179.33333333333334, 171.0, 150.66666666666666, 119.33333333333333, 100.33333333333333, 94.66666666666667, 101.0, 115.66666666666667, 134.33333333333334, 161.66666666666666, 180.0, 196.0, 194.33333333333334, 175.33333333333334, 139.66666666666666, 106.66666666666667, 90.0, 89.0, 92.66666666666667, 115.33333333333333, 142.33333333333334, 174.33333333333334, 199.0, 199.0, 189.66666666666666, 165.0, 141.0], "ml": [145.0, 189.0, 198.0, 188.0, 169.0, 182.0, 155.0, 121.0, 104.0, 104.0, 101.0, 110.0, 137.0, 162.0, 190.0, 185.0, 194.0, 173.0, 141.0, 93.0, 98.0, 89.0, 94.0, 106.0, 153.0, 177.0, 196.0, 184.0, 200.0, 153.0, 147.0, 119.0, 109.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "TMP-004": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [487, 497, 536, 548, 112, 329, 305, 127, 387, 75, 407, 208, 447, 209, 597, 451, 357, 339, 475, 328, 379, 467, 139, 471, 506, 537, 485, 391, 481, 360, 428, 416, 89], "baseline": [416.0, 463.6666666666667, 508.0, 506.6666666666667, 527.0, 398.6666666666667, 329.6666666666667, 248.66666666666666, 253.66666666666666, 273.0, 196.33333333333334, 289.6666666666667, 230.0, 354.0, 288.0, 417.6666666666667, 419.0, 468.3333333333333, 382.3333333333333, 390.3333333333333, 380.6666666666667, 394.0, 391.3333333333333, 328.3333333333333, 359.0, 372.0, 504.6666666666667, 509.3333333333333, 471.0, 452.3333333333333, 410.6666666666667, 423.0, 401.3333333333333], "ml": [496.0, 504.0, 534.0, 528.0, 126.0, 318.0, 302.0, 137.0, 372.0, 78.0, 395.0, 211.0, 448.0, 230.0, 591.0, 441.0, 361.0, 354.0, 453.0, 331.0, 379.0, 464.0, 151.0, 472.0, 499.0, 529.0, 493.0, 422.0, 430.0, 459.0, 487.0, 435.0, 363.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "TMP-005": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [268, 326, 269, 414, 301, 230, 325, 61, 74, 315, 275, 316, 213, 301, 464, 354, 277, 209, 212, 49, 259, 297, 144, 243, 225, 248, 322, 127, 314, 313, 208, 17, 141], "baseline": [302.3333333333333, 272.0, 303.0, 287.6666666666667, 336.3333333333333, 328.0, 315.0, 285.3333333333333, 205.33333333333334, 153.33333333333334, 150.0, 221.33333333333334, 302.0, 268.0, 276.6666666666667, 326.0, 373.0, 365.0, 280.0, 232.66666666666666, 156.66666666666666, 173.33333333333334, 201.66666666666666, 233.33333333333334, 228.0, 204.0, 238.66666666666666, 265.0, 232.33333333333334, 254.33333333333334, 251.33333333333334, 278.3333333333333, 179.33333333333334], "ml": [274.0, 336.0, 276.0, 392.0, 300.0, 230.0, 316.0, 67.0, 81.0, 313.0, 274.0, 311.0, 232.0, 289.0, 444.0, 347.0, 277.0, 221.0, 239.0, 60.0, 247.0, 300.0, 162.0, 254.0, 236.0, 251.0, 314.0, 219.0, 185.0, 240.0, 292.0, 96.0, 92.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "TMP-006": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [327, 305, 223, 167, 150, 90, 106, 132, 184, 204, 283, 289, 313, 233, 228, 178, 119, 92, 102, 115, 155, 243, 259, 324, 341, 251, 246, 195, 136, 110, 100, 97, 166], "baseline": [243.33333333333334, 281.3333333333333, 297.3333333333333, 285.0, 231.66666666666666, 180.0, 135.66666666666666, 115.33333333333333, 109.33333333333333, 140.66666666666666, 173.33333333333334, 223.66666666666666, 258.6666666666667, 295.0, 278.3333333333333, 258.0, 213.0, 175.0, 129.66666666666666, 104.33333333333333, 103.0, 124.0, 171.0, 219.0, 275.3333333333333, 308.0, 305.3333333333333, 279.3333333333333, 230.66666666666666, 192.33333333333334, 147.0, 115.33333333333333, 102.33333333333333], "ml": [321.0, 299.0, 228.0, 185.0, 149.0, 100.0, 111.0, 125.0, 170.0, 195.0, 260.0, 283.0, 308.0, 240.0, 247.0, 198.0, 125.0, 109.0, 99.0, 110.0, 146.0, 229.0, 261.0, 304.0, 339.0, 265.0, 247.0, 267.0, 156.0, 138.0, 99.0, 119.0, 111.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "TMP-007": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [856, 1164, 1018, 377, 851, 983, 624, 931, 894, 945, 391, 299, 1025, 1126, 471, 907, 792, 622, 895, 869, 584, 628, 230, 1115, 385, 891, 890, 1091, 903, 938, 881, 90, 600], "baseline": [987.3333333333334, 981.6666666666666, 1036.0, 1012.6666666666666, 853.0, 748.6666666666666, 737.0, 819.3333333333334, 846.0, 816.3333333333334, 923.3333333333334, 743.3333333333334, 545.0, 571.6666666666666, 816.6666666666666, 874.0, 834.6666666666666, 723.3333333333334, 773.6666666666666, 769.6666666666666, 795.3333333333334, 782.6666666666666, 693.6666666666666, 480.6666666666667, 657.6666666666666, 576.6666666666666, 797.0, 722.0, 957.3333333333334, 961.3333333333334, 977.3333333333334, 907.3333333333334, 636.3333333333334], "ml": [866.0, 1160.0, 1008.0, 384.0, 859.0, 972.0, 623.0, 933.0, 888.0, 937.0, 388.0, 315.0, 1023.0, 1115.0, 472.0, 896.0, 787.0, 629.0, 881.0, 859.0, 601.0, 645.0, 220.0, 1110.0, 392.0, 888.0, 891.0, 655.0, 669.0, 891.0, 847.0, 771.0, 654.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "TMP-008": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [229, 270, 323, 229, 153, 237, 231, 215, 220, 176, 150, 174, 143, 245, 229, 194, 25, 111, 252, 124, 203, 93, 288, 216, 258, 384, 332, 202, 167, 174, 204, 154, 143], "baseline": [217.0, 211.66666666666666, 234.66666666666666, 274.0, 274.0, 235.0, 206.33333333333334, 207.0, 227.66666666666666, 222.0, 203.66666666666666, 182.0, 166.66666666666666, 155.66666666666666, 187.33333333333334, 205.66666666666666, 222.66666666666666, 149.33333333333334, 110.0, 129.33333333333334, 162.33333333333334, 193.0, 140.0, 194.66666666666666, 199.0, 254.0, 286.0, 324.6666666666667, 306.0, 233.66666666666666, 181.0, 181.66666666666666, 177.33333333333334], "ml": [229.0, 252.0, 319.0, 248.0, 162.0, 222.0, 232.0, 212.0, 214.0, 188.0, 168.0, 170.0, 157.0, 237.0, 230.0, 182.0, 40.0, 118.0, 252.0, 135.0, 207.0, 107.0, 277.0, 220.0, 253.0, 372.0, 328.0, 262.0, 165.0, 191.0, 135.0, 141.0, 125.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "WED-001": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [521, 541, 529, 731, 591, 603, 145, 657, 591, 676, 220, 456, 534, 482, 444, 721, 663, 604, 526, 473, 585, 641, 605, 481, 524, 506, 607, 308, 763, 197, 243, 530, 544], "baseline": [523.0, 587.0, 573.3333333333334, 530.3333333333334, 600.3333333333334, 617.0, 641.6666666666666, 446.3333333333333, 468.3333333333333, 464.3333333333333, 641.3333333333334, 495.6666666666667, 450.6666666666667, 403.3333333333333, 490.6666666666667, 486.6666666666667, 549.0, 609.3333333333334, 662.6666666666666, 597.6666666666666, 534.3333333333334, 528.0, 566.3333333333334, 610.3333333333334, 575.6666666666666, 536.6666666666666, 503.6666666666667, 545.6666666666666, 473.6666666666667, 559.3333333333334, 422.6666666666667, 401.0, 323.3333333333333], "ml": [490.0, 506.0, 515.0, 688.0, 650.0, 587.0, 353.0, 523.0, 545.0, 656.0, 359.0, 507.0, 437.0, 463.0, 484.0, 671.0, 656.0, 580.0, 526.0, 507.0, 620.0, 587.0, 528.0, 508.0, 507.0, 507.0, 528.0, 667.0, 627.0, 448.0, 547.0, 347.0, 525.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "WED-002": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [270, 136, 335, 201, 308, 103, 151, 304, 245, 314, 224, 202, 294, 194, 97, 211, 296, 234, 111, 163, 225, 238, 123, 169, 163, 257, 260, 252, 236, 218, 158, 137, 202], "baseline": [257.3333333333333, 247.33333333333334, 211.33333333333334, 247.0, 224.0, 281.3333333333333, 204.0, 187.33333333333334, 186.0, 233.33333333333334, 287.6666666666667, 261.0, 246.66666666666666, 240.0, 230.0, 195.0, 167.33333333333334, 201.33333333333334, 247.0, 213.66666666666666, 169.33333333333334, 166.33333333333334, 208.66666666666666, 195.33333333333334, 176.66666666666666, 151.66666666666666, 196.33333333333334, 226.66666666666666, 256.3333333333333, 249.33333333333334, 235.33333333333334, 204.0, 171.0], "ml": [224.0, 201.0, 215.0, 257.0, 293.0, 172.0, 162.0, 183.0, 239.0, 290.0, 201.0, 190.0, 216.0, 185.0, 181.0, 219.0, 244.0, 177.0, 146.0, 152.0, 202.0, 230.0, 151.0, 148.0, 168.0, 186.0, 191.0, 256.0, 273.0, 174.0, 167.0, 161.0, 193.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "WED-003": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [172, 225, 234, 239, 243, 141, 105, 103, 145, 126, 113, 155, 203, 182, 210, 262, 217, 140, 112, 98, 131, 151, 129, 163, 212, 203, 210, 273, 210, 165, 133, 89, 131], "baseline": [135.0, 148.0, 182.66666666666666, 210.33333333333334, 232.66666666666666, 238.66666666666666, 207.66666666666666, 163.0, 116.33333333333333, 117.66666666666667, 124.66666666666667, 128.0, 131.33333333333334, 157.0, 180.0, 198.33333333333334, 218.0, 229.66666666666666, 206.33333333333334, 156.33333333333334, 116.66666666666667, 113.66666666666667, 126.66666666666667, 137.0, 147.66666666666666, 168.0, 192.66666666666666, 208.33333333333334, 228.66666666666666, 231.0, 216.0, 169.33333333333334, 129.0], "ml": [154.0, 179.0, 182.0, 238.0, 250.0, 156.0, 145.0, 137.0, 152.0, 151.0, 127.0, 134.0, 162.0, 163.0, 170.0, 228.0, 236.0, 155.0, 145.0, 135.0, 148.0, 150.0, 138.0, 139.0, 167.0, 186.0, 185.0, 233.0, 241.0, 159.0, 156.0, 145.0, 151.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "WED-004": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [375, 347, 128, 590, 427, 448, 362, 182, 466, 594, 444, 346, 508, 409, 143, 585, 478, 368, 421, 399, 603, 568, 425, 479, 167, 198, 448, 618, 503, 114, 397, 186, 574], "baseline": [389.6666666666667, 343.6666666666667, 299.3333333333333, 283.3333333333333, 355.0, 381.6666666666667, 488.3333333333333, 412.3333333333333, 330.6666666666667, 336.6666666666667, 414.0, 501.3333333333333, 461.3333333333333, 432.6666666666667, 421.0, 353.3333333333333, 379.0, 402.0, 477.0, 422.3333333333333, 396.0, 474.3333333333333, 523.3333333333334, 532.0, 490.6666666666667, 357.0, 281.3333333333333, 271.0, 421.3333333333333, 523.0, 411.6666666666667, 338.0, 232.33333333333334], "ml": [345.0, 328.0, 254.0, 494.0, 498.0, 394.0, 407.0, 322.0, 507.0, 531.0, 428.0, 420.0, 421.0, 424.0, 325.0, 560.0, 509.0, 396.0, 410.0, 387.0, 573.0, 573.0, 483.0, 476.0, 413.0, 291.0, 338.0, 474.0, 613.0, 466.0, 367.0, 316.0, 446.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "WED-005": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [94, 118, 143, 277, 181, 204, 143, 184, 206, 258, 144, 90, 100, 144, 107, 235, 190, 293, 82, 181, 156, 188, 178, 52, 183, 269, 148, 227, 266, 163, 141, 54, 247], "baseline": [174.33333333333334, 128.33333333333334, 123.0, 118.33333333333333, 179.33333333333334, 200.33333333333334, 220.66666666666666, 176.0, 177.0, 177.66666666666666, 216.0, 202.66666666666666, 164.0, 111.33333333333333, 111.33333333333333, 117.0, 162.0, 177.33333333333334, 239.33333333333334, 188.33333333333334, 185.33333333333334, 139.66666666666666, 175.0, 174.0, 139.33333333333334, 137.66666666666666, 168.0, 200.0, 214.66666666666666, 213.66666666666666, 218.66666666666666, 190.0, 119.33333333333333], "ml": [161.0, 142.0, 142.0, 212.0, 220.0, 165.0, 151.0, 155.0, 198.0, 226.0, 155.0, 145.0, 143.0, 128.0, 141.0, 204.0, 208.0, 165.0, 145.0, 163.0, 192.0, 175.0, 153.0, 141.0, 145.0, 196.0, 173.0, 235.0, 230.0, 163.0, 150.0, 155.0, 177.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "WED-006": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [73, 85, 108, 154, 170, 144, 182, 124, 135, 133, 79, 77, 80, 105, 123, 172, 199, 163, 152, 140, 136, 132, 72, 63, 71, 104, 112, 179, 205, 144, 172, 134, 138], "baseline": [101.33333333333333, 80.0, 79.33333333333333, 88.66666666666667, 115.66666666666667, 144.0, 156.0, 165.33333333333334, 150.0, 147.0, 130.66666666666666, 115.66666666666667, 96.33333333333333, 78.66666666666667, 87.33333333333333, 102.66666666666667, 133.33333333333334, 164.66666666666666, 178.0, 171.33333333333334, 151.66666666666666, 142.66666666666666, 136.0, 113.33333333333333, 89.0, 68.66666666666667, 79.33333333333333, 95.66666666666667, 131.66666666666666, 165.33333333333334, 176.0, 173.66666666666666, 150.0], "ml": [91.0, 94.0, 105.0, 176.0, 180.0, 151.0, 142.0, 152.0, 155.0, 147.0, 129.0, 101.0, 90.0, 99.0, 117.0, 177.0, 189.0, 152.0, 151.0, 147.0, 153.0, 151.0, 131.0, 100.0, 91.0, 100.0, 117.0, 181.0, 190.0, 153.0, 147.0, 150.0, 153.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "WED-007": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [559, 733, 539, 808, 748, 755, 783, 761, 838, 976, 686, 753, 682, 813, 666, 377, 747, 516, 763, 526, 726, 322, 621, 648, 590, 226, 789, 333, 757, 703, 320, 721, 470], "baseline": [755.3333333333334, 655.0, 668.0, 610.3333333333334, 693.3333333333334, 698.3333333333334, 770.3333333333334, 762.0, 766.3333333333334, 794.0, 858.3333333333334, 833.3333333333334, 805.0, 707.0, 749.3333333333334, 720.3333333333334, 618.6666666666666, 596.6666666666666, 546.6666666666666, 675.3333333333334, 601.6666666666666, 671.6666666666666, 524.6666666666666, 556.3333333333334, 530.3333333333334, 619.6666666666666, 488.0, 535.0, 449.3333333333333, 626.3333333333334, 597.6666666666666, 593.3333333333334, 581.3333333333334], "ml": [649.0, 667.0, 570.0, 728.0, 695.0, 737.0, 767.0, 781.0, 811.0, 824.0, 715.0, 702.0, 671.0, 715.0, 649.0, 546.0, 663.0, 506.0, 663.0, 526.0, 737.0, 488.0, 559.0, 505.0, 531.0, 377.0, 560.0, 575.0, 617.0, 415.0, 536.0, 536.0, 549.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "WED-008": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [170, 198, 100, 160, 199, 137, 90, 152, 192, 172, 144, 125, 195, 99, 111, 169, 204, 74, 82, 52, 170, 123, 119, 162, 109, 144, 123, 196, 188, 107, 128, 177, 185], "baseline": [152.0, 143.66666666666666, 176.66666666666666, 156.0, 152.66666666666666, 153.0, 165.33333333333334, 142.0, 126.33333333333333, 144.66666666666666, 172.0, 169.33333333333334, 147.0, 154.66666666666666, 139.66666666666666, 135.0, 126.33333333333333, 161.33333333333334, 149.0, 120.0, 69.33333333333333, 101.33333333333333, 115.0, 137.33333333333334, 134.66666666666666, 130.0, 138.33333333333334, 125.33333333333333, 154.33333333333334, 169.0, 163.66666666666666, 141.0, 137.33333333333334], "ml": [163.0, 177.0, 174.0, 190.0, 191.0, 153.0, 138.0, 129.0, 167.0, 171.0, 148.0, 143.0, 154.0, 161.0, 140.0, 182.0, 192.0, 147.0, 124.0, 100.0, 162.0, 161.0, 124.0, 133.0, 159.0, 141.0, 152.0, 185.0, 197.0, 154.0, 134.0, 135.0, 164.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "GTR-001": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [293, 518, 707, 756, 544, 576, 568, 830, 642, 764, 762, 469, 612, 475, 579, 518, 758, 789, 827, 161, 885, 265, 505, 629, 548, 472, 521, 743, 604, 794, 613, 577, 822], "baseline": [624.0, 537.0, 440.0, 506.0, 660.3333333333334, 669.0, 625.3333333333334, 562.6666666666666, 658.0, 680.0, 745.3333333333334, 722.6666666666666, 665.0, 614.3333333333334, 518.6666666666666, 555.3333333333334, 524.0, 618.3333333333334, 688.3333333333334, 791.3333333333334, 592.3333333333334, 624.3333333333334, 437.0, 551.6666666666666, 466.3333333333333, 560.6666666666666, 549.6666666666666, 513.6666666666666, 578.6666666666666, 622.6666666666666, 713.6666666666666, 670.3333333333334, 661.3333333333334], "ml": [531.0, 526.0, 646.0, 671.0, 636.0, 599.0, 688.0, 745.0, 696.0, 729.0, 734.0, 616.0, 582.0, 587.0, 609.0, 599.0, 643.0, 698.0, 763.0, 428.0, 693.0, 502.0, 522.0, 542.0, 562.0, 532.0, 566.0, 586.0, 650.0, 644.0, 724.0, 668.0, 674.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "GTR-002": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [215, 210, 214, 165, 273, 169, 129, 308, 140, 260, 219, 185, 421, 273, 280, 121, 222, 308, 223, 372, 229, 240, 229, 274, 197, 229, 266, 219, 304, 307, 280, 255, 370], "baseline": [296.3333333333333, 305.3333333333333, 229.33333333333334, 213.0, 196.33333333333334, 217.33333333333334, 202.33333333333334, 190.33333333333334, 202.0, 192.33333333333334, 236.0, 206.33333333333334, 221.33333333333334, 275.0, 293.0, 324.6666666666667, 224.66666666666666, 207.66666666666666, 217.0, 251.0, 301.0, 274.6666666666667, 280.3333333333333, 232.66666666666666, 247.66666666666666, 233.33333333333334, 233.33333333333334, 230.66666666666666, 238.0, 263.0, 276.6666666666667, 297.0, 280.6666666666667], "ml": [287.0, 254.0, 265.0, 212.0, 196.0, 199.0, 210.0, 231.0, 201.0, 234.0, 233.0, 201.0, 254.0, 301.0, 269.0, 220.0, 216.0, 238.0, 253.0, 245.0, 289.0, 236.0, 259.0, 250.0, 253.0, 237.0, 251.0, 218.0, 219.0, 252.0, 274.0, 253.0, 235.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "GTR-003": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [337, 264, 256, 240, 207, 166, 184, 176, 156, 217, 202, 250, 264, 294, 247, 281, 249, 161, 173, 157, 175, 180, 229, 285, 318, 246, 298, 270, 186, 175, 173, 124, 163], "baseline": [221.33333333333334, 277.0, 282.0, 285.6666666666667, 253.33333333333334, 234.33333333333334, 204.33333333333334, 185.66666666666666, 175.33333333333334, 172.0, 183.0, 191.66666666666666, 223.0, 238.66666666666666, 269.3333333333333, 268.3333333333333, 274.0, 259.0, 230.33333333333334, 194.33333333333334, 163.66666666666666, 168.33333333333334, 170.66666666666666, 194.66666666666666, 231.33333333333334, 277.3333333333333, 283.0, 287.3333333333333, 271.3333333333333, 251.33333333333334, 210.33333333333334, 178.0, 157.33333333333334], "ml": [280.0, 287.0, 283.0, 238.0, 229.0, 205.0, 225.0, 225.0, 185.0, 219.0, 207.0, 193.0, 246.0, 252.0, 261.0, 236.0, 238.0, 236.0, 232.0, 189.0, 229.0, 182.0, 208.0, 207.0, 252.0, 257.0, 265.0, 232.0, 239.0, 233.0, 216.0, 187.0, 180.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "GTR-004": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [288, 579, 919, 911, 724, 223, 971, 928, 217, 704, 691, 589, 609, 678, 697, 863, 650, 250, 834, 709, 756, 877, 832, 889, 563, 701, 817, 917, 553, 686, 612, 680, 782], "baseline": [562.3333333333334, 388.3333333333333, 476.3333333333333, 595.3333333333334, 803.0, 851.3333333333334, 619.3333333333334, 639.3333333333334, 707.3333333333334, 705.3333333333334, 616.3333333333334, 537.3333333333334, 661.3333333333334, 629.6666666666666, 625.3333333333334, 661.3333333333334, 746.0, 736.6666666666666, 587.6666666666666, 578.0, 597.6666666666666, 766.3333333333334, 780.6666666666666, 821.6666666666666, 866.0, 761.3333333333334, 717.6666666666666, 693.6666666666666, 811.6666666666666, 762.3333333333334, 718.6666666666666, 617.0, 659.3333333333334], "ml": [593.0, 560.0, 666.0, 724.0, 704.0, 414.0, 689.0, 757.0, 452.0, 620.0, 628.0, 624.0, 595.0, 606.0, 664.0, 702.0, 717.0, 498.0, 701.0, 634.0, 789.0, 719.0, 800.0, 778.0, 686.0, 662.0, 716.0, 728.0, 743.0, 687.0, 753.0, 717.0, 737.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "GTR-005": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [200, 217, 213, 163, 139, 135, 216, 219, 212, 206, 224, 164, 197, 210, 119, 73, 250, 192, 102, 146, 243, 148, 145, 233, 100, 114, 187, 193, 188, 224, 187, 205, 174], "baseline": [173.0, 170.66666666666666, 173.66666666666666, 210.0, 197.66666666666666, 171.66666666666666, 145.66666666666666, 163.33333333333334, 190.0, 215.66666666666666, 212.33333333333334, 214.0, 198.0, 195.0, 190.33333333333334, 175.33333333333334, 134.0, 147.33333333333334, 171.66666666666666, 181.33333333333334, 146.66666666666666, 163.66666666666666, 179.0, 178.66666666666666, 175.33333333333334, 159.33333333333334, 149.0, 133.66666666666666, 164.66666666666666, 189.33333333333334, 201.66666666666666, 199.66666666666666, 205.33333333333334], "ml": [200.0, 206.0, 220.0, 193.0, 176.0, 161.0, 206.0, 214.0, 186.0, 229.0, 213.0, 201.0, 200.0, 206.0, 196.0, 143.0, 178.0, 199.0, 178.0, 148.0, 214.0, 168.0, 181.0, 172.0, 166.0, 138.0, 176.0, 157.0, 171.0, 184.0, 198.0, 179.0, 188.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "GTR-006": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [399, 414, 436, 389, 366, 276, 280, 282, 200, 279, 254, 339, 386, 476, 468, 372, 382, 300, 313, 233, 235, 218, 224, 303, 374, 341, 466, 470, 315, 329, 246, 232, 198], "baseline": [276.3333333333333, 336.3333333333333, 369.6666666666667, 416.3333333333333, 413.0, 397.0, 343.6666666666667, 307.3333333333333, 279.3333333333333, 254.0, 253.66666666666666, 244.33333333333334, 290.6666666666667, 326.3333333333333, 400.3333333333333, 443.3333333333333, 438.6666666666667, 407.3333333333333, 351.3333333333333, 331.6666666666667, 282.0, 260.3333333333333, 228.66666666666666, 225.66666666666666, 248.33333333333334, 300.3333333333333, 339.3333333333333, 393.6666666666667, 425.6666666666667, 417.0, 371.3333333333333, 296.6666666666667, 269.0], "ml": [322.0, 379.0, 419.0, 378.0, 360.0, 322.0, 326.0, 305.0, 255.0, 283.0, 267.0, 267.0, 324.0, 377.0, 415.0, 381.0, 368.0, 350.0, 338.0, 286.0, 305.0, 251.0, 267.0, 259.0, 288.0, 328.0, 375.0, 350.0, 380.0, 331.0, 325.0, 278.0, 258.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "GTR-007": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [1091, 917, 977, 641, 335, 732, 865, 1130, 920, 753, 790, 594, 259, 159, 704, 706, 752, 797, 799, 813, 960, 720, 985, 916, 560, 810, 279, 836, 863, 917, 324, 941, 1019], "baseline": [801.3333333333334, 897.6666666666666, 882.3333333333334, 995.0, 845.0, 651.0, 569.3333333333334, 644.0, 909.0, 971.6666666666666, 934.3333333333334, 821.0, 712.3333333333334, 547.6666666666666, 337.3333333333333, 374.0, 523.0, 720.6666666666666, 751.6666666666666, 782.6666666666666, 803.0, 857.3333333333334, 831.0, 888.3333333333334, 873.6666666666666, 820.3333333333334, 762.0, 549.6666666666666, 641.6666666666666, 659.3333333333334, 872.0, 701.3333333333334, 727.3333333333334], "ml": [790.0, 803.0, 879.0, 791.0, 522.0, 665.0, 790.0, 884.0, 821.0, 832.0, 823.0, 730.0, 530.0, 500.0, 576.0, 603.0, 686.0, 714.0, 769.0, 749.0, 862.0, 763.0, 820.0, 803.0, 699.0, 688.0, 601.0, 563.0, 580.0, 779.0, 551.0, 513.0, 597.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}, "GTR-008": {"dates": ["2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01", "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01", "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01", "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01", "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01", "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01", "2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01"], "actual": [108, 99, 62, 53, 128, 63, 72, 109, 91, 80, 87, 116, 60, 49, 109, 100, 73, 51, 80, 94, 138, 57, 87, 102, 17, 109, 60, 99, 92, 122, 108, 30, 77], "baseline": [120.0, 122.33333333333333, 117.33333333333333, 89.66666666666667, 71.33333333333333, 81.0, 81.33333333333333, 87.66666666666667, 81.33333333333333, 90.66666666666667, 93.33333333333333, 86.0, 94.33333333333333, 87.66666666666667, 75.0, 72.66666666666667, 86.0, 94.0, 74.66666666666667, 68.0, 75.0, 104.0, 96.33333333333333, 94.0, 82.0, 68.66666666666667, 76.0, 62.0, 89.33333333333333, 83.66666666666667, 104.33333333333333, 107.33333333333333, 86.66666666666667], "ml": [136.0, 112.0, 113.0, 78.0, 94.0, 72.0, 102.0, 112.0, 84.0, 110.0, 90.0, 80.0, 75.0, 77.0, 93.0, 86.0, 83.0, 81.0, 108.0, 79.0, 127.0, 68.0, 87.0, 83.0, 61.0, 70.0, 87.0, 66.0, 86.0, 88.0, 90.0, 71.0, 74.0], "aqi": [77.6, 30.0, 30.0, 125.1, 147.4, 188.6, 165.9, 224.5, 191.1, 122.6, 125.1, 69.4, 30.0, 65.5, 41.6, 155.1, 158.0, 181.9, 172.8, 238.2, 153.8, 102.9, 65.9, 72.0, 54.6, 67.2, 97.2, 205.7, 143.7, 168.8, 167.4, 213.9, 205.2], "temperature": [40.0, 41.5, 39.7, 33.7, 30.5, 25.2, 21.8, 21.7, 21.8, 26.4, 30.1, 35.6, 39.9, 37.1, 38.0, 34.1, 28.7, 24.4, 24.3, 18.3, 23.3, 21.6, 29.3, 35.3, 39.8, 41.4, 40.2, 34.3, 29.1, 26.7, 21.0, 17.4, 19.1], "precipitation": [216.9, 234.7, 36.0, 28.2, 10.1, 0.0, 19.7, 27.7, 65.1, 23.9, 227.4, 179.7, 186.4, 169.8, 7.7, 64.1, 12.4, 39.3, 15.8, 47.3, 32.9, 25.7, 236.9, 221.4, 230.9, 186.9, 0.0, 1.7, 30.8, 65.6, 31.8, 24.7, 29.7], "wedding_flag": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "google_trends": [70.0, 29.3, 42.4, 34.3, 27.8, 33.8, 69.5, 95.2, 51.2, 80.2, 54.6, 21.4, 18.1, 31.4, 23.1, 32.4, 38.4, 50.9, 67.1, 55.9, 85.6, 27.0, 39.5, 24.1, 14.8, 16.2, 46.5, 41.7, 26.7, 47.8, 48.1, 51.7, 63.0]}};
 
 const COLORS = {
-    navy: '#141a24',
-    navyLight: '#1b2230',
-    green: '#34c88a',
-    blue: '#5b9fd6',
-    red: '#e5706a',
-    amber: '#e8b84a',
-    text: '#dce1ea',
-    textSec: '#7c8aa0',
-    gridColor: '#2a3348',
+    navy: '#f5f5f7',
+    navyLight: '#ffffff',
+    green: '#34a853',
+    blue: '#1a73e8',
+    red: '#d93025',
+    amber: '#e37400',
+    text: '#1d1d1f',
+    textSec: '#86868b',
+    gridColor: 'rgba(0,0,0,0.06)',
 };
 
-// Consistent signal pool color mapping — muted palette for data, semantic colors for alerts
+// Consistent signal pool color mapping — refined palette for light theme
 const POOL_COLORS = {
-    'AQI': '#c27070',
-    'Temperature': '#c9935a',
-    'Monsoon': '#5b9fd6',
-    'Wedding': '#a87cc4',
-    'GoogleTrends': '#5db87a',
+    'AQI': '#c5221f',
+    'Temperature': '#e37400',
+    'Monsoon': '#1a73e8',
+    'Wedding': '#9334e6',
+    'GoogleTrends': '#34a853',
 };
 const POOL_COLORS_DIM = {
-    'AQI': 'rgba(194,112,112,0.12)',
-    'Temperature': 'rgba(201,147,90,0.12)',
-    'Monsoon': 'rgba(91,159,214,0.12)',
-    'Wedding': 'rgba(168,124,196,0.12)',
-    'GoogleTrends': 'rgba(93,184,122,0.12)',
+    'AQI': 'rgba(197,34,31,0.08)',
+    'Temperature': 'rgba(227,116,0,0.08)',
+    'Monsoon': 'rgba(26,115,232,0.08)',
+    'Wedding': 'rgba(147,52,230,0.08)',
+    'GoogleTrends': 'rgba(52,168,83,0.08)',
 };
 
 // Active cross-filter state
@@ -990,11 +1016,11 @@ let activePoolFilter = 'all';
 const plotLayout = {
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
-    font: { family: 'Inter, Segoe UI, system-ui, sans-serif', color: COLORS.text, size: 13 },
+    font: { family: '-apple-system, SF Pro Display, Helvetica Neue, Arial, sans-serif', color: COLORS.text, size: 13 },
     margin: { l: 56, r: 24, t: 24, b: 52 },
-    xaxis: { gridcolor: 'rgba(255,255,255,0.04)', zerolinecolor: 'rgba(255,255,255,0.06)', tickfont: { size: 12 } },
-    yaxis: { gridcolor: 'rgba(255,255,255,0.04)', zerolinecolor: 'rgba(255,255,255,0.06)', tickfont: { size: 12 } },
-    legend: { bgcolor: 'rgba(0,0,0,0)', font: { size: 12 } },
+    xaxis: { gridcolor: 'rgba(0,0,0,0.04)', zerolinecolor: 'rgba(0,0,0,0.06)', tickfont: { size: 12, color: '#86868b' } },
+    yaxis: { gridcolor: 'rgba(0,0,0,0.04)', zerolinecolor: 'rgba(0,0,0,0.06)', tickfont: { size: 12, color: '#86868b' } },
+    legend: { bgcolor: 'rgba(0,0,0,0)', font: { size: 12, color: '#86868b' } },
 };
 
 function switchTab(name) {
@@ -1116,14 +1142,14 @@ function renderOverview() {
             type: 'scatter',
             name: pool,
             marker: { color: POOL_COLORS[pool] || COLORS.green, size: 14, opacity: 0.85,
-                       line: { color: 'rgba(255,255,255,0.15)', width: 1.5 } },
+                       line: { color: 'rgba(0,0,0,0.08)', width: 1.5 } },
         });
     });
     // Diagonal reference line
     scatterTraces.push({
         x: [0, 105], y: [0, 105],
         mode: 'lines', name: 'No Change Line',
-        line: { color: 'rgba(255,255,255,0.15)', dash: 'dash', width: 1 },
+        line: { color: 'rgba(0,0,0,0.1)', dash: 'dash', width: 1 },
         showlegend: false,
     });
     Plotly.newPlot('chart-sku-scatter', scatterTraces, {
@@ -1171,13 +1197,13 @@ function renderOverview() {
     const modelNames = Object.keys(modelCounts);
     const modelVals = Object.values(modelCounts);
     const modelColors = modelNames.map((n, i) => {
-        const palette = [COLORS.green, COLORS.blue, COLORS.amber, '#a87cc4', COLORS.red];
+        const palette = [COLORS.green, COLORS.blue, COLORS.amber, '#9334e6', COLORS.red];
         return palette[i % palette.length];
     });
     Plotly.newPlot('chart-model-distribution', [{
         labels: modelNames, values: modelVals,
         type: 'pie', hole: 0.5,
-        marker: { colors: modelColors, line: { color: COLORS.navy, width: 2 } },
+        marker: { colors: modelColors, line: { color: '#ffffff', width: 2 } },
         textinfo: 'label+percent', textfont: { size: 12, color: COLORS.text },
         hovertemplate: '<b>%{label}</b><br>%{value} SKUs (%{percent})<extra></extra>',
     }], {
@@ -1192,7 +1218,7 @@ function renderOverview() {
     const allPools = [...new Set(metricsData.map(m => m.signal_pool))];
     const allModelNames = ['Gradient Boosting', 'Random Forest', 'Extra Trees', 'Ridge Regression'];
     const barTraces = allModelNames.map((modelName, idx) => {
-        const modelColors2 = [COLORS.green, COLORS.blue, COLORS.amber, '#a87cc4'];
+        const modelColors2 = [COLORS.green, COLORS.blue, COLORS.amber, '#9334e6'];
         const ys = allPools.map(pool => {
             const poolSkus = metricsData.filter(m => m.signal_pool === pool);
             const scores = poolSkus.filter(m => m.model_scores && m.model_scores[modelName] !== undefined);
@@ -1272,9 +1298,9 @@ function renderRisk() {
                 type: 'scatter',
                 name: 'Other At-Risk',
                 marker: {
-                    color: 'rgba(255,193,7,0.25)',
+                    color: 'rgba(227,116,0,0.2)',
                     size: 10,
-                    line: { color: 'rgba(255,255,255,0.1)', width: 1 },
+                    line: { color: 'rgba(0,0,0,0.06)', width: 1 },
                 },
                 hovertemplate: '%{text}<br>FA: %{x:.1f}%<br>Risk: %{y:.0f}<extra></extra>',
             },
@@ -1292,7 +1318,7 @@ function renderRisk() {
                     color: sortedRisk.slice(0, 5).map(r => r.risk_score),
                     colorscale: [[0, COLORS.amber], [1, COLORS.red]],
                     size: 16,
-                    line: { color: 'rgba(255,255,255,0.3)', width: 2 },
+                    line: { color: 'rgba(0,0,0,0.15)', width: 2 },
                 },
                 hovertemplate: '%{text}<br>FA: %{x:.1f}%<br>Risk: %{y:.0f}<extra></extra>',
             }
@@ -1466,37 +1492,37 @@ function updateRecommendation() {
 
                 <!-- Pipeline Overview — 7 Steps -->
                 <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:20px;padding:16px 0">
-                    <div style="text-align:center;padding:10px 4px;background:linear-gradient(135deg,rgba(91,159,214,0.12),rgba(91,159,214,0.04));border-radius:8px 0 0 8px">
+                    <div style="text-align:center;padding:10px 4px;background:var(--input-bg);border-radius:10px 0 0 10px">
                         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 1</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Split Data</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">24 / 6 / 6 mo</div>
                     </div>
-                    <div style="text-align:center;padding:10px 4px;background:linear-gradient(135deg,rgba(91,159,214,0.10),rgba(46,204,113,0.06))">
+                    <div style="text-align:center;padding:10px 4px;background:var(--input-bg)">
                         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 2</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Features</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">12 inputs</div>
                     </div>
-                    <div style="text-align:center;padding:10px 4px;background:linear-gradient(135deg,rgba(46,204,113,0.08),rgba(46,204,113,0.04))">
+                    <div style="text-align:center;padding:10px 4px;background:var(--input-bg)">
                         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 3</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Train</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">4 models</div>
                     </div>
-                    <div style="text-align:center;padding:10px 4px;background:linear-gradient(135deg,rgba(255,193,7,0.12),rgba(255,193,7,0.04))">
+                    <div style="text-align:center;padding:10px 4px;background:var(--input-bg)">
                         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 4</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Validate</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">Rank &amp; ensemble</div>
                     </div>
-                    <div style="text-align:center;padding:10px 4px;background:linear-gradient(135deg,rgba(46,204,113,0.12),rgba(46,204,113,0.04))">
+                    <div style="text-align:center;padding:10px 4px;background:var(--input-bg)">
                         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 5</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Retrain</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">30 months</div>
                     </div>
-                    <div style="text-align:center;padding:10px 4px;background:linear-gradient(135deg,rgba(168,124,196,0.12),rgba(168,124,196,0.04))">
+                    <div style="text-align:center;padding:10px 4px;background:var(--input-bg)">
                         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 6</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Test &amp; Score</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">FA per model</div>
                     </div>
-                    <div style="text-align:center;padding:10px 4px;background:linear-gradient(135deg,rgba(168,124,196,0.10),rgba(91,159,214,0.06));border-radius:0 8px 8px 0">
+                    <div style="text-align:center;padding:10px 4px;background:var(--input-bg);border-radius:0 10px 10px 0">
                         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 7</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Recommend</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">Best wins</div>
@@ -1513,29 +1539,29 @@ function updateRecommendation() {
                         Pharmaceutical demand is influenced by non-linear external signals (weather, seasonality, search trends). We use four complementary tree-based and linear regressors that each capture different patterns. No single model dominates across all signal pools, which is why we evaluate all four per SKU.
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                        <div style="background:rgba(46,204,113,0.06);border:1px solid rgba(46,204,113,0.15);border-radius:8px;padding:14px 16px">
+                        <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:12px;padding:14px 16px">
                             <div style="font-size:12px;font-weight:600;color:var(--accent-green);margin-bottom:8px">Gradient Boosting</div>
                             <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
                                 <strong style="color:var(--text-primary)">How it works:</strong> Starts with a simple prediction (e.g., average demand), then builds a sequence of small decision trees where each new tree focuses specifically on the errors the previous trees got wrong. Each tree's contribution is scaled by a learning rate to prevent overcorrection. The final prediction is the sum of all trees' outputs.<br>
                                 <strong style="color:var(--text-primary)">Why for pharma:</strong> Excels at capturing complex, non-linear interactions — e.g., "demand spikes when AQI &gt; 200 AND temperature &gt; 35&deg;C" — patterns that linear models miss. Often the top performer for weather-driven pools.
                             </div>
                         </div>
-                        <div style="background:rgba(91,159,214,0.06);border:1px solid rgba(91,159,214,0.15);border-radius:8px;padding:14px 16px">
-                            <div style="font-size:12px;font-weight:600;color:#5b9fd6;margin-bottom:8px">Random Forest</div>
+                        <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:12px;padding:14px 16px">
+                            <div style="font-size:12px;font-weight:600;color:var(--accent-blue);margin-bottom:8px">Random Forest</div>
                             <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
                                 <strong style="color:var(--text-primary)">How it works:</strong> Trains hundreds of decision trees independently, each on a random subset of the training data and a random subset of features. Each tree makes its own prediction, and the final output is the average across all trees. This "wisdom of crowds" approach reduces the risk of any single tree overfitting to noise.<br>
                                 <strong style="color:var(--text-primary)">Why for pharma:</strong> Robust to outliers and noisy demand spikes (e.g., one-time bulk orders). Delivers stable, reliable forecasts even when demand patterns are irregular across months.
                             </div>
                         </div>
-                        <div style="background:rgba(255,193,7,0.06);border:1px solid rgba(255,193,7,0.15);border-radius:8px;padding:14px 16px">
-                            <div style="font-size:12px;font-weight:600;color:#ffc107;margin-bottom:8px">Extra Trees <span style="font-weight:400;color:var(--text-muted);font-size:10px">(Extremely Randomized Trees)</span></div>
+                        <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:12px;padding:14px 16px">
+                            <div style="font-size:12px;font-weight:600;color:var(--accent-amber);margin-bottom:8px">Extra Trees <span style="font-weight:400;color:var(--text-muted);font-size:10px">(Extremely Randomized Trees)</span></div>
                             <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
                                 <strong style="color:var(--text-primary)">How it works:</strong> Like Random Forest, it trains many trees in parallel — but instead of searching for the optimal split point at each node, it picks split thresholds completely at random. This adds extra randomization: each individual tree is less precise, but the ensemble averages out noise more aggressively, reducing variance.<br>
                                 <strong style="color:var(--text-primary)">Why for pharma:</strong> The additional randomness helps avoid overfitting on small signal pools. Trains faster than Random Forest and often generalizes better on sharp seasonal patterns like wedding-season demand surges.
                             </div>
                         </div>
-                        <div style="background:rgba(168,124,196,0.06);border:1px solid rgba(168,124,196,0.15);border-radius:8px;padding:14px 16px">
-                            <div style="font-size:12px;font-weight:600;color:#a87cc4;margin-bottom:8px">Ridge Regression <span style="font-weight:400;color:var(--text-muted);font-size:10px">(L2-Regularized Linear Model)</span></div>
+                        <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:12px;padding:14px 16px">
+                            <div style="font-size:12px;font-weight:600;color:#9334e6;margin-bottom:8px">Ridge Regression <span style="font-weight:400;color:var(--text-muted);font-size:10px">(L2-Regularized Linear Model)</span></div>
                             <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
                                 <strong style="color:var(--text-primary)">How it works:</strong> Finds the best straight-line relationship between each input signal and demand (e.g., "for every 10&deg;C rise, demand increases by X units"). Unlike ordinary linear regression, Ridge adds a penalty term (L2) that shrinks large coefficients toward zero, preventing any single signal from dominating the prediction and reducing overfitting.<br>
                                 <strong style="color:var(--text-primary)">Why for pharma:</strong> Acts as a simpler counterpoint to tree models. When the relationship between a signal and demand is genuinely proportional (e.g., Google Trends search volume &rarr; demand), Ridge captures it cleanly with lower overfitting risk than complex models.
@@ -1552,7 +1578,7 @@ function updateRecommendation() {
                     </div>
 
                     <!-- Step 1 -->
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 1 &mdash; Chronological Data Split</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             36 months per SKU, split in time order (no shuffling):
@@ -1568,7 +1594,7 @@ function updateRecommendation() {
                     </div>
 
                     <!-- Step 2 -->
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 2 &mdash; Feature Engineering (12 Inputs)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             Every model receives the same 12 features per month. No future data leaks — lags and rolling windows use only past values.
@@ -1584,7 +1610,7 @@ function updateRecommendation() {
                     </div>
 
                     <!-- Step 3 -->
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 3 &mdash; Train 4 Models (Months 1–24)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             Fixed hyperparameters — no tuning on test data. <code style="font-size:10px;color:var(--text-primary)">random_state=42</code> ensures full reproducibility.
@@ -1610,15 +1636,15 @@ function updateRecommendation() {
                     </div>
 
                     <!-- Step 4 -->
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 4 &mdash; Validate &amp; Rank (Months 25–30)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             Each model predicts months 25–30 (never seen during training). Validation MAPE is computed:
-                            <div style="background:rgba(255,255,255,0.04);border-radius:4px;padding:6px 10px;margin:6px 0;font-size:11px;color:var(--text-primary)">
+                            <div style="background:var(--input-bg);border-radius:8px;padding:6px 10px;margin:6px 0;font-size:11px;color:var(--text-primary)">
                                 Val_MAPE = (1/n) &times; &sum; |Actual &minus; Predicted| / Actual &times; 100
                             </div>
                             Models ranked by Val_MAPE (lowest = best). Top 3 form a weighted ensemble:
-                            <div style="background:rgba(255,255,255,0.04);border-radius:4px;padding:6px 10px;margin:6px 0;font-size:11px;color:var(--text-primary)">
+                            <div style="background:var(--input-bg);border-radius:8px;padding:6px 10px;margin:6px 0;font-size:11px;color:var(--text-primary)">
                                 w<sub>i</sub> = (1 / MAPE<sub>i</sub>) / &sum;(1 / MAPE<sub>j</sub>)<br>
                                 Ensemble = &sum; w<sub>i</sub> &times; Prediction<sub>i</sub>
                             </div>
@@ -1627,7 +1653,7 @@ function updateRecommendation() {
                     </div>
 
                     <!-- Step 5 -->
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 5 &mdash; Retrain on Months 1–30</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             After the winner is chosen, all models are retrained on the full 30 months (train + validation combined) to maximize learning before the final test. Predictions on months 31–36 are floored at 0 and rounded to whole units.
@@ -1635,11 +1661,11 @@ function updateRecommendation() {
                     </div>
 
                     <!-- Step 6 -->
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 6 &mdash; Compute FA per Model (Months 31–36)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             For <strong>each model independently</strong> (GB, RF, ET, Ridge, and Baseline), on the held-out test period:
-                            <div style="background:rgba(255,255,255,0.04);border-radius:4px;padding:8px 10px;margin:6px 0;font-size:11px;color:var(--text-primary);line-height:2">
+                            <div style="background:var(--input-bg);border-radius:8px;padding:8px 10px;margin:6px 0;font-size:11px;color:var(--text-primary);line-height:2">
                                 MAPE<sub>model</sub> = (1/n) &times; &sum; |Actual(t) &minus; Forecast<sub>model</sub>(t)| / max(Actual(t), 1) &times; 100<br>
                                 FA<sub>model</sub> = max(0, 100 &minus; MAPE<sub>model</sub>)<br>
                                 <strong>Best_ML_FA</strong> = max(FA<sub>GB</sub>, FA<sub>RF</sub>, FA<sub>ET</sub>, FA<sub>Ridge</sub>)<br>
@@ -1651,10 +1677,10 @@ function updateRecommendation() {
                     </div>
 
                     <!-- Step 7 -->
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 7 &mdash; Recommendation (Purely Algorithmic)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
-                            <div style="background:rgba(255,255,255,0.04);border-radius:4px;padding:6px 10px;margin:4px 0;font-size:11px;color:var(--text-primary)">
+                            <div style="background:var(--input-bg);border-radius:8px;padding:6px 10px;margin:4px 0;font-size:11px;color:var(--text-primary)">
                                 IF Best_ML_FA &gt; Baseline_FA &rarr; Recommend best ML model<br>
                                 ELSE &rarr; Recommend Baseline (3-month SMA)
                             </div>
@@ -1703,7 +1729,7 @@ function updateRecommendation() {
         const fas = mapes.map(v => Math.max(0, 100 - v));
         const barColors = names.map(n => {
             if (n === recommended || (recommended.includes(n))) return COLORS.green;
-            return 'rgba(91,159,214,0.6)';
+            return 'rgba(26,115,232,0.5)';
         });
         Plotly.newPlot('chart-model-compare', [{
             y: names, x: fas, type: 'bar', orientation: 'h',
@@ -1751,7 +1777,7 @@ function updateRecommendation() {
             { x: ts.dates, y: ts.precipitation, name: 'Precipitation (mm)', type: 'scatter', mode: 'lines',
                line: { color: '#4dabf7', width: 2 }, yaxis: 'y2' },
             { x: ts.dates, y: ts.google_trends, name: 'Google Trends', type: 'scatter', mode: 'lines',
-               line: { color: '#a87cc4', width: 2, dash: 'dot' }, yaxis: 'y' },
+               line: { color: '#9334e6', width: 2, dash: 'dot' }, yaxis: 'y' },
         ];
         // Wedding flag as shaded regions
         const weddingX = []; const weddingY = [];
@@ -1765,7 +1791,7 @@ function updateRecommendation() {
         sigTraces.push({
             x: weddingX, y: weddingY.map(v => v ? 300 : 0),
             type: 'bar', name: 'Wedding Season', yaxis: 'y2',
-            marker: { color: 'rgba(255,193,7,0.15)' },
+            marker: { color: 'rgba(227,116,0,0.1)' },
             width: 20 * 86400000,
         });
         Plotly.newPlot('chart-signals-detail', sigTraces, {
@@ -1887,7 +1913,7 @@ function updateRecommendation() {
         const avgRange = future.reduce((s, f) => s + (f.upper_bound - f.lower_bound), 0) / future.length;
         const ciPct = avgForecast > 0 ? (avgRange / avgForecast * 100) : 0;
         if (ciPct > 40) {
-            ciWarning.innerHTML = '<div style="background:rgba(255,193,7,0.1);border:1px solid rgba(255,193,7,0.3);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--accent-amber)"><strong>&#9888; Wide confidence interval</strong> — CI spans &plusmn;' + (ciPct/2).toFixed(0) + '% of forecast. Consider manual review or additional signal inputs for this SKU.</div>';
+            ciWarning.innerHTML = '<div style="background:rgba(227,116,0,0.06);border:1px solid rgba(227,116,0,0.15);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--accent-amber)"><strong>&#9888; Wide confidence interval</strong> — CI spans &plusmn;' + (ciPct/2).toFixed(0) + '% of forecast. Consider manual review or additional signal inputs for this SKU.</div>';
         } else {
             ciWarning.innerHTML = '';
         }
@@ -2228,7 +2254,7 @@ function renderAiBriefing() {
     // Anomalies
     let anomalyLine = '';
     if (anomaliesData.length > 0) {
-        anomalyLine = `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06)"><strong style="color:${COLORS.amber}">&#9888; Active Signals:</strong> ${anomaliesData.map(a => a.message).join(' | ')}</div>`;
+        anomalyLine = `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,0.06)"><strong style="color:${COLORS.amber}">&#9888; Active Signals:</strong> ${anomaliesData.map(a => a.message).join(' | ')}</div>`;
     }
 
     // Recommended Actions (new: "What should I do?")
@@ -2238,7 +2264,7 @@ function renderAiBriefing() {
         if (worstPool) actions.push(`Review <strong>${worstPool}</strong> pool SKUs — <a href="#" onclick="setPoolFilter('${worstPool}');return false" style="color:var(--accent-green)">filter now</a>`);
         actions.push(`Increase safety stock for critical SKUs (FA < 30%) — <a href="#" onclick="switchTab('safety');return false" style="color:var(--accent-green)">optimizer</a>`);
         actions.push(`Investigate demand pattern shifts with sales team`);
-        actionsHtml = `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06)">
+        actionsHtml = `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,0.06)">
             <strong>Recommended Actions:</strong>
             <div style="margin-top:4px">${actions.map((a, i) => `<span style="color:var(--text-secondary);font-size:11px;margin-right:4px">${i+1}.</span> ${a}`).join('<span style="margin:0 8px;color:var(--card-border)">|</span>')}</div>
         </div>`;
@@ -2276,7 +2302,7 @@ function renderTopProblems() {
     let rows = worst5.map((s, i) => {
         const barWidth = Math.max(2, s.ml_fa);
         const barColor = s.ml_fa < 30 ? COLORS.red : (s.ml_fa < 50 ? COLORS.amber : COLORS.blue);
-        return `<div style="display:grid;grid-template-columns:20px 1fr 80px 48px;gap:8px;align-items:center;padding:7px 0;${i < 4 ? 'border-bottom:1px solid rgba(255,255,255,0.04)' : ''}">
+        return `<div style="display:grid;grid-template-columns:20px 1fr 80px 48px;gap:8px;align-items:center;padding:7px 0;${i < 4 ? 'border-bottom:1px solid rgba(0,0,0,0.04)' : ''}">
             <span style="font-size:12px;font-weight:700;color:var(--text-secondary)">${i + 1}</span>
             <div style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
                 <span style="font-weight:600;cursor:pointer;color:var(--text-primary);font-size:13px" onclick="navigateToSku('${s.sku_id}')">${s.sku_name}</span>
