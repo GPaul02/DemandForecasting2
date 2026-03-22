@@ -112,27 +112,21 @@ def generate_html_dashboard(metrics_df, results_df, future_df, signals_df):
     --accent-amber-dim: rgba(227,116,0,0.06);
     --accent-blue: #1a73e8;
     --text-primary: #1d1d1f;
-    --text-secondary: #6e6e73;
+    --text-secondary: #86868b;
     --text-muted: #aeaeb2;
-    --glass: rgba(255,255,255,0.82);
-    --glass-border: rgba(255,255,255,0.6);
-    --glass-strong: rgba(255,255,255,0.92);
-    --glass-hover: rgba(255,255,255,0.88);
-    --card-bg: var(--glass);
-    --card-border: var(--glass-border);
-    --input-bg: rgba(255,255,255,0.6);
-    --hover-bg: rgba(255,255,255,0.5);
-    --shadow-sm: 0 1px 4px rgba(0,0,0,0.04), 0 2px 12px rgba(0,0,0,0.03);
-    --shadow-md: 0 2px 8px rgba(0,0,0,0.06), 0 4px 20px rgba(0,0,0,0.04);
-    --shadow-lg: 0 4px 12px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.06);
-    --radius: 18px;
-    --blur: saturate(120%) blur(24px);
+    --card-bg: #ffffff;
+    --card-border: #d2d2d7;
+    --input-bg: #ffffff;
+    --hover-bg: #f5f5f7;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-lg: 0 4px 16px rgba(0,0,0,0.10);
+    --radius: 16px;
 }}
 * {{ margin:0; padding:0; box-sizing:border-box; }}
 body {{
     font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background: linear-gradient(160deg, #c4dff6 0%, #ddd6f3 25%, #e8dff5 50%, #cde4f7 75%, #d6ecf7 100%);
-    background-attachment: fixed;
+    background: #f5f5f7;
     color: var(--text-primary);
     min-height: 100vh;
     line-height: 1.5;
@@ -140,10 +134,8 @@ body {{
     -moz-osx-font-smoothing: grayscale;
 }}
 .header {{
-    background: var(--glass-strong);
-    -webkit-backdrop-filter: var(--blur);
-    backdrop-filter: var(--blur);
-    border-bottom: 1px solid var(--glass-border);
+    background: #ffffff;
+    border-bottom: 1px solid var(--card-border);
     padding: 16px 48px;
     display: flex;
     align-items: center;
@@ -174,10 +166,8 @@ body {{
 .tab-bar {{
     display: flex;
     gap: 4px;
-    background: var(--glass-strong);
-    -webkit-backdrop-filter: var(--blur);
-    backdrop-filter: var(--blur);
-    border-bottom: 1px solid var(--glass-border);
+    background: #ffffff;
+    border-bottom: 1px solid var(--card-border);
     padding: 6px 48px;
 }}
 .tab-btn {{
@@ -208,10 +198,8 @@ body {{
     margin-bottom: 30px;
 }}
 .kpi-card {{
-    background: var(--glass);
-    -webkit-backdrop-filter: var(--blur);
-    backdrop-filter: var(--blur);
-    border: 1px solid var(--glass-border);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: var(--radius);
     padding: 24px;
     text-align: center;
@@ -219,7 +207,6 @@ body {{
     transition: all 0.25s ease;
 }}
 .kpi-card:hover {{
-    background: var(--glass-hover);
     box-shadow: var(--shadow-md);
 }}
 .kpi-card .label {{
@@ -247,20 +234,16 @@ body {{
 }}
 /* Tier system: 1=hero decision signals, 2=diagnostic charts, 3=supporting data */
 .chart-container {{
-    background: var(--glass);
-    -webkit-backdrop-filter: var(--blur);
-    backdrop-filter: var(--blur);
-    border: 1px solid var(--glass-border);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: var(--radius);
     padding: 24px;
     margin-bottom: 20px;
     box-shadow: var(--shadow-sm);
 }}
 .chart-container.tier-3 {{
-    background: rgba(255,255,255,0.7);
-    -webkit-backdrop-filter: var(--blur);
-    backdrop-filter: var(--blur);
-    border: 1px solid var(--glass-border);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     box-shadow: none;
     padding: 20px;
 }}
@@ -313,7 +296,7 @@ td {{
     border-bottom: 1px solid rgba(0,0,0,0.04);
     color: var(--text-primary);
 }}
-tr:hover td {{ background: var(--hover-bg); }}
+tr:hover td {{ background: #fafafa; }}
 .badge {{
     display: inline-block;
     padding: 4px 10px;
@@ -325,9 +308,7 @@ tr:hover td {{ background: var(--hover-bg); }}
 .badge-amber {{ background: var(--accent-amber-dim); color: var(--accent-amber); }}
 .badge-green {{ background: var(--accent-green-dim); color: var(--accent-green); }}
 .alert-box {{
-    background: rgba(255,240,240,0.85);
-    -webkit-backdrop-filter: var(--blur);
-    backdrop-filter: var(--blur);
+    background: #fff5f5;
     border: 1px solid rgba(217,48,37,0.12);
     border-radius: 14px;
     padding: 14px 18px;
@@ -353,9 +334,7 @@ tr:hover td {{ background: var(--hover-bg); }}
 }}
 select {{
     background: var(--input-bg);
-    -webkit-backdrop-filter: var(--blur);
-    backdrop-filter: var(--blur);
-    border: 1px solid var(--glass-border);
+    border: 1px solid var(--card-border);
     color: var(--text-primary);
     padding: 10px 16px;
     border-radius: 12px;
@@ -404,12 +383,12 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
 .two-col > * {{ min-width: 0; overflow: hidden; }}
 /* Urgency-differentiated KPI cards */
 .kpi-card.urgent {{
-    background: rgba(255,245,245,0.85);
-    border-color: rgba(217,48,37,0.15);
+    background: #ffffff;
+    border-color: rgba(217,48,37,0.2);
 }}
 .kpi-card.healthy {{
-    background: rgba(245,255,248,0.85);
-    border-color: rgba(52,168,83,0.15);
+    background: #ffffff;
+    border-color: rgba(52,168,83,0.2);
 }}
 .kpi-card.healthy .value {{ font-size: 28px; }}
 /* Searchable SKU selector */
@@ -420,9 +399,7 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
 .sku-search-wrap input {{
     width: 100%;
     background: var(--input-bg);
-    -webkit-backdrop-filter: var(--blur);
-    backdrop-filter: var(--blur);
-    border: 1px solid var(--glass-border);
+    border: 1px solid var(--card-border);
     color: var(--text-primary);
     padding: 10px 16px;
     border-radius: 12px;
@@ -439,10 +416,8 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
     right: 0;
     max-height: 320px;
     overflow-y: auto;
-    background: var(--glass-strong);
-    -webkit-backdrop-filter: var(--blur);
-    backdrop-filter: var(--blur);
-    border: 1px solid var(--glass-border);
+    background: #ffffff;
+    border: 1px solid var(--card-border);
     border-top: none;
     border-radius: 0 0 14px 14px;
     z-index: 100;
@@ -455,7 +430,7 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
     text-transform: uppercase;
     letter-spacing: 0.3px;
     color: var(--text-secondary);
-    background: var(--input-bg);
+    background: #f5f5f7;
     font-weight: 600;
 }}
 .sku-opt {{
@@ -522,20 +497,16 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
-    border: 1px solid var(--glass-border);
-    background: var(--glass);
-    -webkit-backdrop-filter: var(--blur);
-    backdrop-filter: var(--blur);
+    border: 1px solid var(--card-border);
+    background: #ffffff;
     color: var(--text-secondary);
     transition: all 0.2s;
 }}
-.pool-pill:hover {{ background: var(--glass-hover); color: var(--text-primary); }}
+.pool-pill:hover {{ background: #f5f5f7; color: var(--text-primary); }}
 .pool-pill.active {{
-    background: rgba(0,0,0,0.7);
-    -webkit-backdrop-filter: var(--blur);
-    backdrop-filter: var(--blur);
+    background: #1d1d1f;
     color: #fff;
-    border-color: rgba(0,0,0,0.7);
+    border-color: #1d1d1f;
 }}
 .pool-pill .pill-dot {{
     display: inline-block;
@@ -547,10 +518,8 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
 }}
 /* Proactive AI briefing banner */
 .ai-briefing {{
-    background: rgba(245,255,248,0.85);
-    -webkit-backdrop-filter: var(--blur);
-    backdrop-filter: var(--blur);
-    border: 1px solid rgba(52,168,83,0.12);
+    background: #f6fef8;
+    border: 1px solid rgba(52,168,83,0.15);
     border-radius: var(--radius);
     padding: 20px 24px;
     margin-bottom: 20px;
@@ -603,8 +572,8 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
     border-radius: 14px;
     text-align: center;
 }}
-.stat-block.baseline {{ background: rgba(235,245,255,0.85); border: 1px solid rgba(26,115,232,0.12); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); }}
-.stat-block.ml {{ background: rgba(245,255,248,0.85); border: 1px solid rgba(52,168,83,0.12); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); }}
+.stat-block.baseline {{ background: #f0f6ff; border: 1px solid rgba(26,115,232,0.15); }}
+.stat-block.ml {{ background: #f0faf3; border: 1px solid rgba(52,168,83,0.15); }}
 .stat-block .stat-label {{ font-size: 12px; color: var(--text-secondary); font-weight: 600; letter-spacing: 0.2px; }}
 .stat-block .stat-value {{ font-size: 28px; font-weight: 700; margin: 4px 0; }}
 .stat-block.baseline .stat-value {{ color: var(--accent-blue); }}
@@ -715,10 +684,8 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
     right: 0;
     width: 380px;
     height: 100vh;
-    background: var(--glass-strong);
-    -webkit-backdrop-filter: var(--blur);
-    backdrop-filter: var(--blur);
-    border-left: 1px solid var(--glass-border);
+    background: #ffffff;
+    border-left: 1px solid var(--card-border);
     border-radius: 0;
     box-shadow: -4px 0 30px rgba(0,0,0,0.1);
     z-index: 9998;
@@ -1668,28 +1635,28 @@ function updateRecommendation() {{
                         Pharmaceutical demand is influenced by non-linear external signals (weather, seasonality, search trends). We use four complementary tree-based and linear regressors that each capture different patterns. No single model dominates across all signal pools, which is why we evaluate all four per SKU.
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                        <div style="background:rgba(255,255,255,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.7);border-radius:14px;padding:14px 16px">
+                        <div style="background:#ffffff;border:1px solid #d2d2d7;border-radius:14px;padding:14px 16px">
                             <div style="font-size:12px;font-weight:600;color:var(--accent-green);margin-bottom:8px">Gradient Boosting</div>
                             <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
                                 <strong style="color:var(--text-primary)">How it works:</strong> Starts with a simple prediction (e.g., average demand), then builds a sequence of small decision trees where each new tree focuses specifically on the errors the previous trees got wrong. Each tree's contribution is scaled by a learning rate to prevent overcorrection. The final prediction is the sum of all trees' outputs.<br>
                                 <strong style="color:var(--text-primary)">Why for pharma:</strong> Excels at capturing complex, non-linear interactions — e.g., "demand spikes when AQI &gt; 200 AND temperature &gt; 35&deg;C" — patterns that linear models miss. Often the top performer for weather-driven pools.
                             </div>
                         </div>
-                        <div style="background:rgba(255,255,255,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.7);border-radius:14px;padding:14px 16px">
+                        <div style="background:#ffffff;border:1px solid #d2d2d7;border-radius:14px;padding:14px 16px">
                             <div style="font-size:12px;font-weight:600;color:var(--accent-blue);margin-bottom:8px">Random Forest</div>
                             <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
                                 <strong style="color:var(--text-primary)">How it works:</strong> Trains hundreds of decision trees independently, each on a random subset of the training data and a random subset of features. Each tree makes its own prediction, and the final output is the average across all trees. This "wisdom of crowds" approach reduces the risk of any single tree overfitting to noise.<br>
                                 <strong style="color:var(--text-primary)">Why for pharma:</strong> Robust to outliers and noisy demand spikes (e.g., one-time bulk orders). Delivers stable, reliable forecasts even when demand patterns are irregular across months.
                             </div>
                         </div>
-                        <div style="background:rgba(255,255,255,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.7);border-radius:14px;padding:14px 16px">
+                        <div style="background:#ffffff;border:1px solid #d2d2d7;border-radius:14px;padding:14px 16px">
                             <div style="font-size:12px;font-weight:600;color:var(--accent-amber);margin-bottom:8px">Extra Trees <span style="font-weight:400;color:var(--text-muted);font-size:10px">(Extremely Randomized Trees)</span></div>
                             <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
                                 <strong style="color:var(--text-primary)">How it works:</strong> Like Random Forest, it trains many trees in parallel — but instead of searching for the optimal split point at each node, it picks split thresholds completely at random. This adds extra randomization: each individual tree is less precise, but the ensemble averages out noise more aggressively, reducing variance.<br>
                                 <strong style="color:var(--text-primary)">Why for pharma:</strong> The additional randomness helps avoid overfitting on small signal pools. Trains faster than Random Forest and often generalizes better on sharp seasonal patterns like wedding-season demand surges.
                             </div>
                         </div>
-                        <div style="background:rgba(255,255,255,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.7);border-radius:14px;padding:14px 16px">
+                        <div style="background:#ffffff;border:1px solid #d2d2d7;border-radius:14px;padding:14px 16px">
                             <div style="font-size:12px;font-weight:600;color:#9334e6;margin-bottom:8px">Ridge Regression <span style="font-weight:400;color:var(--text-muted);font-size:10px">(L2-Regularized Linear Model)</span></div>
                             <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
                                 <strong style="color:var(--text-primary)">How it works:</strong> Finds the best straight-line relationship between each input signal and demand (e.g., "for every 10&deg;C rise, demand increases by X units"). Unlike ordinary linear regression, Ridge adds a penalty term (L2) that shrinks large coefficients toward zero, preventing any single signal from dominating the prediction and reducing overfitting.<br>
@@ -1707,7 +1674,7 @@ function updateRecommendation() {{
                     </div>
 
                     <!-- Step 1 -->
-                    <div style="background:rgba(255,255,255,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.7);border-radius:14px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:#ffffff;border:1px solid #d2d2d7;border-radius:14px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 1 &mdash; Chronological Data Split</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             36 months per SKU, split in time order (no shuffling):
@@ -1723,7 +1690,7 @@ function updateRecommendation() {{
                     </div>
 
                     <!-- Step 2 -->
-                    <div style="background:rgba(255,255,255,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.7);border-radius:14px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:#ffffff;border:1px solid #d2d2d7;border-radius:14px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 2 &mdash; Feature Engineering (12 Inputs)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             Every model receives the same 12 features per month. No future data leaks — lags and rolling windows use only past values.
@@ -1739,7 +1706,7 @@ function updateRecommendation() {{
                     </div>
 
                     <!-- Step 3 -->
-                    <div style="background:rgba(255,255,255,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.7);border-radius:14px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:#ffffff;border:1px solid #d2d2d7;border-radius:14px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 3 &mdash; Train 4 Models (Months 1–24)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             Fixed hyperparameters — no tuning on test data. <code style="font-size:10px;color:var(--text-primary)">random_state=42</code> ensures full reproducibility.
@@ -1765,7 +1732,7 @@ function updateRecommendation() {{
                     </div>
 
                     <!-- Step 4 -->
-                    <div style="background:rgba(255,255,255,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.7);border-radius:14px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:#ffffff;border:1px solid #d2d2d7;border-radius:14px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 4 &mdash; Validate &amp; Rank (Months 25–30)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             Each model predicts months 25–30 (never seen during training). Validation MAPE is computed:
@@ -1782,7 +1749,7 @@ function updateRecommendation() {{
                     </div>
 
                     <!-- Step 5 -->
-                    <div style="background:rgba(255,255,255,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.7);border-radius:14px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:#ffffff;border:1px solid #d2d2d7;border-radius:14px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 5 &mdash; Retrain on Months 1–30</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             After the winner is chosen, all models are retrained on the full 30 months (train + validation combined) to maximize learning before the final test. Predictions on months 31–36 are floored at 0 and rounded to whole units.
@@ -1790,7 +1757,7 @@ function updateRecommendation() {{
                     </div>
 
                     <!-- Step 6 -->
-                    <div style="background:rgba(255,255,255,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.7);border-radius:14px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:#ffffff;border:1px solid #d2d2d7;border-radius:14px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 6 &mdash; Compute FA per Model (Months 31–36)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             For <strong>each model independently</strong> (GB, RF, ET, Ridge, and Baseline), on the held-out test period:
@@ -1806,7 +1773,7 @@ function updateRecommendation() {{
                     </div>
 
                     <!-- Step 7 -->
-                    <div style="background:rgba(255,255,255,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.7);border-radius:14px;padding:14px 16px;margin-bottom:8px">
+                    <div style="background:#ffffff;border:1px solid #d2d2d7;border-radius:14px;padding:14px 16px;margin-bottom:8px">
                         <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 7 &mdash; Recommendation (Purely Algorithmic)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             <div style="background:rgba(0,0,0,0.03);border-radius:10px;padding:6px 10px;margin:4px 0;font-size:11px;color:var(--text-primary)">
