@@ -1632,21 +1632,48 @@ function updateRecommendation() {{
                         <span style="width:3px;height:14px;background:var(--accent-green);border-radius:2px;display:inline-block"></span>
                         How Numbers Are Computed
                     </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-                        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px">
-                            <div style="font-size:11px;font-weight:600;color:var(--accent-green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Forecast Accuracy</div>
-                            <div style="font-size:12px;color:var(--text-primary);font-family:monospace;margin-bottom:6px">FA = 100% &minus; MAPE</div>
-                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5">MAPE = mean( |Actual &minus; Forecast| / Actual ) &times; 100. Measured on the 6-month hold-out test period for this specific SKU.</div>
-                        </div>
-                        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px">
-                            <div style="font-size:11px;font-weight:600;color:var(--accent-green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Improvement vs Baseline</div>
-                            <div style="font-size:12px;color:var(--text-primary);font-family:monospace;margin-bottom:6px">&Delta; = Best_ML_FA &minus; Baseline_FA</div>
-                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5">Percentage-point difference. Positive means the best ML model outperforms the 3-month Simple Moving Average on held-out data.</div>
-                        </div>
-                        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px">
-                            <div style="font-size:11px;font-weight:600;color:var(--accent-green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Baseline (3M SMA)</div>
-                            <div style="font-size:12px;color:var(--text-primary);font-family:monospace;margin-bottom:6px">F(t) = avg(A(t-1..t-3))</div>
-                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5">Average of last 3 months' actual demand. The simplest forecasting method — ML must beat this to be recommended.</div>
+                    <!-- Full derivation chain -->
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:16px 18px;margin-bottom:10px">
+                        <div style="font-size:11px;font-weight:600;color:var(--accent-green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Complete Derivation — How Every Number Is Calculated</div>
+                        <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:11px;line-height:1.7">
+
+                            <div style="color:var(--text-muted);font-weight:600;padding-top:2px">Step 1</div>
+                            <div>
+                                <span style="color:var(--text-primary);font-weight:600">Compute MAPE per model per SKU</span><br>
+                                <span style="color:var(--text-secondary)">For each of the 4 ML models and Baseline, on this SKU's 6-month test period (months 31–36):</span><br>
+                                <code style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:3px;font-size:11px;color:var(--text-primary)">MAPE = (1/n) &times; &sum; |Actual(t) &minus; Forecast(t)| / Actual(t) &times; 100</code><br>
+                                <span style="color:var(--text-muted);font-size:10px">where n = number of test months with non-zero actual demand, and the sum runs over each test month t.</span>
+                            </div>
+
+                            <div style="color:var(--text-muted);font-weight:600;padding-top:2px">Step 2</div>
+                            <div>
+                                <span style="color:var(--text-primary);font-weight:600">Convert MAPE to Forecast Accuracy (FA)</span><br>
+                                <code style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:3px;font-size:11px;color:var(--text-primary)">FA = max(0, 100% &minus; MAPE)</code><br>
+                                <span style="color:var(--text-secondary)">This is computed independently for every model. E.g., if Gradient Boosting has MAPE = 22.3% on this SKU, its FA = 77.7%.</span>
+                            </div>
+
+                            <div style="color:var(--text-muted);font-weight:600;padding-top:2px">Step 3</div>
+                            <div>
+                                <span style="color:var(--text-primary);font-weight:600">Select Best_ML_FA for this SKU</span><br>
+                                <code style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:3px;font-size:11px;color:var(--text-primary)">Best_ML_FA = max(FA<sub style="font-size:9px">GradientBoosting</sub>, FA<sub style="font-size:9px">RandomForest</sub>, FA<sub style="font-size:9px">ExtraTrees</sub>, FA<sub style="font-size:9px">Ridge</sub>)</code><br>
+                                <span style="color:var(--text-secondary)">The ML model with the highest test-period FA for <em>this specific SKU</em> becomes Best_ML_FA. This is the green bar in the chart.</span>
+                            </div>
+
+                            <div style="color:var(--text-muted);font-weight:600;padding-top:2px">Step 4</div>
+                            <div>
+                                <span style="color:var(--text-primary);font-weight:600">Compute Baseline_FA</span><br>
+                                <code style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:3px;font-size:11px;color:var(--text-primary)">Baseline_Forecast(t) = (Actual(t&minus;1) + Actual(t&minus;2) + Actual(t&minus;3)) / 3</code><br>
+                                <span style="color:var(--text-secondary)">Then MAPE and FA are computed exactly the same way as for ML models. Same test period, same formula.</span>
+                            </div>
+
+                            <div style="color:var(--text-muted);font-weight:600;padding-top:2px">Step 5</div>
+                            <div>
+                                <span style="color:var(--text-primary);font-weight:600">Dashboard KPI cards</span><br>
+                                <code style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:3px;font-size:11px;color:var(--text-primary)">Forecast Accuracy = max(Best_ML_FA, Baseline_FA)</code><br>
+                                <code style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:3px;font-size:11px;color:var(--text-primary)">Improvement = Best_ML_FA &minus; Baseline_FA</code><br>
+                                <span style="color:var(--text-secondary)">If Baseline_FA &ge; Best_ML_FA, Baseline is recommended. Otherwise the best ML model wins. No subjective weighting — purely held-out accuracy.</span>
+                            </div>
+
                         </div>
                     </div>
                 </div>
