@@ -1595,21 +1595,33 @@ function updateRecommendation() {{
                         Pharmaceutical demand is influenced by non-linear external signals (weather, seasonality, search trends). We use four complementary tree-based and linear regressors that each capture different patterns. No single model dominates across all signal pools, which is why we evaluate all four per SKU.
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                        <div style="background:rgba(46,204,113,0.06);border:1px solid rgba(46,204,113,0.15);border-radius:8px;padding:12px 14px">
-                            <div style="font-size:12px;font-weight:600;color:var(--accent-green);margin-bottom:4px">Gradient Boosting</div>
-                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5">Builds trees sequentially, each correcting the previous one's errors. Excels at capturing complex non-linear relationships between external signals and demand. Often the top performer for weather-driven pools.</div>
+                        <div style="background:rgba(46,204,113,0.06);border:1px solid rgba(46,204,113,0.15);border-radius:8px;padding:14px 16px">
+                            <div style="font-size:12px;font-weight:600;color:var(--accent-green);margin-bottom:8px">Gradient Boosting</div>
+                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
+                                <strong style="color:var(--text-primary)">How it works:</strong> Starts with a simple prediction (e.g., average demand), then builds a sequence of small decision trees where each new tree focuses specifically on the errors the previous trees got wrong. Each tree's contribution is scaled by a learning rate to prevent overcorrection. The final prediction is the sum of all trees' outputs.<br>
+                                <strong style="color:var(--text-primary)">Why for pharma:</strong> Excels at capturing complex, non-linear interactions — e.g., "demand spikes when AQI &gt; 200 AND temperature &gt; 35&deg;C" — patterns that linear models miss. Often the top performer for weather-driven pools.
+                            </div>
                         </div>
-                        <div style="background:rgba(91,159,214,0.06);border:1px solid rgba(91,159,214,0.15);border-radius:8px;padding:12px 14px">
-                            <div style="font-size:12px;font-weight:600;color:#5b9fd6;margin-bottom:4px">Random Forest</div>
-                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5">Trains many independent decision trees in parallel and averages their predictions. Robust to outliers and noisy data. Provides stable forecasts when demand patterns are irregular.</div>
+                        <div style="background:rgba(91,159,214,0.06);border:1px solid rgba(91,159,214,0.15);border-radius:8px;padding:14px 16px">
+                            <div style="font-size:12px;font-weight:600;color:#5b9fd6;margin-bottom:8px">Random Forest</div>
+                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
+                                <strong style="color:var(--text-primary)">How it works:</strong> Trains hundreds of decision trees independently, each on a random subset of the training data and a random subset of features. Each tree makes its own prediction, and the final output is the average across all trees. This "wisdom of crowds" approach reduces the risk of any single tree overfitting to noise.<br>
+                                <strong style="color:var(--text-primary)">Why for pharma:</strong> Robust to outliers and noisy demand spikes (e.g., one-time bulk orders). Delivers stable, reliable forecasts even when demand patterns are irregular across months.
+                            </div>
                         </div>
-                        <div style="background:rgba(255,193,7,0.06);border:1px solid rgba(255,193,7,0.15);border-radius:8px;padding:12px 14px">
-                            <div style="font-size:12px;font-weight:600;color:#ffc107;margin-bottom:4px">Extra Trees</div>
-                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5">Similar to Random Forest but uses random split thresholds instead of optimized ones. Faster training and sometimes better generalization. Strong on seasonal pools like Wedding.</div>
+                        <div style="background:rgba(255,193,7,0.06);border:1px solid rgba(255,193,7,0.15);border-radius:8px;padding:14px 16px">
+                            <div style="font-size:12px;font-weight:600;color:#ffc107;margin-bottom:8px">Extra Trees <span style="font-weight:400;color:var(--text-muted);font-size:10px">(Extremely Randomized Trees)</span></div>
+                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
+                                <strong style="color:var(--text-primary)">How it works:</strong> Like Random Forest, it trains many trees in parallel — but instead of searching for the optimal split point at each node, it picks split thresholds completely at random. This adds extra randomization: each individual tree is less precise, but the ensemble averages out noise more aggressively, reducing variance.<br>
+                                <strong style="color:var(--text-primary)">Why for pharma:</strong> The additional randomness helps avoid overfitting on small signal pools. Trains faster than Random Forest and often generalizes better on sharp seasonal patterns like wedding-season demand surges.
+                            </div>
                         </div>
-                        <div style="background:rgba(168,124,196,0.06);border:1px solid rgba(168,124,196,0.15);border-radius:8px;padding:12px 14px">
-                            <div style="font-size:12px;font-weight:600;color:#a87cc4;margin-bottom:4px">Ridge Regression</div>
-                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5">A regularized linear model that captures proportional trends between signals and demand. Serves as a simpler counterpoint — if a linear relationship exists, Ridge finds it with less overfitting risk.</div>
+                        <div style="background:rgba(168,124,196,0.06);border:1px solid rgba(168,124,196,0.15);border-radius:8px;padding:14px 16px">
+                            <div style="font-size:12px;font-weight:600;color:#a87cc4;margin-bottom:8px">Ridge Regression <span style="font-weight:400;color:var(--text-muted);font-size:10px">(L2-Regularized Linear Model)</span></div>
+                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
+                                <strong style="color:var(--text-primary)">How it works:</strong> Finds the best straight-line relationship between each input signal and demand (e.g., "for every 10&deg;C rise, demand increases by X units"). Unlike ordinary linear regression, Ridge adds a penalty term (L2) that shrinks large coefficients toward zero, preventing any single signal from dominating the prediction and reducing overfitting.<br>
+                                <strong style="color:var(--text-primary)">Why for pharma:</strong> Acts as a simpler counterpoint to tree models. When the relationship between a signal and demand is genuinely proportional (e.g., Google Trends search volume &rarr; demand), Ridge captures it cleanly with lower overfitting risk than complex models.
+                            </div>
                         </div>
                     </div>
                 </div>
