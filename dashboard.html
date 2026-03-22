@@ -1013,6 +1013,11 @@ function navigateToSku(skuId) {
     // Set the SKU in the Model Recommendations dropdown and switch tab
     const selector = document.getElementById('sku-selector');
     selector.value = skuId;
+    // Also update the visible search input to match
+    const m = metricsData.find(x => x.sku_id === skuId);
+    if (m) {
+        document.getElementById('sku-search-recommend').value = m.sku_id + ' — ' + m.sku_name;
+    }
     updateRecommendation();
     switchTab('recommend');
 }
