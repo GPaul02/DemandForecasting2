@@ -1390,7 +1390,9 @@ function updateRecommendation() {
     const m = metricsData.find(x => x.sku_id === skuId);
     if (!m) return;
 
-    const recommended = m.ml_fa > m.baseline_fa ? (m.best_model || 'ML Model') : 'Baseline (3M SMA)';
+    // Single source of truth: determine recommended model and whether baseline wins
+    const baselineWins = m.baseline_fa >= m.ml_fa;
+    const recommended = baselineWins ? 'Baseline (3M SMA)' : (m.best_model || 'ML Model');
     const recFA = Math.max(m.ml_fa, m.baseline_fa);
     const ts = tsData[skuId];
     const future = futureData.filter(f => f.sku_id === skuId);
@@ -1420,7 +1422,7 @@ function updateRecommendation() {
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
         <div class="chart-container" style="min-width:0;overflow:hidden">
-            <div class="chart-title">Model Comparison — Validation MAPE by Candidate</div>
+            <div class="chart-title">Model Comparison — Accuracy by Candidate</div>
             <div id="chart-model-compare"></div>
         </div>
         <div class="chart-container" style="min-width:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center">
@@ -1457,14 +1459,22 @@ function updateRecommendation() {
     </div>`;
     document.getElementById('recommendation-content').innerHTML = html;
 
-    // Model comparison chart
+    // Model comparison chart — include baseline so the user sees the full picture
     if (m.model_scores && Object.keys(m.model_scores).length > 0) {
         const scores = m.model_scores;
-        const names = Object.keys(scores).sort((a, b) => scores[a] - scores[b]);
-        const mapes = names.map(n => scores[n]);
+        const mlNames = Object.keys(scores).sort((a, b) => scores[a] - scores[b]);
+        // Add baseline to the comparison: use test-period MAPE (100 - baseline_fa) for apples-to-apples
+        const allNames = [...mlNames, 'Baseline (3M SMA)'];
+        const baselineMape = 100 - m.baseline_fa;
+        const allMapes = [...mlNames.map(n => scores[n]), baselineMape];
+        // Sort all by MAPE ascending (best first at bottom of horizontal bar chart)
+        const sorted = allNames.map((n, i) => ({ name: n, mape: allMapes[i] }))
+            .sort((a, b) => a.mape - b.mape);
+        const names = sorted.map(s => s.name);
+        const mapes = sorted.map(s => s.mape);
         const fas = mapes.map(v => Math.max(0, 100 - v));
         const barColors = names.map(n => {
-            if (m.best_model && m.best_model.includes(n)) return COLORS.green;
+            if (n === recommended || (recommended.includes(n))) return COLORS.green;
             return 'rgba(91,159,214,0.6)';
         });
         Plotly.newPlot('chart-model-compare', [{
@@ -1472,28 +1482,33 @@ function updateRecommendation() {
             marker: { color: barColors, line: { width: 0 } },
             text: fas.map(v => v.toFixed(1) + '%'), textposition: 'outside',
             textfont: { color: COLORS.text, size: 12 },
-            hovertemplate: '%{y}<br>Val Accuracy: %{x:.1f}%<br>Val MAPE: %{customdata:.1f}%<extra></extra>',
+            hovertemplate: '%{y}<br>Accuracy: %{x:.1f}%<br>MAPE: %{customdata:.1f}%<extra></extra>',
             customdata: mapes,
         }], {
             ...plotLayout,
-            height: 200,
+            height: Math.max(200, names.length * 40 + 40),
             margin: { l: 140, r: 60, t: 10, b: 30 },
-            xaxis: { ...plotLayout.xaxis, title: 'Validation Accuracy (100 - MAPE %)', range: [0, 105] },
+            xaxis: { ...plotLayout.xaxis, title: 'Accuracy (100 - MAPE %)', range: [0, 105] },
             yaxis: { ...plotLayout.yaxis, title: '', automargin: true },
             showlegend: false,
         }, { responsive: true });
 
-        // Model selection summary text
-        const bestSingle = names[0];
-        const bestFA = fas[0].toFixed(1);
+        // Model selection summary text — uses 'recommended' for consistency
+        const bestMLName = mlNames[0];
+        const bestMLFA = Math.max(0, 100 - scores[bestMLName]).toFixed(1);
         const isEnsemble = m.best_model && m.best_model.startsWith('Ensemble');
         let summaryHtml = `<div style="font-size:13px;color:var(--text-secondary);line-height:1.7">`;
-        summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Winning model:</span> <span style="color:var(--accent-green);font-weight:700">${m.best_model}</span></div>`;
-        summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Candidates evaluated:</span> ${names.length} models</div>`;
-        summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Selection method:</span> ${isEnsemble ? 'Inverse-MAPE weighted ensemble of top 3' : 'Best single model on 6-month validation set'}</div>`;
-        summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Best single model:</span> ${bestSingle} (${bestFA}% accuracy)</div>`;
+        summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Winning model:</span> <span style="color:var(--accent-green);font-weight:700">${recommended}</span></div>`;
+        summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Candidates evaluated:</span> ${mlNames.length} ML models + Baseline</div>`;
+        if (baselineWins) {
+            summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Selection method:</span> Baseline outperformed all ML candidates on 6-month test period</div>`;
+            summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Baseline accuracy:</span> ${m.baseline_fa.toFixed(1)}% vs best ML ${bestMLName} (${m.ml_fa.toFixed(1)}%)</div>`;
+        } else {
+            summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Selection method:</span> ${isEnsemble ? 'Inverse-MAPE weighted ensemble of top 3' : 'Best single model on 6-month test period'}</div>`;
+            summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Best ML model:</span> ${bestMLName} (${bestMLFA}% accuracy)</div>`;
+        }
         const poolSkus = metricsData.filter(x => x.signal_pool === m.signal_pool);
-        const poolAvgFA = (poolSkus.reduce((s, x) => s + x.ml_fa, 0) / poolSkus.length).toFixed(1);
+        const poolAvgFA = (poolSkus.reduce((s, x) => s + Math.max(x.ml_fa, x.baseline_fa), 0) / poolSkus.length).toFixed(1);
         summaryHtml += `<div><span style="color:var(--text-primary);font-weight:600">Pool avg accuracy:</span> ${poolAvgFA}% across ${poolSkus.length} SKUs in ${m.signal_pool}</div>`;
         summaryHtml += `</div>`;
         document.getElementById('model-selection-summary').innerHTML = summaryHtml;
@@ -1538,14 +1553,12 @@ function updateRecommendation() {
         }, { responsive: true });
     }
 
-    // Model selection explanation
+    // Model selection explanation — uses 'recommended' and 'baselineWins' for consistency
     if (m.model_scores && Object.keys(m.model_scores).length > 0) {
         const scores = m.model_scores;
         const sortedNames = Object.keys(scores).sort((a, b) => scores[a] - scores[b]);
-        const bestName = sortedNames[0];
-        const bestMape = scores[bestName];
-        const worstName = sortedNames[sortedNames.length - 1];
-        const worstMape = scores[worstName];
+        const bestMLName = sortedNames[0];
+        const bestMLMape = scores[bestMLName];
         const isEns = m.best_model && m.best_model.startsWith('Ensemble');
         const poolName = m.signal_pool;
 
@@ -1564,15 +1577,22 @@ function updateRecommendation() {
         expl += `<div style="margin-bottom:6px"><strong style="color:var(--text-primary)">2. Candidate training:</strong> Four ML models were trained on the ${poolName} pool's data — ${sortedNames.join(', ')} — using 24 months of training data.</div>`;
         expl += `<div style="margin-bottom:6px"><strong style="color:var(--text-primary)">3. Validation:</strong> Each model was evaluated on a held-out 6-month validation window (months 25–30). Validation MAPE scores: `;
         expl += sortedNames.map(n => `<strong>${n}</strong>: ${scores[n].toFixed(1)}%`).join(' · ') + `.</div>`;
-        expl += `<div style="margin-bottom:6px"><strong style="color:var(--text-primary)">4. Winner:</strong> `;
+        expl += `<div style="margin-bottom:6px"><strong style="color:var(--text-primary)">4. Best ML model:</strong> `;
         if (isEns) {
             const ensModels = m.best_model.replace('Ensemble (', '').replace(')', '').split(', ');
-            expl += `An <strong style="color:var(--accent-green)">Ensemble</strong> of the top 3 models (${ensModels.join(', ')}) was selected because its inverse-MAPE-weighted combination achieved a lower validation MAPE than the best single model (${bestName} at ${bestMape.toFixed(1)}%).`;
+            expl += `An <strong>${m.best_model}</strong> of the top 3 models (${ensModels.join(', ')}) achieved the lowest validation MAPE among ML candidates.`;
         } else {
-            expl += `<strong style="color:var(--accent-green)">${bestName}</strong> was selected as the best single model with the lowest validation MAPE of ${bestMape.toFixed(1)}%. The ensemble of top 3 did not improve upon it, so the single model is used.`;
+            expl += `<strong>${bestMLName}</strong> achieved the lowest validation MAPE of ${bestMLMape.toFixed(1)}% among ML candidates.`;
         }
         expl += `</div>`;
-        expl += `<div><strong style="color:var(--text-primary)">5. Final training:</strong> The winning model was retrained on all 30 training months (train + validation) before generating the final test-period and future forecasts.</div>`;
+        expl += `<div style="margin-bottom:6px"><strong style="color:var(--text-primary)">5. Baseline comparison:</strong> `;
+        if (baselineWins) {
+            expl += `On the 6-month test period, <strong style="color:var(--accent-green)">Baseline (3M SMA)</strong> achieved ${m.baseline_fa.toFixed(1)}% accuracy vs ${m.ml_fa.toFixed(1)}% for ${m.best_model}. Since the simple baseline outperformed all ML models, it is recommended for this SKU.`;
+        } else {
+            expl += `On the 6-month test period, <strong style="color:var(--accent-green)">${m.best_model}</strong> achieved ${m.ml_fa.toFixed(1)}% accuracy, outperforming Baseline (3M SMA) at ${m.baseline_fa.toFixed(1)}%. The ML model is recommended.`;
+        }
+        expl += `</div>`;
+        expl += `<div><strong style="color:var(--text-primary)">6. Final training:</strong> The winning model was retrained on all 30 training months (train + validation) before generating the final test-period and future forecasts.</div>`;
         document.getElementById('model-explanation').innerHTML = expl;
     }
 
