@@ -1626,76 +1626,152 @@ function updateRecommendation() {{
                     </div>
                 </div>
 
-                <!-- Key Metrics -->
+                <!-- Full Academic Methodology -->
                 <div style="margin-bottom:20px">
                     <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px">
                         <span style="width:3px;height:14px;background:var(--accent-green);border-radius:2px;display:inline-block"></span>
-                        How Numbers Are Computed
+                        How Every Number Is Produced — Full Academic Methodology
                     </div>
-                    <!-- Full derivation chain -->
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:16px 18px;margin-bottom:10px">
-                        <div style="font-size:11px;font-weight:600;color:var(--accent-green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Complete Derivation — How Every Number Is Calculated</div>
-                        <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:11px;line-height:1.7">
 
-                            <div style="color:var(--text-muted);font-weight:600;padding-top:2px">Step 1</div>
-                            <div>
-                                <span style="color:var(--text-primary);font-weight:600">Compute MAPE per model per SKU</span><br>
-                                <span style="color:var(--text-secondary)">For each of the 4 ML models and Baseline, on this SKU's 6-month test period (months 31–36):</span><br>
-                                <code style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:3px;font-size:11px;color:var(--text-primary)">MAPE = (1/n) &times; &sum; |Actual(t) &minus; Forecast(t)| / Actual(t) &times; 100</code><br>
-                                <span style="color:var(--text-muted);font-size:10px">where n = number of test months with non-zero actual demand, and the sum runs over each test month t.</span>
+                    <!-- Step 1: Data Split -->
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                            <span style="background:var(--accent-green);color:#000;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">STEP 1</span>
+                            <span style="font-size:12px;font-weight:600;color:var(--text-primary)">Time-Series Train / Validation / Test Split</span>
+                        </div>
+                        <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
+                            36 months of data per SKU are split <strong>chronologically</strong> (no random shuffling — respects temporal order):<br>
+                            <div style="display:flex;gap:0;margin:8px 0;border-radius:4px;overflow:hidden;font-size:10px;font-weight:600;text-align:center">
+                                <div style="flex:24;background:var(--accent-blue);color:#fff;padding:4px 0">Months 1–24 &nbsp;TRAIN</div>
+                                <div style="flex:6;background:#ffc107;color:#000;padding:4px 0">25–30 &nbsp;VAL</div>
+                                <div style="flex:6;background:var(--accent-green);color:#000;padding:4px 0">31–36 &nbsp;TEST</div>
                             </div>
-
-                            <div style="color:var(--text-muted);font-weight:600;padding-top:2px">Step 2</div>
-                            <div>
-                                <span style="color:var(--text-primary);font-weight:600">Convert MAPE to Forecast Accuracy (FA)</span><br>
-                                <code style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:3px;font-size:11px;color:var(--text-primary)">FA = max(0, 100% &minus; MAPE)</code><br>
-                                <span style="color:var(--text-secondary)">This is computed independently for every model. E.g., if Gradient Boosting has MAPE = 22.3% on this SKU, its FA = 77.7%.</span>
-                            </div>
-
-                            <div style="color:var(--text-muted);font-weight:600;padding-top:2px">Step 3</div>
-                            <div>
-                                <span style="color:var(--text-primary);font-weight:600">Select Best_ML_FA for this SKU</span><br>
-                                <code style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:3px;font-size:11px;color:var(--text-primary)">Best_ML_FA = max(FA<sub style="font-size:9px">GradientBoosting</sub>, FA<sub style="font-size:9px">RandomForest</sub>, FA<sub style="font-size:9px">ExtraTrees</sub>, FA<sub style="font-size:9px">Ridge</sub>)</code><br>
-                                <span style="color:var(--text-secondary)">The ML model with the highest test-period FA for <em>this specific SKU</em> becomes Best_ML_FA. This is the green bar in the chart.</span>
-                            </div>
-
-                            <div style="color:var(--text-muted);font-weight:600;padding-top:2px">Step 4</div>
-                            <div>
-                                <span style="color:var(--text-primary);font-weight:600">Compute Baseline_FA</span><br>
-                                <code style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:3px;font-size:11px;color:var(--text-primary)">Baseline_Forecast(t) = (Actual(t&minus;1) + Actual(t&minus;2) + Actual(t&minus;3)) / 3</code><br>
-                                <span style="color:var(--text-secondary)">Then MAPE and FA are computed exactly the same way as for ML models. Same test period, same formula.</span>
-                            </div>
-
-                            <div style="color:var(--text-muted);font-weight:600;padding-top:2px">Step 5</div>
-                            <div>
-                                <span style="color:var(--text-primary);font-weight:600">Dashboard KPI cards</span><br>
-                                <code style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:3px;font-size:11px;color:var(--text-primary)">Forecast Accuracy = max(Best_ML_FA, Baseline_FA)</code><br>
-                                <code style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:3px;font-size:11px;color:var(--text-primary)">Improvement = Best_ML_FA &minus; Baseline_FA</code><br>
-                                <span style="color:var(--text-secondary)">If Baseline_FA &ge; Best_ML_FA, Baseline is recommended. Otherwise the best ML model wins. No subjective weighting — purely held-out accuracy.</span>
-                            </div>
-
+                            <strong style="color:var(--text-primary)">Train (months 1–24):</strong> Models learn patterns from this period only.<br>
+                            <strong style="color:var(--text-primary)">Validation (months 25–30):</strong> Used to rank models and decide solo vs. ensemble. Models never see this during training.<br>
+                            <strong style="color:var(--text-primary)">Test (months 31–36):</strong> <em>All FA numbers shown on this dashboard</em> come from this period. Models are retrained on months 1–30 before predicting here, but <em>never trained on test data</em>.
                         </div>
                     </div>
-                </div>
 
-                <!-- Selection Logic -->
-                <div style="margin-bottom:8px">
-                    <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px">
-                        <span style="width:3px;height:14px;background:var(--accent-green);border-radius:2px;display:inline-block"></span>
-                        Selection Logic
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px">
-                            <div style="font-size:11px;font-weight:600;color:var(--text-primary);margin-bottom:6px">Per-SKU Winner Selection</div>
-                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
-                                All 4 ML models are retrained on 30 months of data and evaluated on each SKU's 6-month test period individually. The model with the lowest MAPE <em>for that specific SKU</em> is the best ML candidate. If Baseline &ge; Best ML accuracy, Baseline wins. <strong>No subjective weighting</strong> &mdash; purely accuracy on held-out data.
-                            </div>
+                    <!-- Step 2: Features -->
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                            <span style="background:var(--accent-green);color:#000;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">STEP 2</span>
+                            <span style="font-size:12px;font-weight:600;color:var(--text-primary)">Feature Engineering — What Each Model Sees as Input</span>
                         </div>
-                        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px">
-                            <div style="font-size:11px;font-weight:600;color:var(--text-primary);margin-bottom:6px">Data Split &amp; Evaluation</div>
-                            <div style="font-size:11px;color:var(--text-secondary);line-height:1.6">
-                                36 months total &rarr; <span style="color:var(--accent-blue)">24 months training</span> (model fitting) + <span style="color:#ffc107">6 months validation</span> (ensemble selection) + <span style="color:var(--accent-green)">6 months test</span> (final accuracy shown in all dashboard metrics).
+                        <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
+                            Every model receives the <strong>same 12 input features</strong> for each month:<br>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;margin:6px 0;font-size:10px">
+                                <span><code style="background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:3px;color:var(--text-primary)">baseline_forecast</code> &mdash; 3-month SMA of prior demand</span>
+                                <span><code style="background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:3px;color:var(--text-primary)">exp_smoothing_forecast</code> &mdash; Exponential Smoothing forecast</span>
+                                <span><code style="background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:3px;color:var(--text-primary)">demand_lag1</code> &mdash; Demand from 1 month ago</span>
+                                <span><code style="background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:3px;color:var(--text-primary)">demand_lag2</code> &mdash; Demand from 2 months ago</span>
+                                <span><code style="background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:3px;color:var(--text-primary)">demand_rolling_std</code> &mdash; 3-month rolling volatility</span>
+                                <span><code style="background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:3px;color:var(--text-primary)">month_sin, month_cos</code> &mdash; Cyclical month encoding</span>
+                                <span><code style="background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:3px;color:var(--text-primary)">temperature</code> &mdash; External signal</span>
+                                <span><code style="background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:3px;color:var(--text-primary)">aqi</code> &mdash; Air Quality Index signal</span>
+                                <span><code style="background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:3px;color:var(--text-primary)">precipitation</code> &mdash; Monsoon / rainfall signal</span>
+                                <span><code style="background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:3px;color:var(--text-primary)">wedding_flag</code> &mdash; Wedding season indicator</span>
+                                <span><code style="background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:3px;color:var(--text-primary)">google_trends</code> &mdash; Search interest signal</span>
                             </div>
+                            The target variable (y) is <strong>actual monthly demand</strong>. No future data leaks into features — lags and rolling windows use only past values.
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Model Training -->
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                            <span style="background:var(--accent-green);color:#000;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">STEP 3</span>
+                            <span style="font-size:12px;font-weight:600;color:var(--text-primary)">Model Training — Hyperparameters &amp; Configuration</span>
+                        </div>
+                        <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
+                            All 4 models are trained on <strong>months 1–24</strong> with these fixed hyperparameters (no hyperparameter tuning on test data):<br>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0">
+                                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:6px;padding:8px 10px">
+                                    <div style="font-size:10px;font-weight:600;color:var(--accent-blue);margin-bottom:4px">Gradient Boosting</div>
+                                    <code style="font-size:9px;color:var(--text-muted);line-height:1.5">n_estimators=150, max_depth=4<br>learning_rate=0.1, subsample=0.8<br>random_state=42</code>
+                                </div>
+                                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:6px;padding:8px 10px">
+                                    <div style="font-size:10px;font-weight:600;color:var(--accent-blue);margin-bottom:4px">Random Forest</div>
+                                    <code style="font-size:9px;color:var(--text-muted);line-height:1.5">n_estimators=200, max_depth=6<br>min_samples_leaf=3<br>random_state=42, n_jobs=-1</code>
+                                </div>
+                                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:6px;padding:8px 10px">
+                                    <div style="font-size:10px;font-weight:600;color:var(--accent-blue);margin-bottom:4px">Extra Trees</div>
+                                    <code style="font-size:9px;color:var(--text-muted);line-height:1.5">n_estimators=200, max_depth=6<br>min_samples_leaf=3<br>random_state=42, n_jobs=-1</code>
+                                </div>
+                                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:6px;padding:8px 10px">
+                                    <div style="font-size:10px;font-weight:600;color:var(--accent-blue);margin-bottom:4px">Ridge Regression</div>
+                                    <code style="font-size:9px;color:var(--text-muted);line-height:1.5">alpha=1.0 (L2 penalty)<br>Ordinary least squares + L2 regularization</code>
+                                </div>
+                            </div>
+                            <strong style="color:var(--text-primary)">Key guarantee:</strong> <code style="font-size:10px">random_state=42</code> ensures identical results on every run — fully reproducible.
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Validation & Model Selection -->
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                            <span style="background:var(--accent-green);color:#000;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">STEP 4</span>
+                            <span style="font-size:12px;font-weight:600;color:var(--text-primary)">Validation &amp; Model Selection (Months 25–30)</span>
+                        </div>
+                        <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
+                            Each model predicts <strong>months 25–30</strong> (data it was <em>never</em> trained on). Validation MAPE is computed:<br>
+                            <code style="background:rgba(255,255,255,0.06);padding:3px 10px;border-radius:3px;font-size:11px;color:var(--text-primary);display:inline-block;margin:4px 0">Val_MAPE<sub>model</sub> = (1/n) &times; &sum;<sub>t=25..30</sub> |Actual(t) &minus; Predicted(t)| / Actual(t) &times; 100</code><br>
+                            Models are <strong>ranked by validation MAPE</strong> (lowest = best). This ranking decides:<br>
+                            <span style="margin-left:8px">1. Which single model is "best" for this signal pool</span><br>
+                            <span style="margin-left:8px">2. Whether an ensemble of the top 3 models outperforms the solo best</span><br><br>
+                            <strong style="color:var(--text-primary)">Ensemble construction:</strong> Top 3 models are combined using <em>inverse-MAPE weighting</em>:<br>
+                            <code style="background:rgba(255,255,255,0.06);padding:3px 10px;border-radius:3px;font-size:11px;color:var(--text-primary);display:inline-block;margin:4px 0">w<sub>i</sub> = (1/MAPE<sub>i</sub>) / &sum;(1/MAPE<sub>j</sub>) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; Ensemble_Pred = &sum; w<sub>i</sub> &times; Pred<sub>i</sub></code><br>
+                            <span style="color:var(--text-muted);font-size:10px">E.g., if MAPEs are [10%, 12%, 15%] &rarr; weights &asymp; [0.45, 0.38, 0.17]. Lower MAPE = more weight.</span><br>
+                            If ensemble validation MAPE &lt; solo best validation MAPE, ensemble wins. Otherwise solo best is used.
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Retrain & Test Prediction -->
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                            <span style="background:var(--accent-green);color:#000;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">STEP 5</span>
+                            <span style="font-size:12px;font-weight:600;color:var(--text-primary)">Retrain on Full Training Set &amp; Predict Test Period</span>
+                        </div>
+                        <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
+                            After the winning model/ensemble is chosen via validation, all models are <strong>retrained on months 1–30</strong> (train + validation combined). This gives models maximum data before the final evaluation.<br>
+                            The retrained model then predicts <strong>months 31–36</strong> (the held-out test set it has <em>never</em> seen during training or validation).<br>
+                            <code style="background:rgba(255,255,255,0.06);padding:3px 10px;border-radius:3px;font-size:11px;color:var(--text-primary);display:inline-block;margin:4px 0">ML_Forecast(t) = max(0, model.predict(features(t))) &nbsp;&nbsp; for t &isin; {31, 32, ..., 36}</code><br>
+                            <span style="color:var(--text-muted);font-size:10px">Predictions are floored at 0 (demand cannot be negative) and rounded to whole units.</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 6: FA Calculation -->
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                            <span style="background:var(--accent-green);color:#000;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">STEP 6</span>
+                            <span style="font-size:12px;font-weight:600;color:var(--text-primary)">Computing FA for Each Model — The Numbers You See</span>
+                        </div>
+                        <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
+                            For <strong>each model independently</strong> (GB, RF, ET, Ridge, and Baseline), on the test period:<br>
+                            <div style="background:rgba(255,255,255,0.04);border:1px solid var(--card-border);border-radius:6px;padding:10px 14px;margin:8px 0">
+                                <code style="font-size:11px;color:var(--text-primary);line-height:2">
+                                    Test_MAPE<sub>model</sub> = (1/n) &times; &sum;<sub>t=31..36</sub> |Actual(t) &minus; Forecast<sub>model</sub>(t)| / max(Actual(t), 1) &times; 100<br>
+                                    FA<sub>model</sub> = max(0, 100 &minus; Test_MAPE<sub>model</sub>)<br><br>
+                                    <strong>Best_ML_FA = max(FA<sub>GB</sub>, FA<sub>RF</sub>, FA<sub>ET</sub>, FA<sub>Ridge</sub>)</strong><br>
+                                    <strong>Baseline_FA = 100 &minus; Test_MAPE<sub>3M-SMA</sub></strong><br>
+                                    <strong>&Delta; Improvement = Best_ML_FA &minus; Baseline_FA</strong>
+                                </code>
+                            </div>
+                            <span style="color:var(--text-muted);font-size:10px"><strong>Why max(Actual, 1)?</strong> Prevents division by zero for months with zero demand while preserving accuracy for all other months.</span><br>
+                            <span style="color:var(--text-muted);font-size:10px"><strong>n</strong> = count of test months where actual demand &gt; 0 (typically 6, but SKUs with zero-demand months are excluded from the average).</span><br><br>
+                            <strong style="color:var(--text-primary)">The bar chart</strong> to the right shows FA for every model side-by-side — you can verify which model has the highest FA and confirm it matches Best_ML_FA.
+                        </div>
+                    </div>
+
+                    <!-- Step 7: Recommendation -->
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;margin-bottom:8px">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                            <span style="background:var(--accent-green);color:#000;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">STEP 7</span>
+                            <span style="font-size:12px;font-weight:600;color:var(--text-primary)">Final Recommendation — No Subjective Judgment</span>
+                        </div>
+                        <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
+                            <code style="background:rgba(255,255,255,0.06);padding:3px 10px;border-radius:3px;font-size:11px;color:var(--text-primary);display:inline-block;margin:4px 0">IF Best_ML_FA &gt; Baseline_FA &rarr; Recommend best ML model &nbsp;|&nbsp; ELSE &rarr; Recommend Baseline (3M SMA)</code><br>
+                            No human override, no subjective weighting. The model with the highest held-out test-period accuracy wins — period. The bar chart lets you verify this visually.
                         </div>
                     </div>
                 </div>
