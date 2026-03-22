@@ -201,9 +201,9 @@ def train_and_predict(df, feature_cols):
         best_model_name = sorted_models[0][0]
         best_val_mape = sorted_models[0][1]
 
-        # Retrain top models on full training data for final predictions
+        # Retrain ALL models on full training data (train + val)
         final_models = {}
-        for model_name, _ in sorted_models[:3]:  # Top 3 for ensemble
+        for model_name in trained_models:
             model = MODEL_REGISTRY[model_name]()
             model.fit(X_full, y_full)
             final_models[model_name] = model
@@ -260,18 +260,36 @@ def train_and_predict(df, feature_cols):
             final_train_preds = solo_train_preds
             chosen_name = best_model_name
 
-        # Build scores JSON string for dashboard
-        scores_str = str(val_scores)
+        # Compute per-SKU test-period MAPEs for ALL models (consistent with baseline_fa/ml_fa)
+        sku_test_scores = {}
+        for sku_id in all_skus:
+            sku_test = test_clean[test_clean["sku_id"] == sku_id]
+            if len(sku_test) == 0:
+                continue
+            sku_feats = sku_test.dropna(subset=feature_cols + ["demand"])
+            if len(sku_feats) == 0:
+                continue
+            X_sku = sku_feats[feature_cols].values
+            y_sku = sku_feats["demand"].values.astype(float)
+            scores_for_sku = {}
+            for mname, mobj in final_models.items():
+                preds = np.maximum(mobj.predict(X_sku), 0)
+                mape = _compute_mape(y_sku, preds)
+                scores_for_sku[mname] = round(mape, 2)
+            sku_test_scores[sku_id] = scores_for_sku
 
         test_clean = test_clean.copy()
         test_clean["ml_forecast"] = final_test_preds
         test_clean["best_model"] = chosen_name
-        test_clean["model_scores"] = scores_str
+        # Per-SKU test-period MAPEs (not pool-level validation MAPEs)
+        test_clean["model_scores"] = test_clean["sku_id"].map(
+            lambda sid: str(sku_test_scores.get(sid, val_scores))
+        )
 
         full_train_out = full_train.copy()
         full_train_out["ml_forecast"] = final_train_preds
         full_train_out["best_model"] = chosen_name
-        full_train_out["model_scores"] = scores_str
+        full_train_out["model_scores"] = str(val_scores)
 
         results.append(full_train_out)
         results.append(test_clean)

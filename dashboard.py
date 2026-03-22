@@ -1487,10 +1487,23 @@ function updateRecommendation() {{
     const m = metricsData.find(x => x.sku_id === skuId);
     if (!m) return;
 
-    // Single source of truth: determine recommended model and whether baseline wins
-    const baselineWins = m.baseline_fa >= m.ml_fa;
-    const recommended = baselineWins ? 'Baseline (3M SMA)' : (m.best_model || 'ML Model');
-    const recFA = Math.max(m.ml_fa, m.baseline_fa);
+    // Find best ML model for THIS specific SKU from per-SKU test-period scores
+    let bestSkuMLName = m.best_model || 'ML Model';
+    let bestSkuMLFA = m.ml_fa;
+    if (m.model_scores && Object.keys(m.model_scores).length > 0) {{
+        const entries = Object.entries(m.model_scores);
+        const best = entries.reduce((a, b) => a[1] < b[1] ? a : b);  // lowest MAPE
+        const bestFA = Math.max(0, 100 - best[1]);
+        if (bestFA > bestSkuMLFA) {{
+            bestSkuMLName = best[0];
+            bestSkuMLFA = bestFA;
+        }}
+    }}
+
+    // Single source of truth: compare baseline vs best per-SKU ML model
+    const baselineWins = m.baseline_fa >= bestSkuMLFA;
+    const recommended = baselineWins ? 'Baseline (3M SMA)' : bestSkuMLName;
+    const recFA = Math.max(bestSkuMLFA, m.baseline_fa);
     const ts = tsData[skuId];
     const future = futureData.filter(f => f.sku_id === skuId);
 
@@ -1507,9 +1520,9 @@ function updateRecommendation() {{
             <div class="sub">6-month test period</div>
         </div>
         <div class="kpi-card">
-            <div class="label has-tooltip" data-tooltip="The percentage point difference between ML model accuracy and baseline (3-month SMA) accuracy. Positive = ML is better.">Improvement vs Baseline</div>
-            <div class="value" style="color:${{m.improvement > 0 ? COLORS.green : COLORS.red}}">${{m.improvement > 0 ? '+' : ''}}${{m.improvement.toFixed(1)}}%</div>
-            <div class="sub">Accuracy delta</div>
+            <div class="label has-tooltip" data-tooltip="Percentage-point difference: Best ML Accuracy − Baseline Accuracy. Positive = ML outperforms baseline.">Improvement vs Baseline</div>
+            <div class="value" style="color:${{bestSkuMLFA - m.baseline_fa > 0 ? COLORS.green : COLORS.red}}">${{bestSkuMLFA - m.baseline_fa > 0 ? '+' : ''}}${{(bestSkuMLFA - m.baseline_fa).toFixed(1)}}%</div>
+            <div class="sub">Accuracy delta (best ML − baseline)</div>
         </div>
         <div class="kpi-card">
             <div class="label">Avg Monthly Demand</div>
@@ -1534,6 +1547,58 @@ function updateRecommendation() {{
     <div class="chart-container" style="margin-bottom:16px;padding:16px 20px">
         <div class="chart-title">Why This Model Was Selected</div>
         <div id="model-explanation" style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-top:8px"></div>
+    </div>
+    <div class="chart-container" style="margin-bottom:16px;padding:16px 20px">
+        <div class="chart-title" style="cursor:pointer" onclick="document.getElementById('methodology-body').style.display = document.getElementById('methodology-body').style.display === 'none' ? 'block' : 'none'">
+            Methodology & Formulas <span style="font-size:11px;color:var(--text-muted);margin-left:8px">(click to expand/collapse)</span>
+        </div>
+        <div id="methodology-body" style="font-size:13px;color:var(--text-secondary);line-height:1.9;margin-top:12px">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+                <tr style="border-bottom:1px solid var(--card-border)">
+                    <td style="padding:8px 12px;color:var(--text-primary);font-weight:600;white-space:nowrap;vertical-align:top;width:200px">Forecast Accuracy (FA)</td>
+                    <td style="padding:8px 12px">
+                        <code style="background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:3px">FA = 100% − MAPE</code><br>
+                        where <strong>MAPE</strong> (Mean Absolute Percentage Error) = mean( |Actual − Forecast| / Actual ) × 100.<br>
+                        Computed on the <strong>6-month hold-out test period</strong> (months 31–36) for each individual SKU.
+                    </td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--card-border)">
+                    <td style="padding:8px 12px;color:var(--text-primary);font-weight:600;white-space:nowrap;vertical-align:top">Improvement vs Baseline</td>
+                    <td style="padding:8px 12px">
+                        <code style="background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:3px">Δ = ML_FA − Baseline_FA</code> (percentage points).<br>
+                        Positive means ML outperforms the 3-month Simple Moving Average; negative means baseline wins.
+                    </td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--card-border)">
+                    <td style="padding:8px 12px;color:var(--text-primary);font-weight:600;white-space:nowrap;vertical-align:top">Model Selection</td>
+                    <td style="padding:8px 12px">
+                        <strong>Step 1 — Pool training:</strong> All SKUs sharing the same external signal are grouped into a pool. Four ML models (Gradient Boosting, Random Forest, Extra Trees, Ridge Regression) are trained on the pool's first 24 months.<br>
+                        <strong>Step 2 — Validation:</strong> Models are ranked by MAPE on months 25–30. The top 3 are ensembled using inverse-MAPE weights; if ensemble beats the best single model, it is selected.<br>
+                        <strong>Step 3 — Retraining:</strong> All models are retrained on the full 30-month training set (months 1–30) for final predictions.<br>
+                        <strong>Step 4 — Recommendation:</strong> Per SKU, if Baseline FA ≥ Best ML FA on the 6-month test period, Baseline is recommended; otherwise the ML model wins. <em>No weighting or subjective scoring</em> — the comparison is strictly accuracy on held-out data.
+                    </td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--card-border)">
+                    <td style="padding:8px 12px;color:var(--text-primary);font-weight:600;white-space:nowrap;vertical-align:top">Baseline (3M SMA)</td>
+                    <td style="padding:8px 12px">
+                        <code style="background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:3px">Forecast(t) = mean(Actual(t−1), Actual(t−2), Actual(t−3))</code><br>
+                        A simple 3-month trailing average. Serves as the performance floor that ML must beat.
+                    </td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--card-border)">
+                    <td style="padding:8px 12px;color:var(--text-primary);font-weight:600;white-space:nowrap;vertical-align:top">Chart Bars</td>
+                    <td style="padding:8px 12px">
+                        Every bar shows <strong>test-period accuracy</strong> (100 − MAPE) for this specific SKU. All models — including Baseline — are evaluated on the same 6-month test window, ensuring an apples-to-apples comparison.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:8px 12px;color:var(--text-primary);font-weight:600;white-space:nowrap;vertical-align:top">Data Split</td>
+                    <td style="padding:8px 12px">
+                        36 months total → <strong>24 months training</strong> (model fitting) + <strong>6 months validation</strong> (model selection) + <strong>6 months test</strong> (final accuracy reported in dashboard).
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
     <div class="two-col">
         <div class="chart-container" style="min-width:0;overflow:hidden">
@@ -1560,7 +1625,7 @@ function updateRecommendation() {{
     if (m.model_scores && Object.keys(m.model_scores).length > 0) {{
         const scores = m.model_scores;
         const mlNames = Object.keys(scores).sort((a, b) => scores[a] - scores[b]);
-        // Add baseline to the comparison: use test-period MAPE (100 - baseline_fa) for apples-to-apples
+        // All scores are now per-SKU test-period MAPEs — consistent with baseline_fa/ml_fa
         const allNames = [...mlNames, 'Baseline (3M SMA)'];
         const baselineMape = 100 - m.baseline_fa;
         const allMapes = [...mlNames.map(n => scores[n]), baselineMape];
@@ -1585,24 +1650,23 @@ function updateRecommendation() {{
             ...plotLayout,
             height: Math.max(200, names.length * 40 + 40),
             margin: {{ l: 140, r: 60, t: 10, b: 30 }},
-            xaxis: {{ ...plotLayout.xaxis, title: 'Accuracy (100 - MAPE %)', range: [0, 105] }},
+            xaxis: {{ ...plotLayout.xaxis, title: 'Test-Period Accuracy (100 − MAPE %)', range: [0, 105] }},
             yaxis: {{ ...plotLayout.yaxis, title: '', automargin: true }},
             showlegend: false,
         }}, {{ responsive: true }});
 
-        // Model selection summary text — uses 'recommended' for consistency
-        const bestMLName = mlNames[0];
-        const bestMLFA = Math.max(0, 100 - scores[bestMLName]).toFixed(1);
-        const isEnsemble = m.best_model && m.best_model.startsWith('Ensemble');
+        // Model selection summary text — uses per-SKU best ML model
+        const chartBestMLName = mlNames[0];
+        const chartBestMLFA = Math.max(0, 100 - scores[chartBestMLName]).toFixed(1);
         let summaryHtml = `<div style="font-size:13px;color:var(--text-secondary);line-height:1.7">`;
         summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Winning model:</span> <span style="color:var(--accent-green);font-weight:700">${{recommended}}</span></div>`;
         summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Candidates evaluated:</span> ${{mlNames.length}} ML models + Baseline</div>`;
         if (baselineWins) {{
             summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Selection method:</span> Baseline outperformed all ML candidates on 6-month test period</div>`;
-            summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Baseline accuracy:</span> ${{m.baseline_fa.toFixed(1)}}% vs best ML ${{bestMLName}} (${{m.ml_fa.toFixed(1)}}%)</div>`;
+            summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Baseline accuracy:</span> ${{m.baseline_fa.toFixed(1)}}% vs best ML ${{chartBestMLName}} (${{chartBestMLFA}}%)</div>`;
         }} else {{
-            summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Selection method:</span> ${{isEnsemble ? 'Inverse-MAPE weighted ensemble of top 3' : 'Best single model on 6-month test period'}}</div>`;
-            summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Best ML model:</span> ${{bestMLName}} (${{bestMLFA}}% accuracy)</div>`;
+            summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Selection method:</span> Best per-SKU model on 6-month test period</div>`;
+            summaryHtml += `<div style="margin-bottom:8px"><span style="color:var(--text-primary);font-weight:600">Best ML model:</span> ${{bestSkuMLName}} (${{bestSkuMLFA.toFixed(1)}}% accuracy)</div>`;
         }}
         const poolSkus = metricsData.filter(x => x.signal_pool === m.signal_pool);
         const poolAvgFA = (poolSkus.reduce((s, x) => s + Math.max(x.ml_fa, x.baseline_fa), 0) / poolSkus.length).toFixed(1);
@@ -1672,24 +1736,19 @@ function updateRecommendation() {{
         let expl = '';
         expl += `<div style="margin-bottom:6px"><strong style="color:var(--text-primary)">1. Pool assignment:</strong> This SKU belongs to the <strong style="color:var(--accent-green)">${{poolName}}</strong> signal pool. Primary signal: ${{signalNote}}.</div>`;
         expl += `<div style="margin-bottom:6px"><strong style="color:var(--text-primary)">2. Candidate training:</strong> Four ML models were trained on the ${{poolName}} pool's data — ${{sortedNames.join(', ')}} — using 24 months of training data.</div>`;
-        expl += `<div style="margin-bottom:6px"><strong style="color:var(--text-primary)">3. Validation:</strong> Each model was evaluated on a held-out 6-month validation window (months 25–30). Validation MAPE scores: `;
+        expl += `<div style="margin-bottom:6px"><strong style="color:var(--text-primary)">3. Test-period evaluation:</strong> After retraining on all 30 training months, each model was evaluated on this SKU's 6-month hold-out test period (months 31–36). Test MAPE scores: `;
         expl += sortedNames.map(n => `<strong>${{n}}</strong>: ${{scores[n].toFixed(1)}}%`).join(' · ') + `.</div>`;
-        expl += `<div style="margin-bottom:6px"><strong style="color:var(--text-primary)">4. Best ML model:</strong> `;
-        if (isEns) {{
-            const ensModels = m.best_model.replace('Ensemble (', '').replace(')', '').split(', ');
-            expl += `An <strong>${{m.best_model}}</strong> of the top 3 models (${{ensModels.join(', ')}}) achieved the lowest validation MAPE among ML candidates.`;
-        }} else {{
-            expl += `<strong>${{bestMLName}}</strong> achieved the lowest validation MAPE of ${{bestMLMape.toFixed(1)}}% among ML candidates.`;
-        }}
+        expl += `<div style="margin-bottom:6px"><strong style="color:var(--text-primary)">4. Best ML model for this SKU:</strong> `;
+        expl += `<strong>${{bestMLName}}</strong> achieved the lowest test-period MAPE of ${{bestMLMape.toFixed(1)}}% (accuracy: ${{(100 - bestMLMape).toFixed(1)}}%) for this specific SKU.`;
         expl += `</div>`;
         expl += `<div style="margin-bottom:6px"><strong style="color:var(--text-primary)">5. Baseline comparison:</strong> `;
         if (baselineWins) {{
-            expl += `On the 6-month test period, <strong style="color:var(--accent-green)">Baseline (3M SMA)</strong> achieved ${{m.baseline_fa.toFixed(1)}}% accuracy vs ${{m.ml_fa.toFixed(1)}}% for ${{m.best_model}}. Since the simple baseline outperformed all ML models, it is recommended for this SKU.`;
+            expl += `On the 6-month test period, <strong style="color:var(--accent-green)">Baseline (3M SMA)</strong> achieved ${{m.baseline_fa.toFixed(1)}}% accuracy vs ${{(100 - bestMLMape).toFixed(1)}}% for ${{bestMLName}}. Since the simple baseline outperformed the best ML model for this SKU, it is recommended.`;
         }} else {{
-            expl += `On the 6-month test period, <strong style="color:var(--accent-green)">${{m.best_model}}</strong> achieved ${{m.ml_fa.toFixed(1)}}% accuracy, outperforming Baseline (3M SMA) at ${{m.baseline_fa.toFixed(1)}}%. The ML model is recommended.`;
+            expl += `On the 6-month test period, <strong style="color:var(--accent-green)">${{bestMLName}}</strong> achieved ${{(100 - bestMLMape).toFixed(1)}}% accuracy, outperforming Baseline (3M SMA) at ${{m.baseline_fa.toFixed(1)}}%. The ML model is recommended.`;
         }}
         expl += `</div>`;
-        expl += `<div><strong style="color:var(--text-primary)">6. Final training:</strong> The winning model was retrained on all 30 training months (train + validation) before generating the final test-period and future forecasts.</div>`;
+        expl += `<div><strong style="color:var(--text-primary)">6. Final training:</strong> All models were retrained on all 30 training months (train + validation) before generating the test-period and future forecasts.</div>`;
         document.getElementById('model-explanation').innerHTML = expl;
     }}
 
