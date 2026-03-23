@@ -104,21 +104,21 @@ def generate_html_dashboard(metrics_df, results_df, future_df, signals_df):
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
 :root {{
-    --accent-green: #34a853;
-    --accent-green-dim: rgba(52,168,83,0.08);
-    --accent-red: #d93025;
-    --accent-red-dim: rgba(217,48,37,0.06);
-    --accent-amber: #e37400;
-    --accent-amber-dim: rgba(227,116,0,0.06);
+    --accent-green: #2d8a4e;
+    --accent-green-dim: rgba(45,138,78,0.07);
+    --accent-red: #c4342b;
+    --accent-red-dim: rgba(196,52,43,0.06);
+    --accent-amber: #c76a00;
+    --accent-amber-dim: rgba(199,106,0,0.06);
     --accent-blue: #1a73e8;
     --text-primary: #1d1d1f;
     --text-secondary: #6e6e73;
     --text-muted: #aeaeb2;
-    --glass: rgba(255,255,255,0.78);
-    --glass-border: rgba(255,255,255,0.55);
-    --glass-strong: rgba(255,255,255,0.88);
-    --input-bg: rgba(255,255,255,0.7);
-    --hover-bg: rgba(255,255,255,0.5);
+    --glass: rgba(255,255,255,0.92);
+    --glass-border: rgba(0,0,0,0.06);
+    --glass-strong: rgba(255,255,255,0.96);
+    --input-bg: #ffffff;
+    --hover-bg: rgba(0,0,0,0.03);
     --shadow-sm: 0 1px 4px rgba(0,0,0,0.05);
     --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
     --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
@@ -128,13 +128,7 @@ def generate_html_dashboard(metrics_df, results_df, future_df, signals_df):
 * {{ margin:0; padding:0; box-sizing:border-box; }}
 body {{
     font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background: #d7dde4;
-    background-image:
-        radial-gradient(ellipse at 15% 10%, rgba(160,200,230,0.5) 0%, transparent 50%),
-        radial-gradient(ellipse at 85% 20%, rgba(180,195,220,0.45) 0%, transparent 45%),
-        radial-gradient(ellipse at 50% 80%, rgba(170,190,215,0.4) 0%, transparent 50%),
-        radial-gradient(ellipse at 20% 60%, rgba(190,205,225,0.35) 0%, transparent 40%);
-    background-attachment: fixed;
+    background: #f5f4f1;
     color: var(--text-primary);
     min-height: 100vh;
     line-height: 1.5;
@@ -225,10 +219,9 @@ body {{
     box-shadow: var(--shadow-md);
 }}
 .kpi-card .label {{
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0;
     color: var(--text-secondary);
     margin-bottom: 10px;
 }}
@@ -404,16 +397,7 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
 }}
 .two-col {{ display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }}
 .two-col > * {{ min-width: 0; overflow: hidden; }}
-/* Urgency-differentiated KPI cards */
-.kpi-card.urgent {{
-    background: rgba(255,248,248,0.8);
-    border-color: rgba(217,48,37,0.18);
-}}
-.kpi-card.healthy {{
-    background: rgba(248,255,250,0.8);
-    border-color: rgba(52,168,83,0.18);
-}}
-.kpi-card.healthy .value {{ font-size: 28px; }}
+/* KPI card variants removed — unified design */
 /* Searchable SKU selector */
 .sku-search-wrap {{
     position: relative;
@@ -454,10 +438,9 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
 .sku-opt-group {{
     padding: 6px 12px;
     font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0;
     color: var(--text-secondary);
-    background: rgba(245,245,247,0.7);
+    background: rgba(0,0,0,0.03);
     font-weight: 600;
 }}
 .sku-opt {{
@@ -549,12 +532,11 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
 }}
 /* Proactive AI briefing banner */
 .ai-briefing {{
-    background: rgba(246,254,248,0.82);
-    -webkit-backdrop-filter: var(--blur);
-    backdrop-filter: var(--blur);
-    border: 1px solid rgba(52,168,83,0.15);
-    border-radius: var(--radius);
-    padding: 20px 24px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-left: 3px solid var(--accent-amber);
+    border-radius: 4px var(--radius) var(--radius) 4px;
+    padding: 24px 28px;
     margin-bottom: 20px;
     box-shadow: var(--shadow-sm);
 }}
@@ -565,7 +547,7 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
     margin-bottom: 12px;
     font-size: 14px;
     font-weight: 600;
-    color: var(--accent-green);
+    color: var(--text-primary);
 }}
 .ai-briefing .briefing-body {{
     font-size: 13px;
@@ -741,14 +723,14 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
 .chat-header .chat-avatar {{
     width: 34px;
     height: 34px;
-    border-radius: 50%;
-    background: #1d1d1f;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.06);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
     font-size: 14px;
-    color: #fff;
+    color: var(--text-primary);
 }}
 .chat-header .chat-title {{
     flex: 1;
@@ -784,8 +766,8 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
 }}
 .chat-msg {{
     max-width: 88%;
-    padding: 10px 14px;
-    border-radius: 12px;
+    padding: 12px 16px;
+    border-radius: 14px;
     font-size: 13px;
     line-height: 1.5;
     word-wrap: break-word;
@@ -793,19 +775,18 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
 .chat-msg.bot {{
     align-self: flex-start;
     background: rgba(0,0,0,0.04);
-    border: none;
+    border: 1px solid rgba(0,0,0,0.04);
     color: var(--text-primary);
 }}
 .chat-msg.user {{
     align-self: flex-end;
-    background: #1d1d1f;
+    background: var(--text-primary);
     color: #fff;
     font-weight: 500;
 }}
 .chat-msg .msg-label {{
     font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
     margin-bottom: 4px;
     opacity: 0.7;
 }}
@@ -825,17 +806,19 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
     padding: 0 16px 12px;
 }}
 .chat-suggestion {{
-    background: rgba(0,0,0,0.04);
-    border: 1px solid rgba(0,0,0,0.06);
+    background: transparent;
+    border: 1px solid rgba(0,0,0,0.08);
     color: var(--text-secondary);
-    padding: 6px 12px;
+    padding: 6px 14px;
     border-radius: 20px;
     font-size: 11px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.15s;
 }}
 .chat-suggestion:hover {{
-    background: rgba(0,0,0,0.08);
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.12);
     color: var(--text-primary);
 }}
 
@@ -874,7 +857,7 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
     font-weight: 600;
     transition: background 0.15s;
 }}
-.chat-send:hover {{ background: #00c480; }}
+.chat-send:hover {{ background: #333; }}
 .typing-dots {{ display: inline-flex; gap: 3px; padding: 4px 0; }}
 .typing-dots span {{
     width: 6px; height: 6px; border-radius: 50%;
@@ -922,7 +905,7 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
     <button class="tab-btn" onclick="switchTab('risk')">Risk Flags</button>
     <button class="tab-btn" onclick="switchTab('recommend')">Model Recommendations</button>
     <button class="tab-btn" onclick="switchTab('safety')">Safety Stock</button>
-    <button class="tab-btn" onclick="toggleChat()" style="margin-left:auto; background:var(--accent-green); color:var(--navy); font-weight:700; border-radius:20px; padding:8px 18px;">Chat Assistant</button>
+    <button class="tab-btn" onclick="toggleChat()" style="margin-left:auto;">Assistant</button>
 </div>
 
 <!-- TAB 1: OVERVIEW -->
@@ -935,36 +918,35 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
             <div class="ai-briefing" id="ai-briefing-overview" style="margin-bottom:0"></div>
         </div>
         <div style="text-align:center;padding:24px 40px;min-width:260px">
-            <div style="font-size:10px;color:var(--text-secondary);margin-bottom:6px;letter-spacing:1.2px;text-transform:uppercase;font-weight:600" class="has-tooltip" data-tooltip="Difference between ML model and baseline (3-month SMA) forecast accuracy averaged across all SKUs">Forecast Accuracy Improvement</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;letter-spacing:0;font-weight:500" class="has-tooltip" data-tooltip="Difference between ML model and baseline (3-month SMA) forecast accuracy averaged across all SKUs">Forecast accuracy improvement</div>
             <div style="font-size:72px;font-weight:800;color:var(--accent-green);letter-spacing:-3px;line-height:1">+{avg_improvement}%</div>
             <div style="font-size:13px;color:var(--text-secondary);margin-top:10px">{skus_improved} of {total_skus} SKUs improved</div>
             <div style="display:inline-block;margin-top:10px;padding:5px 16px;border-radius:20px;background:rgba(0,214,143,0.08);font-size:12px;color:var(--accent-green);font-weight:600">Avg Accuracy: {avg_ml_fa}%</div>
         </div>
     </div>
 
-    <!-- Row 2: Risk cards -->
-    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;margin-bottom:24px">
-        <div class="kpi-card {'urgent' if num_at_risk > 0 else 'healthy'}" onclick="switchTab('risk')" style="cursor:pointer;padding:20px 24px">
-            <div class="label" style="font-weight:600;letter-spacing:0.3px;font-size:11px;color:{'var(--accent-red)' if num_at_risk > 0 else 'var(--accent-green)'}">{"&#9888; Forecast Risk" if num_at_risk > 0 else "&#10003; All Clear"}</div>
-            <div class="value" style="font-size:36px;color:{'var(--accent-red)' if num_at_risk > 0 else 'var(--accent-green)'}">{num_at_risk if num_at_risk > 0 else '0'}</div>
-            <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin:-2px 0 2px">SKUs at Risk</div>
-            <div class="sub" style="font-size:12px">{'Below 70% accuracy — review &#8594;' if num_at_risk > 0 else 'All above 70% threshold'}</div>
+    <!-- Row 2: Risk cards — unified design -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px">
+        <div class="kpi-card" onclick="switchTab('risk')" style="cursor:pointer">
+            <div class="label">Forecast risk</div>
+            <div class="value" style="font-size:36px;color:{'var(--accent-red)' if num_at_risk > 0 else 'var(--text-primary)'}">{num_at_risk}</div>
+            <div class="sub">{'SKUs below 70% accuracy' if num_at_risk > 0 else 'All SKUs above threshold'}</div>
         </div>
-        <div class="kpi-card {'urgent' if num_anomalies > 0 else 'healthy'}" style="padding:20px">
-            <div class="label" style="font-size:11px">{"&#9888; Signal Anomalies" if num_anomalies > 0 else "&#10003; Signals Normal"}</div>
-            <div class="value {'amber' if num_anomalies > 0 else ''}" style="font-size:{'36px' if num_anomalies > 0 else '28px'};{'color:var(--accent-green)' if num_anomalies == 0 else ''}">{num_anomalies if num_anomalies > 0 else '&#10003;'}</div>
-            <div class="sub">{'Environmental alerts' if num_anomalies > 0 else 'All normal'}</div>
+        <div class="kpi-card">
+            <div class="label">Signal anomalies</div>
+            <div class="value" style="font-size:36px;color:{'var(--accent-amber)' if num_anomalies > 0 else 'var(--text-primary)'}">{num_anomalies}</div>
+            <div class="sub">{'Active environmental alerts' if num_anomalies > 0 else 'All signals normal'}</div>
         </div>
-        <div class="kpi-card" onclick="switchTab('safety')" style="cursor:pointer;padding:20px">
-            <div class="label" style="font-size:11px">Safety Stock Saving</div>
-            <div class="value green" style="font-size:36px" id="overview-stock-reduction">—</div>
-            <div class="sub">Avg reduction via ML &#8594;</div>
+        <div class="kpi-card" onclick="switchTab('safety')" style="cursor:pointer">
+            <div class="label">Safety stock saving</div>
+            <div class="value" style="font-size:36px;color:var(--accent-green)" id="overview-stock-reduction">—</div>
+            <div class="sub">Avg reduction via ML</div>
         </div>
     </div>
 
     <!-- Row 3: Top Risks + Scatter side by side -->
     <div class="pool-filter-bar" id="pool-filter-bar" style="margin-bottom:16px">
-        <span style="font-size:11px;color:var(--text-secondary);font-weight:600;letter-spacing:0.5px;margin-right:4px">Demand Drivers</span>
+        <span style="font-size:11px;color:var(--text-secondary);font-weight:600;letter-spacing:0;margin-right:4px">Demand drivers</span>
         <div class="pool-pill active" onclick="setPoolFilter('all')" data-pool="all">All</div>
     </div>
 
@@ -1011,18 +993,18 @@ select:focus {{ outline: none; border-color: rgba(0,0,0,0.2); box-shadow: 0 0 0 
     <div class="tab-question"><strong>Forecast Risk Flags</strong></div>
     <div class="kpi-row">
         <div class="kpi-card">
-            <div class="label has-tooltip" data-tooltip="SKUs where ML Forecast Accuracy is below 70% — these need manual review or model retraining">At-Risk SKUs</div>
-            <div class="value" style="color:var(--accent-red)">{num_at_risk}</div>
+            <div class="label has-tooltip" data-tooltip="SKUs where ML forecast accuracy is below 70% — these need manual review or model retraining">At-risk SKUs</div>
+            <div class="value" style="font-size:36px;color:var(--accent-red)">{num_at_risk}</div>
             <div class="sub">Forecast accuracy below 70%</div>
         </div>
         <div class="kpi-card">
-            <div class="label has-tooltip" data-tooltip="External signals (AQI, temperature, rainfall, search trends) exceeding normal thresholds that may affect demand">Signal Anomalies</div>
-            <div class="value amber">{num_anomalies}</div>
+            <div class="label has-tooltip" data-tooltip="External signals (AQI, temperature, rainfall, search trends) exceeding normal thresholds that may affect demand">Signal anomalies</div>
+            <div class="value" style="font-size:36px;color:{'var(--accent-amber)' if num_anomalies > 0 else 'var(--text-primary)'}">{num_anomalies}</div>
             <div class="sub">Active environmental alerts</div>
         </div>
         <div class="kpi-card">
-            <div class="label has-tooltip" data-tooltip="Risk Score = (100 - ML Forecast Accuracy%) + MAPE Volatility. Higher = worse. Combines inaccuracy with unpredictability.">Highest Risk Score</div>
-            <div class="value" style="color:var(--accent-red)">{highest_risk}</div>
+            <div class="label has-tooltip" data-tooltip="Risk score = (100 - ML forecast accuracy%) + MAPE volatility. Higher = worse. Combines inaccuracy with unpredictability.">Highest risk score</div>
+            <div class="value" style="font-size:36px;color:var(--accent-red)">{highest_risk}</div>
             <div class="sub">{highest_risk_name}</div>
         </div>
     </div>
@@ -1114,24 +1096,22 @@ const futureData = {future_json};
 const tsData = {ts_json};
 
 const COLORS = {{
-    navy: '#f5f5f7',
-    navyLight: '#ffffff',
-    green: '#34a853',
+    green: '#2d8a4e',
     blue: '#1a73e8',
-    red: '#d93025',
-    amber: '#e37400',
+    red: '#c4342b',
+    amber: '#c76a00',
     text: '#1d1d1f',
-    textSec: '#86868b',
+    textSec: '#6e6e73',
     gridColor: 'rgba(0,0,0,0.06)',
 }};
 
 // Consistent signal pool color mapping — refined palette for light theme
 const POOL_COLORS = {{
     'AQI': '#c5221f',
-    'Temperature': '#e37400',
+    'Temperature': '#c76a00',
     'Monsoon': '#1a73e8',
     'Wedding': '#9334e6',
-    'GoogleTrends': '#34a853',
+    'GoogleTrends': '#2d8a4e',
 }};
 const POOL_COLORS_DIM = {{
     'AQI': 'rgba(197,34,31,0.08)',
@@ -1205,7 +1185,7 @@ function renderOverview() {{
         yaxis: {{ ...plotLayout.yaxis, title: 'Forecast Accuracy %', range: [0, 105] }},
         xaxis: {{ ...plotLayout.xaxis, title: '' }},
         legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.12, x: 0.5, xanchor: 'center' }},
-    }}, {{ responsive: true }});
+    }}, {{ responsive: true, displayModeBar: false }});
 
     // FA distribution — KDE density curves (Netflix/Stripe style)
     // Simple KDE using Gaussian kernel
@@ -1246,7 +1226,7 @@ function renderOverview() {{
         xaxis: {{ ...plotLayout.xaxis, title: 'Forecast Accuracy %' }},
         yaxis: {{ ...plotLayout.yaxis, title: 'Density', showticklabels: false }},
         legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.12, x: 0.5, xanchor: 'center' }},
-    }}, {{ responsive: true }});
+    }}, {{ responsive: true, displayModeBar: false }});
 
     // SKU scatter with quadrant shading
     const filteredMetrics = activePoolFilter === 'all' ? metricsData : metricsData.filter(m => m.signal_pool === activePoolFilter);
@@ -1302,7 +1282,7 @@ function renderOverview() {{
             x: 15, y: 5, text: '<b>Both Weak</b>', showarrow: false,
             font: {{ color: COLORS.amber, size: 12 }}, borderpad: 4,
         }}],
-    }}, {{ responsive: true }});
+    }}, {{ responsive: true, displayModeBar: false }});
 
     // Click-to-navigate: click a dot to open SKU detail
     document.getElementById('chart-sku-scatter').on('plotly_click', function(data) {{
@@ -1334,8 +1314,8 @@ function renderOverview() {{
     Plotly.newPlot('chart-model-distribution', [{{
         labels: modelNames, values: modelVals,
         type: 'pie', hole: 0.5,
-        marker: {{ colors: modelColors, line: {{ color: '#ffffff', width: 2 }} }},
-        textinfo: 'label+percent', textfont: {{ size: 12, color: COLORS.text }},
+        marker: {{ colors: modelColors, line: {{ color: 'rgba(255,255,255,0.9)', width: 2 }} }},
+        textinfo: 'none',
         hovertemplate: '<b>%{{label}}</b><br>%{{value}} SKUs (%{{percent}})<extra></extra>',
     }}], {{
         ...plotLayout,
@@ -1343,7 +1323,7 @@ function renderOverview() {{
         margin: {{ l: 20, r: 20, t: 10, b: 10 }},
         showlegend: true,
         legend: {{ ...plotLayout.legend, orientation: 'h', y: -0.1, x: 0.5, xanchor: 'center', font: {{ size: 11, color: COLORS.text }} }},
-    }}, {{ responsive: true }});
+    }}, {{ responsive: true, displayModeBar: false }});
 
     // ── All Candidates — Grouped Bar by Pool ──
     const allPools = [...new Set(metricsData.map(m => m.signal_pool))];
@@ -1372,7 +1352,7 @@ function renderOverview() {{
         yaxis: {{ ...plotLayout.yaxis, title: 'Validation Accuracy %', range: [0, 105] }},
         xaxis: {{ ...plotLayout.xaxis, title: '' }},
         legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.15, x: 0.5, xanchor: 'center', font: {{ size: 11 }} }},
-    }}, {{ responsive: true }});
+    }}, {{ responsive: true, displayModeBar: false }});
 }}
 
 // ---- TAB 2: RISK FLAGS ----
@@ -1380,25 +1360,25 @@ function renderRisk() {{
     // Anomaly alerts
     const alertContainer = document.getElementById('anomaly-alerts');
     if (anomaliesData.length === 0) {{
-        alertContainer.innerHTML = '<div class="chart-container" style="border-color:rgba(0,214,143,0.3);background:rgba(0,214,143,0.05)"><span style="color:var(--accent-green);font-weight:600">&#10003; No signal anomalies detected — all external indicators within normal range.</span></div>';
+        alertContainer.innerHTML = '<div class="chart-container" style="border-left:3px solid var(--accent-green);border-radius:4px 16px 16px 4px"><span style="color:var(--accent-green);font-weight:600">No signal anomalies detected — all external indicators within normal range.</span></div>';
     }} else {{
         alertContainer.innerHTML = anomaliesData.map(a =>
-            `<div class="alert-box"><span class="icon">&#9888;</span><span>${{a.message}}</span></div>`
+            `<div class="alert-box" style="border-left:3px solid var(--accent-amber);border-radius:4px 14px 14px 4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent-amber);flex-shrink:0"></span><span>${{a.message}}</span></div>`
         ).join('');
     }}
 
     // Risk table
     const tableContainer = document.getElementById('risk-table-container');
     if (riskData.length === 0) {{
-        tableContainer.innerHTML = '<div class="empty-state"><div class="empty-icon">&#10003;</div><h3>All SKUs Performing Well</h3><p>No SKUs are below the 70% forecast accuracy threshold. All models are within acceptable range.</p></div>';
+        tableContainer.innerHTML = '<div class="empty-state"><h3 style="color:var(--accent-green)">All SKUs performing well</h3><p>No SKUs are below the 70% forecast accuracy threshold. All models are within acceptable range.</p></div>';
     }} else {{
-        let html = '<table><thead><tr><th>SKU ID</th><th>SKU Name</th><th>Signal Pool</th><th>Class</th><th class="has-tooltip" data-tooltip="ML Forecast Accuracy — 100% minus MAPE. Higher is better.">ML Forecast Accuracy</th><th class="has-tooltip" data-tooltip="MAPE Volatility: Standard deviation of monthly MAPE values. Measures how erratic forecast errors are over time. Higher = less predictable.">MAPE Volatility</th><th class="has-tooltip" data-tooltip="Risk Score = (100 - ML FA%) + MAPE Volatility. Combines inaccuracy with unpredictability.">Risk Score</th><th>Severity</th></tr></thead><tbody>';
+        let html = '<table><thead><tr><th>SKU ID</th><th>SKU name</th><th>Signal pool</th><th>Class</th><th class="has-tooltip" data-tooltip="ML forecast accuracy — 100% minus MAPE. Higher is better.">ML forecast accuracy</th><th class="has-tooltip" data-tooltip="MAPE volatility: standard deviation of monthly MAPE values. Measures how erratic forecast errors are over time.">MAPE volatility</th><th class="has-tooltip" data-tooltip="Risk score = (100 &minus; ML FA%) + MAPE volatility. Combines inaccuracy with unpredictability. Higher = needs more attention.">Risk score <span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:rgba(0,0,0,0.06);font-size:9px;cursor:help;vertical-align:middle;margin-left:2px;border-bottom:none">i</span></th><th>Severity</th></tr></thead><tbody>';
         riskData.forEach(r => {{
             // Tiered severity: CRITICAL (FA<30%), HIGH (FA 30-50%), MODERATE (FA 50-70%)
             let badge, status;
-            if (r.ml_fa < 30) {{ badge = 'badge-red'; status = 'CRITICAL'; }}
-            else if (r.ml_fa < 50) {{ badge = 'badge-red'; status = 'HIGH'; }}
-            else {{ badge = 'badge-amber'; status = 'MODERATE'; }}
+            if (r.ml_fa < 30) {{ badge = 'badge-red'; status = 'Critical'; }}
+            else if (r.ml_fa < 50) {{ badge = 'badge-red'; status = 'High'; }}
+            else {{ badge = 'badge-amber'; status = 'Moderate'; }}
             html += `<tr style="cursor:pointer" onclick="navigateToSku('${{r.sku_id}}')" title="Click to view details in Model Recommendations">
                 <td style="font-weight:600">${{r.sku_id}}</td>
                 <td>${{r.sku_name}}</td>
@@ -1458,7 +1438,7 @@ function renderRisk() {{
             xaxis: {{ ...plotLayout.xaxis, title: 'ML Forecast Accuracy %' }},
             yaxis: {{ ...plotLayout.yaxis, title: 'Risk Score' }},
             showlegend: false,
-        }}, {{ responsive: true }});
+        }}, {{ responsive: true, displayModeBar: false }});
     }}
 }}
 
@@ -1624,37 +1604,37 @@ function updateRecommendation() {{
                 <!-- Pipeline Overview — 7 Steps -->
                 <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:20px;padding:16px 0">
                     <div style="text-align:center;padding:10px 4px;background:var(--input-bg);border-radius:10px 0 0 10px">
-                        <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 1</div>
+                        <div style="font-size:9px;letter-spacing:0;color:var(--text-muted);margin-bottom:3px">Step 1</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Split Data</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">24 / 6 / 6 mo</div>
                     </div>
                     <div style="text-align:center;padding:10px 4px;background:var(--input-bg)">
-                        <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 2</div>
+                        <div style="font-size:9px;letter-spacing:0;color:var(--text-muted);margin-bottom:3px">Step 2</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Features</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">12 inputs</div>
                     </div>
                     <div style="text-align:center;padding:10px 4px;background:var(--input-bg)">
-                        <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 3</div>
+                        <div style="font-size:9px;letter-spacing:0;color:var(--text-muted);margin-bottom:3px">Step 3</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Train</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">4 models</div>
                     </div>
                     <div style="text-align:center;padding:10px 4px;background:var(--input-bg)">
-                        <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 4</div>
+                        <div style="font-size:9px;letter-spacing:0;color:var(--text-muted);margin-bottom:3px">Step 4</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Validate</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">Rank &amp; ensemble</div>
                     </div>
                     <div style="text-align:center;padding:10px 4px;background:var(--input-bg)">
-                        <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 5</div>
+                        <div style="font-size:9px;letter-spacing:0;color:var(--text-muted);margin-bottom:3px">Step 5</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Retrain</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">30 months</div>
                     </div>
                     <div style="text-align:center;padding:10px 4px;background:var(--input-bg)">
-                        <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 6</div>
+                        <div style="font-size:9px;letter-spacing:0;color:var(--text-muted);margin-bottom:3px">Step 6</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Test &amp; Score</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">FA per model</div>
                     </div>
                     <div style="text-align:center;padding:10px 4px;background:var(--input-bg);border-radius:0 10px 10px 0">
-                        <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px">Step 7</div>
+                        <div style="font-size:9px;letter-spacing:0;color:var(--text-muted);margin-bottom:3px">Step 7</div>
                         <div style="font-size:11px;font-weight:600;color:var(--text-primary)">Recommend</div>
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px">Best wins</div>
                     </div>
@@ -1710,13 +1690,13 @@ function updateRecommendation() {{
 
                     <!-- Step 1 -->
                     <div style="background:rgba(255,255,255,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.5);border-radius:14px;padding:14px 16px;margin-bottom:8px">
-                        <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 1 &mdash; Chronological Data Split</div>
+                        <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">Step 1 &mdash; Chronological Data Split</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             36 months per SKU, split in time order (no shuffling):
                             <div style="display:flex;gap:0;margin:8px 0;border-radius:4px;overflow:hidden;font-size:10px;font-weight:600;text-align:center">
-                                <div style="flex:24;background:var(--accent-blue);color:#fff;padding:4px 0">Months 1–24 TRAIN</div>
-                                <div style="flex:6;background:#ffc107;color:#000;padding:4px 0">25–30 VAL</div>
-                                <div style="flex:6;background:var(--accent-green);color:#000;padding:4px 0">31–36 TEST</div>
+                                <div style="flex:24;background:var(--accent-blue);color:#fff;padding:4px 0">Months 1–24 Train</div>
+                                <div style="flex:6;background:#ffc107;color:#000;padding:4px 0">25–30 Val</div>
+                                <div style="flex:6;background:var(--accent-green);color:#fff;padding:4px 0">31–36 Test</div>
                             </div>
                             <strong style="color:var(--text-primary)">Train:</strong> Models learn here only.
                             <strong style="color:var(--text-primary)">Validation:</strong> Ranks models; never seen during training.
@@ -1726,7 +1706,7 @@ function updateRecommendation() {{
 
                     <!-- Step 2 -->
                     <div style="background:rgba(255,255,255,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.5);border-radius:14px;padding:14px 16px;margin-bottom:8px">
-                        <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 2 &mdash; Feature Engineering (12 Inputs)</div>
+                        <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">Step 2 &mdash; Feature Engineering (12 Inputs)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             Every model receives the same 12 features per month. No future data leaks — lags and rolling windows use only past values.
                             <table style="width:100%;margin:8px 0;font-size:10px;border-collapse:collapse">
@@ -1742,7 +1722,7 @@ function updateRecommendation() {{
 
                     <!-- Step 3 -->
                     <div style="background:rgba(255,255,255,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.5);border-radius:14px;padding:14px 16px;margin-bottom:8px">
-                        <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 3 &mdash; Train 4 Models (Months 1–24)</div>
+                        <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">Step 3 &mdash; Train 4 Models (Months 1–24)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             Fixed hyperparameters — no tuning on test data. <code style="font-size:10px;color:var(--text-primary)">random_state=42</code> ensures full reproducibility.
                             <table style="width:100%;margin:8px 0;font-size:10px;border-collapse:collapse">
@@ -1768,7 +1748,7 @@ function updateRecommendation() {{
 
                     <!-- Step 4 -->
                     <div style="background:rgba(255,255,255,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.5);border-radius:14px;padding:14px 16px;margin-bottom:8px">
-                        <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 4 &mdash; Validate &amp; Rank (Months 25–30)</div>
+                        <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">Step 4 &mdash; Validate &amp; Rank (Months 25–30)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             Each model predicts months 25–30 (never seen during training). Validation MAPE is computed:
                             <div style="background:rgba(0,0,0,0.03);border-radius:10px;padding:6px 10px;margin:6px 0;font-size:11px;color:var(--text-primary)">
@@ -1785,7 +1765,7 @@ function updateRecommendation() {{
 
                     <!-- Step 5 -->
                     <div style="background:rgba(255,255,255,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.5);border-radius:14px;padding:14px 16px;margin-bottom:8px">
-                        <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 5 &mdash; Retrain on Months 1–30</div>
+                        <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">Step 5 &mdash; Retrain on Months 1–30</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             After the winner is chosen, all models are retrained on the full 30 months (train + validation combined) to maximize learning before the final test. Predictions on months 31–36 are floored at 0 and rounded to whole units.
                         </div>
@@ -1793,7 +1773,7 @@ function updateRecommendation() {{
 
                     <!-- Step 6 -->
                     <div style="background:rgba(255,255,255,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.5);border-radius:14px;padding:14px 16px;margin-bottom:8px">
-                        <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 6 &mdash; Compute FA per Model (Months 31–36)</div>
+                        <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">Step 6 &mdash; Compute FA per Model (Months 31–36)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             For <strong>each model independently</strong> (GB, RF, ET, Ridge, and Baseline), on the held-out test period:
                             <div style="background:rgba(0,0,0,0.03);border-radius:10px;padding:8px 10px;margin:6px 0;font-size:11px;color:var(--text-primary);line-height:2">
@@ -1809,7 +1789,7 @@ function updateRecommendation() {{
 
                     <!-- Step 7 -->
                     <div style="background:rgba(255,255,255,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.5);border-radius:14px;padding:14px 16px;margin-bottom:8px">
-                        <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">STEP 7 &mdash; Recommendation (Purely Algorithmic)</div>
+                        <div style="font-size:11px;font-weight:600;color:var(--accent-green);margin-bottom:6px">Step 7 &mdash; Recommendation (Purely Algorithmic)</div>
                         <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
                             <div style="background:rgba(0,0,0,0.03);border-radius:10px;padding:6px 10px;margin:4px 0;font-size:11px;color:var(--text-primary)">
                                 IF Best_ML_FA &gt; Baseline_FA &rarr; Recommend best ML model<br>
@@ -1876,7 +1856,7 @@ function updateRecommendation() {{
             xaxis: {{ ...plotLayout.xaxis, title: 'Test-Period Accuracy (100 − MAPE %)', range: [0, 105] }},
             yaxis: {{ ...plotLayout.yaxis, title: '', automargin: true }},
             showlegend: false,
-        }}, {{ responsive: true }});
+        }}, {{ responsive: true, displayModeBar: false }});
 
         // Model selection summary text — uses per-SKU best ML model
         const chartBestMLName = mlNames[0];
@@ -1934,7 +1914,7 @@ function updateRecommendation() {{
             yaxis2: {{ ...plotLayout.yaxis, title: 'Precip (mm)', side: 'right', overlaying: 'y', showgrid: false }},
             legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.2, x: 0.5, xanchor: 'center', font: {{ size: 10, color: COLORS.text }} }},
             barmode: 'overlay',
-        }}, {{ responsive: true }});
+        }}, {{ responsive: true, displayModeBar: false }});
     }}
 
     // Model selection explanation — uses 'recommended' and 'baselineWins' for consistency
@@ -2000,7 +1980,7 @@ function updateRecommendation() {{
             xaxis: {{ ...plotLayout.xaxis, title: '' }},
             yaxis: {{ ...plotLayout.yaxis, title: 'Demand (units)' }},
             legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.12, x: 0.5, xanchor: 'center' }},
-        }}, {{ responsive: true }});
+        }}, {{ responsive: true, displayModeBar: false }});
     }}
 
     // Residual plot (forecast error over time)
@@ -2032,7 +2012,7 @@ function updateRecommendation() {{
             xaxis: {{ ...plotLayout.xaxis, title: '' }},
             yaxis: {{ ...plotLayout.yaxis, title: 'Error (units)' }},
             showlegend: false,
-        }}, {{ responsive: true }});
+        }}, {{ responsive: true, displayModeBar: false }});
     }}
 
     // Future forecast
@@ -2044,7 +2024,7 @@ function updateRecommendation() {{
         const avgRange = future.reduce((s, f) => s + (f.upper_bound - f.lower_bound), 0) / future.length;
         const ciPct = avgForecast > 0 ? (avgRange / avgForecast * 100) : 0;
         if (ciPct > 40) {{
-            ciWarning.innerHTML = '<div style="background:rgba(227,116,0,0.06);border:1px solid rgba(227,116,0,0.15);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--accent-amber)"><strong>&#9888; Wide confidence interval</strong> — CI spans &plusmn;' + (ciPct/2).toFixed(0) + '% of forecast. Consider manual review or additional signal inputs for this SKU.</div>';
+            ciWarning.innerHTML = '<div style="background:rgba(227,116,0,0.06);border:1px solid rgba(227,116,0,0.15);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--accent-amber)"><strong>Wide confidence interval</strong> — CI spans &plusmn;' + (ciPct/2).toFixed(0) + '% of forecast. Consider manual review or additional signal inputs for this SKU.</div>';
         }} else {{
             ciWarning.innerHTML = '';
         }}
@@ -2071,7 +2051,7 @@ function updateRecommendation() {{
             xaxis: {{ ...plotLayout.xaxis, title: '' }},
             yaxis: {{ ...plotLayout.yaxis, title: 'Forecasted Demand' }},
             legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.12, x: 0.5, xanchor: 'center' }},
-        }}, {{ responsive: true }});
+        }}, {{ responsive: true, displayModeBar: false }});
     }}
 
     // Forecast table
@@ -2170,7 +2150,7 @@ function updateSafetyStock() {{
                 <div style="font-size:12px;color:var(--text-secondary)">Safety Stock Reduction</div>
                 <div class="savings-badge">${{reduction.toFixed(1)}}% reduction</div>
             </div>
-            <div style="margin-top:16px;padding:12px;background:var(--navy);border-radius:8px;font-size:11px;color:var(--text-secondary)">
+            <div style="margin-top:16px;padding:12px;background:rgba(0,0,0,0.03);border-radius:8px;font-size:11px;color:var(--text-secondary)">
                 <strong>Formula:</strong> Safety Stock = Z &times; &sigma;<sub>error</sub> &times; &radic;Lead Time &nbsp;|&nbsp; Z = 1.65 (95% SL) &nbsp;|&nbsp; Lead Time = 30 days
             </div>
         </div>
@@ -2203,7 +2183,7 @@ function updateSafetyStock() {{
                     <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-secondary)"><span>-50%</span><span>+100%</span></div>
                 </div>
             </div>
-            <div id="sim-results" style="margin-top:16px;padding:16px;background:var(--navy);border-radius:10px"></div>
+            <div id="sim-results" style="margin-top:16px;padding:16px;background:rgba(0,0,0,0.03);border-radius:10px"></div>
         </div>
     </div>
     <div class="chart-container" style="margin-top:0">
@@ -2247,7 +2227,7 @@ function updateSafetyStock() {{
         yaxis: {{ ...plotLayout.yaxis, autorange: 'reversed' }},
         legend: {{ ...plotLayout.legend, orientation: 'h', y: 1.05, x: 0.5, xanchor: 'center' }},
         annotations: reductionAnnotations,
-    }}, {{ responsive: true }});
+    }}, {{ responsive: true, displayModeBar: false }});
 
     // Initialize simulator
     runSimulation();
@@ -2296,17 +2276,17 @@ function runSimulation() {{
     resultsEl.innerHTML = `
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center">
             <div>
-                <div style="font-size:10px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Simulated Safety Stock</div>
+                <div style="font-size:10px;color:var(--text-secondary);letter-spacing:0;font-weight:600">Simulated safety stock</div>
                 <div style="font-size:24px;font-weight:700;color:var(--accent-green);margin:4px 0">${{Math.round(simSS)}}</div>
                 <div style="font-size:11px;color:${{deltaColor}}">${{deltaSign}}${{Math.round(ssDelta)}} vs default</div>
             </div>
             <div>
-                <div style="font-size:10px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Holding Cost</div>
+                <div style="font-size:10px;color:var(--text-secondary);letter-spacing:0;font-weight:600">Holding cost</div>
                 <div style="font-size:24px;font-weight:700;color:var(--accent-blue);margin:4px 0">&#8377;${{simCost.toLocaleString()}}</div>
                 <div style="font-size:11px;color:${{deltaColor}}">${{deltaSign}}&#8377;${{Math.abs(costDelta).toLocaleString()}}</div>
             </div>
             <div>
-                <div style="font-size:10px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Stockout Risk</div>
+                <div style="font-size:10px;color:var(--text-secondary);letter-spacing:0;font-weight:600">Stockout risk</div>
                 <div style="font-size:24px;font-weight:700;color:${{sl < 90 ? COLORS.red : (sl < 95 ? COLORS.amber : COLORS.green)}};margin:4px 0">${{stockoutRisk}}%</div>
                 <div style="font-size:11px;color:var(--text-secondary)">${{sl >= 95 ? 'Low risk' : (sl >= 90 ? 'Moderate' : 'High risk')}}</div>
             </div>
@@ -2330,7 +2310,7 @@ function buildPoolFilterBar() {{
     const bar = document.getElementById('pool-filter-bar');
     if (!bar) return;
     const pools = [...new Set(metricsData.map(m => m.signal_pool))];
-    let html = `<span style="font-size:11px;color:var(--text-secondary);font-weight:600;letter-spacing:0.5px;margin-right:4px">Demand Drivers</span>`;
+    let html = `<span style="font-size:11px;color:var(--text-secondary);font-weight:600;letter-spacing:0;margin-right:4px">Demand drivers</span>`;
     html += `<div class="pool-pill active" onclick="setPoolFilter('all')" data-pool="all">All</div>`;
     pools.forEach(pool => {{
         html += `<div class="pool-pill" onclick="setPoolFilter('${{pool}}')" data-pool="${{pool}}"><span class="pill-dot" style="background:${{POOL_COLORS[pool] || COLORS.green}}"></span>${{pool}}</div>`;
@@ -2371,7 +2351,7 @@ function renderAiBriefing() {{
     let narrative = '';
     if (atRiskSkus.length > 0) {{
         const worst = atRiskSkus[0];
-        narrative += `<strong style="color:${{COLORS.red}}">&#9888; Key Insight:</strong> `;
+        narrative += `<strong style="color:${{COLORS.red}}">Key insight:</strong> `;
         narrative += `<strong>${{atRiskSkus.length}} SKUs</strong> have forecast accuracy below 70%. `;
         if (worstPool && worstPoolEntry[1].atRisk > 0) {{
             narrative += `${{worstPoolPct}}% of these belong to the <strong>${{worstPool}}</strong> signal pool, suggesting strong ${{worstPool.toLowerCase()}}-driven demand volatility. `;
@@ -2379,13 +2359,13 @@ function renderAiBriefing() {{
         narrative += `The worst performer is <strong>${{worst.sku_name}}</strong> at ${{worst.ml_fa.toFixed(1)}}% accuracy — `;
         narrative += `<a href="#" onclick="navigateToSku('${{worst.sku_id}}');return false" style="color:var(--accent-green);font-weight:600">investigate &#8594;</a>`;
     }} else {{
-        narrative += `<strong style="color:${{COLORS.green}}">&#10003; All clear.</strong> Every SKU is above the 70% forecast accuracy threshold.`;
+        narrative += `<strong style="color:${{COLORS.green}}">All clear.</strong> Every SKU is above the 70% forecast accuracy threshold.`;
     }}
 
     // Anomalies
     let anomalyLine = '';
     if (anomaliesData.length > 0) {{
-        anomalyLine = `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,0.06)"><strong style="color:${{COLORS.amber}}">&#9888; Active Signals:</strong> ${{anomaliesData.map(a => a.message).join(' | ')}}</div>`;
+        anomalyLine = `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,0.06)"><strong style="color:${{COLORS.amber}}">Active signals:</strong> ${{anomaliesData.map(a => a.message).join(' | ')}}</div>`;
     }}
 
     // Recommended Actions (new: "What should I do?")
@@ -2395,21 +2375,21 @@ function renderAiBriefing() {{
         if (worstPool) actions.push(`Review <strong>${{worstPool}}</strong> pool SKUs — <a href="#" onclick="setPoolFilter('${{worstPool}}');return false" style="color:var(--accent-green)">filter now</a>`);
         actions.push(`Increase safety stock for critical SKUs (FA < 30%) — <a href="#" onclick="switchTab('safety');return false" style="color:var(--accent-green)">optimizer</a>`);
         actions.push(`Investigate demand pattern shifts with sales team`);
-        actionsHtml = `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,0.06)">
-            <strong>Recommended Actions:</strong>
-            <div style="margin-top:4px">${{actions.map((a, i) => `<span style="color:var(--text-secondary);font-size:11px;margin-right:4px">${{i+1}}.</span> ${{a}}`).join('<span style="margin:0 8px;color:var(--card-border)">|</span>')}}</div>
+        actionsHtml = `<div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(0,0,0,0.06)">
+            <strong style="font-size:12px">Recommended actions</strong>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">${{actions.map(a => `<span style="display:inline-block;padding:6px 14px;border-radius:20px;background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.06);font-size:12px;line-height:1.4">${{a}}</span>`).join('')}}</div>
         </div>`;
     }}
 
     // Savings line
-    const savingsLine = `<div style="margin-top:8px"><strong style="color:${{COLORS.green}}">&#128176;</strong> ML safety stock saves <strong>${{ssSaving.toLocaleString()}} units</strong> — <a href="#" onclick="switchTab('safety');return false" style="color:var(--accent-green);font-weight:600">explore &#8594;</a></div>`;
+    const savingsLine = `<div style="margin-top:8px">ML safety stock saves <strong>${{ssSaving.toLocaleString()}} units</strong> — <a href="#" onclick="switchTab('safety');return false" style="color:var(--accent-green);font-weight:600">explore</a></div>`;
 
     el.innerHTML = `
         <div class="briefing-header" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="toggleBriefing()">
-            <span>&#9889; Intelligence Briefing</span>
+            <span>Intelligence briefing</span>
             <span id="briefing-toggle" style="font-size:11px;color:var(--text-secondary);font-weight:400">&#9660; Expand</span>
         </div>
-        <div style="font-size:12px;color:var(--text-secondary);margin-top:4px" id="briefing-summary">${{summaryLine}}</div>
+        <div style="font-size:13px;color:var(--text-secondary);margin-top:4px;line-height:1.6" id="briefing-summary">${{summaryLine}}</div>
         <div class="briefing-body" id="briefing-details" style="display:none;margin-top:10px">
             <div>${{narrative}}</div>
             ${{anomalyLine}}
@@ -2439,7 +2419,7 @@ function renderTopProblems() {{
                 <span style="font-weight:600;cursor:pointer;color:var(--text-primary);font-size:13px" onclick="navigateToSku('${{s.sku_id}}')">${{s.sku_name}}</span>
                 <div style="font-size:10px;color:var(--text-secondary);margin-top:1px">${{s.signal_pool}}</div>
             </div>
-            <div style="height:5px;border-radius:3px;background:var(--navy);overflow:hidden"><div style="height:100%;width:${{barWidth}}%;background:${{barColor}};border-radius:3px"></div></div>
+            <div style="height:5px;border-radius:3px;background:rgba(0,0,0,0.03);overflow:hidden"><div style="height:100%;width:${{barWidth}}%;background:${{barColor}};border-radius:3px"></div></div>
             <span style="font-weight:700;font-size:12px;text-align:right;color:${{barColor}}">${{s.ml_fa.toFixed(0)}}%</span>
         </div>`;
     }}).join('');
@@ -2675,7 +2655,7 @@ function findMentionedPool(q) {{
 function skuDetailResponse(m, q) {{
     const recommended = m.ml_fa > m.baseline_fa ? (m.best_model || 'ML Model') : 'Baseline (3M SMA)';
     const bestFA = Math.max(m.ml_fa, m.baseline_fa);
-    const riskStatus = m.ml_fa < 70 ? '<span style="color:#ff6b6b">&#9888; AT RISK</span>' : '<span style="color:#00d68f">&#10003; Healthy</span>';
+    const riskStatus = m.ml_fa < 70 ? '<span style="color:var(--accent-red)">At risk</span>' : '<span style="color:var(--accent-green)">Healthy</span>';
     const unitCost = m.abc_xyz.startsWith('B') ? 45 : 22;
     const bSS = m.baseline_safety_stock;
     const mSS = m.ml_safety_stock;
@@ -2732,9 +2712,9 @@ function riskResponse(q) {{
         .sort((a, b) => a.ml_fa - b.ml_fa);
 
     if (atRiskSkus.length === 0)
-        return "<strong style='color:#00d68f'>&#10003; Great news!</strong> No SKUs are currently below the 70% forecast accuracy threshold.";
+        return "<strong style='color:var(--accent-green)'>No SKUs at risk.</strong> All are currently above the 70% forecast accuracy threshold.";
 
-    let resp = `<strong style="color:#ff6b6b">&#9888; ${{atRiskSkus.length}} SKUs At Risk</strong> (FA < 70%)<br><br>`;
+    let resp = `<strong style="color:var(--accent-red)">${{atRiskSkus.length}} SKUs at risk</strong> (FA < 70%)<br><br>`;
 
     // Show top 5 worst
     const show = atRiskSkus.slice(0, 5);
@@ -2750,7 +2730,7 @@ function riskResponse(q) {{
     if (anomaliesData.length > 0) {{
         resp += `<br><br><strong>Active Signal Anomalies:</strong><br>`;
         anomaliesData.forEach(a => {{
-            resp += `&#9888; ${{a.message}}<br>`;
+            resp += `&#8226; ${{a.message}}<br>`;
         }});
     }}
 
@@ -2775,7 +2755,7 @@ function safetyStockResponse(q) {{
     let resp = `<strong>Safety Stock Optimization Summary</strong><br><br>`;
     resp += `&#8226; Total Baseline Safety Stock: <strong>${{Math.round(totalBaselineSS).toLocaleString()}}</strong> units<br>`;
     resp += `&#8226; Total ML-Optimized: <strong>${{Math.round(totalMlSS).toLocaleString()}}</strong> units<br>`;
-    resp += `&#8226; <strong style="color:#00d68f">Total Reduction: ${{Math.round(totalReduction).toLocaleString()}} units (${{avgReduction.toFixed(1)}}% avg)</strong><br><br>`;
+    resp += `&#8226; <strong style="color:var(--accent-green)">Total Reduction: ${{Math.round(totalReduction).toLocaleString()}} units (${{avgReduction.toFixed(1)}}% avg)</strong><br><br>`;
 
     resp += `<strong>Top Savers:</strong><br>`;
     sorted.slice(0, 5).forEach((s, i) => {{
@@ -2828,7 +2808,7 @@ function overviewResponse() {{
     let resp = `<strong>PharmaCast Dashboard Summary</strong><br><br>`;
     resp += `&#8226; <strong>${{metricsData.length}}</strong> SKUs monitored (BZ/CY/CZ segments)<br>`;
     resp += `&#8226; Avg Baseline Accuracy: <strong>${{avgBFA.toFixed(1)}}%</strong><br>`;
-    resp += `&#8226; Avg ML Accuracy: <strong style="color:#00d68f">${{avgMFA.toFixed(1)}}%</strong><br>`;
+    resp += `&#8226; Avg ML Accuracy: <strong style="color:var(--accent-green)">${{avgMFA.toFixed(1)}}%</strong><br>`;
     resp += `&#8226; Improvement: <strong>+${{(avgMFA - avgBFA).toFixed(1)}}%</strong><br>`;
     resp += `&#8226; SKUs improved: <strong>${{improved}}/${{metricsData.length}}</strong><br>`;
     resp += `&#8226; At-risk SKUs (FA<70%): <strong style="color:${{atRisk > 0 ? '#ff6b6b' : '#00d68f'}}">${{atRisk}}</strong><br>`;
@@ -2873,10 +2853,10 @@ function signalResponse(q) {{
     resp += `&#8226; <strong>Google Trends</strong> → Symptom-search linked<br><br>`;
 
     if (anomaliesData.length > 0) {{
-        resp += `<strong style="color:#ff6b6b">Active Anomalies:</strong><br>`;
+        resp += `<strong style="color:var(--accent-red)">Active Anomalies:</strong><br>`;
         anomaliesData.forEach(a => resp += `&#9888; ${{a.message}}<br>`);
     }} else {{
-        resp += `<strong style="color:#00d68f">&#10003; No signal anomalies detected.</strong> All environmental indicators are within normal range.`;
+        resp += `<strong style="color:var(--accent-green)">No signal anomalies detected.</strong> All environmental indicators are within normal range.`;
     }}
     return resp;
 }}
@@ -2889,7 +2869,7 @@ function explainResponse(q) {{
         return `<strong>Safety Stock Formula</strong><br><br>Safety Stock = Z &times; &sigma;<sub>forecast_error</sub> &times; &radic;Lead Time<br><br>&#8226; <strong>Z = 1.65</strong> (95% service level)<br>&#8226; <strong>&sigma;</strong> = standard deviation of forecast errors<br>&#8226; <strong>Lead Time = 30 days</strong><br><br>Better forecasts (lower &sigma;) directly reduce required safety stock, freeing up working capital.`;
 
     if (matchesAny(q, ['risk score']))
-        return `<strong>Risk Score</strong><br><br>Risk Score = (100 - ML_FA%) + MAPE_Volatility<br><br>Higher scores indicate SKUs that are both inaccurate and unpredictable. Scores above 60 are flagged as <span style="color:#ff6b6b">CRITICAL</span>.`;
+        return `<strong>Risk score</strong><br><br>Risk score = (100 - ML_FA%) + MAPE_Volatility<br><br>Higher scores indicate SKUs that are both inaccurate and unpredictable. Scores above 60 are flagged as <span style="color:var(--accent-red)">Critical</span>.`;
 
     if (matchesAny(q, ['abc', 'xyz', 'bz', 'cy', 'cz', 'class', 'segment']))
         return `<strong>ABC-XYZ Classification</strong><br><br><strong>ABC</strong> (value-based):<br>&#8226; A = high revenue, B = medium, C = low<br><br><strong>XYZ</strong> (variability-based):<br>&#8226; X = stable demand, Y = moderate variation, Z = highly erratic<br><br>This dashboard focuses on <strong>BZ, CY, CZ</strong> — medium-to-low value SKUs with high demand variability, which are hardest to forecast.`;
@@ -2918,14 +2898,14 @@ function forecastResponse(q) {{
 }}
 
 function helpResponse() {{
-    return `<strong>What I Can Help With</strong><br><br>` +
-        `&#128202; <strong>SKU lookup</strong> — "Tell me about Paracetamol" or "AQI-001 details"<br>` +
-        `&#9888;&#65039; <strong>Risk analysis</strong> — "Which SKUs are at risk?" or "Show critical items"<br>` +
-        `&#128200; <strong>Performance</strong> — "Best performing pool?" or "Top improvements"<br>` +
-        `&#128230; <strong>Safety stock</strong> — "Total safety stock savings" or "Biggest saver"<br>` +
-        `&#127777;&#65039; <strong>Signals</strong> — "Any signal anomalies?" or "AQI pool details"<br>` +
-        `&#128300; <strong>Explanations</strong> — "Explain MAPE" or "What is risk score?"<br>` +
-        `&#128302; <strong>Forecasts</strong> — "Forecast for Salbutamol" or "Next 3 months"<br><br>` +
+    return `<strong>What I can help with</strong><br><br>` +
+        `&#8226; <strong>SKU lookup</strong> — "Tell me about Paracetamol" or "AQI-001 details"<br>` +
+        `&#8226; <strong>Risk analysis</strong> — "Which SKUs are at risk?" or "Show critical items"<br>` +
+        `&#8226; <strong>Performance</strong> — "Best performing pool?" or "Top improvements"<br>` +
+        `&#8226; <strong>Safety stock</strong> — "Total safety stock savings" or "Biggest saver"<br>` +
+        `&#8226; <strong>Signals</strong> — "Any signal anomalies?" or "AQI pool details"<br>` +
+        `&#8226; <strong>Explanations</strong> — "Explain MAPE" or "What is risk score?"<br>` +
+        `&#8226; <strong>Forecasts</strong> — "Forecast for Salbutamol" or "Next 3 months"<br><br>` +
         `Just type naturally — I understand SKU names, IDs, pool names, and common supply chain terms!`;
 }}
 
@@ -2946,7 +2926,7 @@ function synthesisResponse(q) {{
     const worstPool = Object.entries(poolPerf).sort((a, b) => (b[1].atRisk/b[1].total) - (a[1].atRisk/a[1].total))[0];
     if (worstPool && worstPool[1].atRisk > 0) {{
         const pctAtRisk = (worstPool[1].atRisk / worstPool[1].total * 100).toFixed(0);
-        resp += `<strong style="color:#ff8787">Key Finding:</strong> The <strong>${{worstPool[0]}}</strong> pool has the highest concentration of at-risk SKUs (${{pctAtRisk}}% of pool is below 70% FA).<br><br>`;
+        resp += `<strong style="color:var(--accent-red)">Key Finding:</strong> The <strong>${{worstPool[0]}}</strong> pool has the highest concentration of at-risk SKUs (${{pctAtRisk}}% of pool is below 70% FA).<br><br>`;
 
         // Correlate with anomalies
         const poolAnomalies = anomaliesData.filter(a => a.pool === worstPool[0]);
