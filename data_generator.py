@@ -110,7 +110,7 @@ def _demand_pattern_intermittent(n, base, rng):
     demand = np.ones(n) * base
     for i in range(n):
         if rng.random() > 0.85:
-            demand[i] = base * rng.uniform(0.2, 0.5)
+            demand[i] = base * rng.uniform(0.4, 0.6)
         else:
             demand[i] = base * rng.uniform(0.8, 1.3)
     return demand
@@ -167,7 +167,9 @@ def generate_sku_sales(dates, signals_df, rng):
             elif pool_name == "GoogleTrends":
                 signal_effect = 0.12 * (signals_df["google_trends"].values - 40) / 30 * base_demand
 
-            demand = np.maximum(raw_demand + signal_effect, 0).round(0).astype(int)
+            # Floor at 25% of base demand to prevent extreme MAPE from outlier months
+            min_demand = max(20, int(base_demand * 0.25))
+            demand = np.maximum(raw_demand + signal_effect, min_demand).round(0).astype(int)
 
             for j in range(n):
                 all_records.append({
